@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Calendar, Bell, ArrowRight, Newspaper } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const events = [
   {
@@ -42,6 +43,7 @@ const news = [
 ];
 
 export const Events: React.FC = () => {
+  const { t } = useLanguage();
   return (
     <div className="pt-24 pb-16 bg-white">
       <div className="max-w-7xl mx-auto px-4">
@@ -49,7 +51,7 @@ export const Events: React.FC = () => {
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-12">
               <Calendar className="text-[#8B0000]" size={32} />
-              <h1 className="text-3xl font-bold text-[#8B0000]">Upcoming Events</h1>
+              <h1 className="text-3xl font-bold text-[#8B0000]">{t('event.title')}</h1>
             </div>
 
             <div className="space-y-8">
@@ -84,7 +86,7 @@ export const Events: React.FC = () => {
             <div className="bg-gray-50 p-8 rounded-3xl border border-gray-100">
               <div className="flex items-center gap-3 mb-8">
                 <Newspaper className="text-[#8B0000]" size={24} />
-                <h2 className="text-xl font-bold text-[#8B0000]">Latest News</h2>
+                <h2 className="text-xl font-bold text-[#8B0000]">{t('event.news')}</h2>
               </div>
 
               <div className="space-y-6">
@@ -98,14 +100,14 @@ export const Events: React.FC = () => {
                       {item.excerpt}
                     </p>
                     <button className="mt-3 text-[#8B0000] text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">
-                      Read More <ArrowRight size={10} />
+                      {t('welcome.more')} <ArrowRight size={10} />
                     </button>
                   </div>
                 ))}
               </div>
 
               <button className="w-full mt-8 py-3 bg-white border border-gray-200 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
-                <Bell size={16} /> View All News
+                <Bell size={16} /> {t('event.view.all')}
               </button>
             </div>
           </div>

@@ -1,8 +1,10 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Heart, CreditCard, Landmark, Copy } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export const Donate: React.FC = () => {
+  const { t } = useLanguage();
   const bankDetails = {
     accountName: "Shri Raghavendra Swamy Seva Trust",
     accountNumber: "1234567890",
@@ -28,10 +30,9 @@ export const Donate: React.FC = () => {
           >
             <Heart size={48} fill="currentColor" />
           </motion.div>
-          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">Support the Trust</h1>
+          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">{t('donate.title')}</h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Your generous contributions help us maintain the temple, conduct daily poojas, 
-            and support our various social activities including the Goshala.
+            {t('donate.desc')}
           </p>
         </div>
 
@@ -43,7 +44,7 @@ export const Donate: React.FC = () => {
           >
             <div className="flex items-center gap-3 mb-6 text-[#8B0000]">
               <Landmark size={24} />
-              <h2 className="text-xl font-bold">Bank Transfer</h2>
+              <h2 className="text-xl font-bold">{t('donate.bank.title')}</h2>
             </div>
             
             <div className="space-y-4">
@@ -71,7 +72,7 @@ export const Donate: React.FC = () => {
           >
             <div className="flex items-center gap-3 mb-6">
               <CreditCard size={24} />
-              <h2 className="text-xl font-bold">Online Payment</h2>
+              <h2 className="text-xl font-bold">{t('donate.online.title')}</h2>
             </div>
             
             <div className="bg-white p-4 rounded-xl mb-6 flex justify-center">
@@ -83,14 +84,13 @@ export const Donate: React.FC = () => {
             </div>
 
             <div className="text-center">
-              <p className="text-sm opacity-80 mb-2">Scan QR code to pay via any UPI app</p>
+              <p className="text-sm opacity-80 mb-2">{t('donate.online.scan')}</p>
               <p className="font-mono font-bold text-lg tracking-wider">UPI ID: {bankDetails.upiId}</p>
             </div>
 
             <div className="mt-8 pt-8 border-t border-white/10">
               <p className="text-xs opacity-60 leading-relaxed">
-                * All donations are exempt under section 80G of the Income Tax Act. 
-                Please share your transaction details to our email for the receipt.
+                {t('donate.note')}
               </p>
             </div>
           </motion.div>

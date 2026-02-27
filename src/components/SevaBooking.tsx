@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { User, BookOpen, FileText, CreditCard, ChevronRight, ChevronLeft, CheckCircle } from 'lucide-react';
 import { Seva, BookingData } from '../types';
+import { useLanguage } from '../context/LanguageContext';
 
 interface SevaBookingProps {
   selectedSeva: Seva;
@@ -11,6 +12,7 @@ interface SevaBookingProps {
 
 export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComplete, onCancel }) => {
   const [step, setStep] = useState(1);
+  const { t } = useLanguage();
   const [formData, setFormData] = useState<Partial<BookingData>>({
     seva: selectedSeva,
     userDetails: {
@@ -50,10 +52,10 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
   const renderStepIndicator = () => (
     <div className="flex items-center justify-center mb-12">
       {[
-        { id: 1, icon: <User size={18} />, label: 'User Details' },
-        { id: 2, icon: <BookOpen size={18} />, label: 'Pooja Info' },
-        { id: 3, icon: <FileText size={18} />, label: 'Summary' },
-        { id: 4, icon: <CreditCard size={18} />, label: 'Payment' },
+        { id: 1, icon: <User size={18} />, label: t('booking.steps.user') },
+        { id: 2, icon: <BookOpen size={18} />, label: t('booking.steps.pooja') },
+        { id: 3, icon: <FileText size={18} />, label: t('booking.steps.summary') },
+        { id: 4, icon: <CreditCard size={18} />, label: t('booking.steps.payment') },
       ].map((s, i) => (
         <React.Fragment key={s.id}>
           <div className="flex flex-col items-center relative">
@@ -85,58 +87,58 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
     >
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Full Name*</label>
+          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('booking.form.name')}</label>
           <input
             type="text"
             required
             value={formData.userDetails?.name}
             onChange={(e) => updateUserDetails('name', e.target.value)}
             className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
-            placeholder="Enter your name"
+            placeholder={t('booking.form.name.placeholder')}
           />
         </div>
         <div>
-          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Phone Number*</label>
+          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('booking.form.phone')}</label>
           <input
             type="tel"
             required
             value={formData.userDetails?.phone}
             onChange={(e) => updateUserDetails('phone', e.target.value)}
             className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
-            placeholder="Enter your phone"
+            placeholder={t('booking.form.phone.placeholder')}
           />
         </div>
       </div>
       <div>
-        <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Email Address*</label>
+        <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('booking.form.email')}</label>
         <input
           type="email"
           required
           value={formData.userDetails?.email}
           onChange={(e) => updateUserDetails('email', e.target.value)}
           className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
-          placeholder="Enter your email"
+          placeholder={t('booking.form.email.placeholder')}
         />
       </div>
       <div>
-        <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Address*</label>
+        <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('booking.form.address')}</label>
         <textarea
           required
           rows={3}
           value={formData.userDetails?.address}
           onChange={(e) => updateUserDetails('address', e.target.value)}
           className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all resize-none"
-          placeholder="Enter your full address"
+          placeholder={t('booking.form.address.placeholder')}
         ></textarea>
       </div>
       <div className="flex justify-between pt-8">
-        <button onClick={onCancel} className="text-gray-400 font-bold hover:text-gray-600 transition-colors">Cancel</button>
+        <button onClick={onCancel} className="text-gray-400 font-bold hover:text-gray-600 transition-colors">{t('booking.btn.cancel')}</button>
         <button
           onClick={nextStep}
           disabled={!formData.userDetails?.name || !formData.userDetails?.phone || !formData.userDetails?.email || !formData.userDetails?.address}
           className="bg-[#8B0000] text-white px-10 py-4 rounded-full font-bold hover:bg-[#6B0000] transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Next Step <ChevronRight size={18} />
+          {t('booking.btn.next')} <ChevronRight size={18} />
         </button>
       </div>
     </motion.div>
@@ -149,10 +151,10 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
       exit={{ opacity: 0, x: -20 }}
       className="space-y-6"
     >
-      <h3 className="text-xl font-bold text-[#8B0000] mb-6">Pooja Information</h3>
+      <h3 className="text-xl font-bold text-[#8B0000] mb-6">{t('booking.pooja.title')}</h3>
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Seva Date*</label>
+          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('booking.pooja.date')}</label>
           <input
             type="date"
             required
@@ -162,7 +164,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
           />
         </div>
         <div>
-          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Number of Seva*</label>
+          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('booking.pooja.count')}</label>
           <input
             type="number"
             min="1"
@@ -175,7 +177,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
       </div>
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Gothra</label>
+          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('booking.pooja.gothra')}</label>
           <input
             type="text"
             value={formData.poojaDetails?.gothra}
@@ -185,7 +187,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
           />
         </div>
         <div>
-          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Nakshathra</label>
+          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('booking.pooja.nakshathra')}</label>
           <input
             type="text"
             value={formData.poojaDetails?.nakshathra}
@@ -197,7 +199,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
       </div>
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Rashi</label>
+          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('booking.pooja.rashi')}</label>
           <input
             type="text"
             value={formData.poojaDetails?.rashi}
@@ -207,7 +209,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
           />
         </div>
         <div>
-          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Vedha</label>
+          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('booking.pooja.vedha')}</label>
           <input
             type="text"
             value={formData.poojaDetails?.vedha}
@@ -218,25 +220,25 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
         </div>
       </div>
       <div>
-        <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Message (optional)</label>
+        <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('booking.pooja.message')}</label>
         <textarea
           rows={3}
           value={formData.poojaDetails?.message}
           onChange={(e) => updatePoojaDetails('message', e.target.value)}
           className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all resize-none"
-          placeholder="Any special instructions"
+          placeholder={t('booking.pooja.message.placeholder')}
         ></textarea>
       </div>
       <div className="flex justify-between pt-8">
         <button onClick={prevStep} className="flex items-center gap-2 text-gray-400 font-bold hover:text-gray-600 transition-colors">
-          <ChevronLeft size={18} /> Back
+          <ChevronLeft size={18} /> {t('booking.btn.back')}
         </button>
         <button
           onClick={nextStep}
           disabled={!formData.poojaDetails?.date}
           className="bg-[#8B0000] text-white px-10 py-4 rounded-full font-bold hover:bg-[#6B0000] transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Next Step <ChevronRight size={18} />
+          {t('booking.btn.next')} <ChevronRight size={18} />
         </button>
       </div>
     </motion.div>
@@ -250,45 +252,45 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
       className="space-y-8"
     >
       <div className="bg-gray-50 p-8 rounded-3xl border border-gray-100">
-        <h3 className="text-xl font-bold text-[#8B0000] mb-6">Booking Summary</h3>
+        <h3 className="text-xl font-bold text-[#8B0000] mb-6">{t('booking.summary.title')}</h3>
         
         <div className="grid md:grid-cols-2 gap-8">
           <div className="space-y-4">
-            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest">User Details</h4>
+            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('booking.steps.user')}</h4>
             <div className="text-sm space-y-2">
-              <p><span className="font-bold">Name:</span> {formData.userDetails?.name}</p>
-              <p><span className="font-bold">Phone:</span> {formData.userDetails?.phone}</p>
-              <p><span className="font-bold">Email:</span> {formData.userDetails?.email}</p>
-              <p><span className="font-bold">Address:</span> {formData.userDetails?.address}</p>
+              <p><span className="font-bold">{t('booking.form.name')}:</span> {formData.userDetails?.name}</p>
+              <p><span className="font-bold">{t('booking.form.phone')}:</span> {formData.userDetails?.phone}</p>
+              <p><span className="font-bold">{t('booking.form.email')}:</span> {formData.userDetails?.email}</p>
+              <p><span className="font-bold">{t('booking.form.address')}:</span> {formData.userDetails?.address}</p>
             </div>
           </div>
           <div className="space-y-4">
-            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Pooja Details</h4>
+            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('booking.steps.pooja')}</h4>
             <div className="text-sm space-y-2">
               <p><span className="font-bold">Seva:</span> {formData.seva?.name}</p>
-              <p><span className="font-bold">Date:</span> {formData.poojaDetails?.date}</p>
-              <p><span className="font-bold">Quantity:</span> {formData.poojaDetails?.count}</p>
-              <p><span className="font-bold">Gothra:</span> {formData.poojaDetails?.gothra || '-'}</p>
-              <p><span className="font-bold">Nakshathra:</span> {formData.poojaDetails?.nakshathra || '-'}</p>
+              <p><span className="font-bold">{t('booking.pooja.date')}:</span> {formData.poojaDetails?.date}</p>
+              <p><span className="font-bold">{t('booking.pooja.count')}:</span> {formData.poojaDetails?.count}</p>
+              <p><span className="font-bold">{t('booking.pooja.gothra')}:</span> {formData.poojaDetails?.gothra || '-'}</p>
+              <p><span className="font-bold">{t('booking.pooja.nakshathra')}:</span> {formData.poojaDetails?.nakshathra || '-'}</p>
             </div>
           </div>
         </div>
 
         <div className="mt-8 pt-8 border-t border-gray-200 flex justify-between items-center">
-          <p className="text-gray-500">Total Amount Payable:</p>
+          <p className="text-gray-500">{t('booking.summary.total')}:</p>
           <p className="text-3xl font-bold text-[#8B0000]">₹{(formData.seva?.price || 0) * (formData.poojaDetails?.count || 1)}</p>
         </div>
       </div>
 
       <div className="flex justify-between pt-8">
         <button onClick={prevStep} className="flex items-center gap-2 text-gray-400 font-bold hover:text-gray-600 transition-colors">
-          <ChevronLeft size={18} /> Back
+          <ChevronLeft size={18} /> {t('booking.btn.back')}
         </button>
         <button
           onClick={nextStep}
           className="bg-[#8B0000] text-white px-10 py-4 rounded-full font-bold hover:bg-[#6B0000] transition-all shadow-lg flex items-center gap-2"
         >
-          Proceed to Payment <ChevronRight size={18} />
+          {t('booking.btn.payment')} <ChevronRight size={18} />
         </button>
       </div>
     </motion.div>
@@ -303,9 +305,9 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
       <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-8">
         <CreditCard size={40} />
       </div>
-      <h3 className="text-2xl font-bold text-gray-800 mb-4">Payment Integration</h3>
+      <h3 className="text-2xl font-bold text-gray-800 mb-4">{t('booking.payment.title')}</h3>
       <p className="text-gray-500 mb-12 max-w-md mx-auto">
-        You are being redirected to our secure payment gateway to complete the transaction of 
+        {t('booking.payment.desc')}
         <span className="font-bold text-[#8B0000]"> ₹{(formData.seva?.price || 0) * (formData.poojaDetails?.count || 1)}</span>.
       </p>
       
@@ -320,7 +322,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
         </button>
       </div>
 
-      <button onClick={prevStep} className="text-gray-400 font-bold hover:text-gray-600 transition-colors">Go Back</button>
+      <button onClick={prevStep} className="text-gray-400 font-bold hover:text-gray-600 transition-colors">{t('booking.btn.back')}</button>
     </motion.div>
   );
 
@@ -330,11 +332,11 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
         <div className="bg-white p-8 md:p-12 rounded-[40px] shadow-2xl border border-gray-50">
           <div className="flex items-center justify-between mb-12">
             <div>
-              <h2 className="text-3xl font-bold text-[#8B0000] mb-2">Book Seva</h2>
+              <h2 className="text-3xl font-bold text-[#8B0000] mb-2">{t('booking.title')}</h2>
               <p className="text-gray-400 font-medium">{selectedSeva.name}</p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-gray-400 uppercase tracking-widest font-bold">Price</p>
+              <p className="text-xs text-gray-400 uppercase tracking-widest font-bold">{t('booking.price')}</p>
               <p className="text-2xl font-bold text-[#8B0000]">₹{selectedSeva.price}</p>
             </div>
           </div>

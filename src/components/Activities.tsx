@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Heart, Info, BookOpen, Globe } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const goshalaImages = [
   'https://picsum.photos/seed/cow1/800/600',
@@ -10,6 +11,7 @@ const goshalaImages = [
 
 export const Activities: React.FC = () => {
   const [currentImg, setCurrentImg] = useState(0);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -22,9 +24,9 @@ export const Activities: React.FC = () => {
     <div className="pt-24 pb-16 bg-white">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">Our Activities</h1>
+          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">{t('act.title')}</h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Beyond spiritual rituals, we are committed to social welfare and preservation of our cultural values.
+            {t('act.desc')}
           </p>
         </div>
 
@@ -49,20 +51,20 @@ export const Activities: React.FC = () => {
           <div>
             <div className="inline-flex items-center gap-2 text-emerald-600 font-bold uppercase tracking-widest text-sm mb-4">
               <Heart size={16} />
-              <span>Goshala Seva</span>
+              <span>{t('act.goshala.label')}</span>
             </div>
-            <h2 className="text-3xl font-bold text-[#8B0000] mb-6">Preserving the Sacred Cow</h2>
+            <h2 className="text-3xl font-bold text-[#8B0000] mb-6">{t('act.goshala.title')}</h2>
             <p className="text-gray-600 leading-relaxed mb-8">
-              Our Goshala is home to over 50 indigenous cows. We provide them with nutritious fodder, clean water, and medical care. Godhana Seva is considered one of the most meritorious acts in our tradition.
+              {t('act.goshala.desc')}
             </p>
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
                 <p className="text-2xl font-bold text-emerald-700 mb-1">50+</p>
-                <p className="text-xs text-emerald-600 font-bold uppercase">Cows Protected</p>
+                <p className="text-xs text-emerald-600 font-bold uppercase">{t('act.goshala.cows')}</p>
               </div>
               <div className="p-4 bg-orange-50 rounded-xl border border-orange-100">
                 <p className="text-2xl font-bold text-orange-700 mb-1">Daily</p>
-                <p className="text-xs text-orange-600 font-bold uppercase">Fresh Fodder</p>
+                <p className="text-xs text-orange-600 font-bold uppercase">{t('act.goshala.fodder')}</p>
               </div>
             </div>
           </div>
@@ -72,18 +74,18 @@ export const Activities: React.FC = () => {
           {[
             {
               icon: <Globe className="text-blue-600" size={32} />,
-              title: "Virtual Seva",
-              desc: "Participate in poojas and rituals from anywhere in the world through our live streaming services."
+              title: t('act.virtual.title'),
+              desc: t('act.virtual.desc')
             },
             {
               icon: <BookOpen className="text-purple-600" size={32} />,
-              title: "Veda Patashala",
-              desc: "Traditional education for young students to preserve and propagate our ancient Vedic knowledge."
+              title: t('act.veda.title'),
+              desc: t('act.veda.desc')
             },
             {
               icon: <Info className="text-yellow-600" size={32} />,
-              title: "Social Welfare",
-              desc: "Free medical camps, educational support for the needy, and community feeding programs."
+              title: t('act.social.title'),
+              desc: t('act.social.desc')
             }
           ].map((item, i) => (
             <motion.div

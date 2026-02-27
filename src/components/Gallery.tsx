@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Image as ImageIcon, Video, FileText, X, Maximize2 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const photos = [
   'https://picsum.photos/seed/gall1/800/600',
@@ -14,17 +15,18 @@ const photos = [
 export const Gallery: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'photos' | 'videos' | 'souvenirs'>('photos');
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   return (
     <div className="pt-24 pb-16 bg-white min-h-screen">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">Gallery</h1>
+          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">{t('nav.gallery')}</h1>
           <div className="flex justify-center gap-4 mt-8">
             {[
-              { id: 'photos', label: 'Photos', icon: <ImageIcon size={18} /> },
-              { id: 'videos', label: 'Videos', icon: <Video size={18} /> },
-              { id: 'souvenirs', label: 'Souvenirs', icon: <FileText size={18} /> },
+              { id: 'photos', label: t('gallery.photos'), icon: <ImageIcon size={18} /> },
+              { id: 'videos', label: t('gallery.videos'), icon: <Video size={18} /> },
+              { id: 'souvenirs', label: t('gallery.souvenirs'), icon: <FileText size={18} /> },
             ].map((tab) => (
               <button
                 key={tab.id}

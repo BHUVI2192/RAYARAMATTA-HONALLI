@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const images = [
   'https://picsum.photos/seed/temple1/1920/1080',
@@ -11,6 +12,7 @@ const images = [
 
 export const Hero: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -46,7 +48,7 @@ export const Hero: React.FC = () => {
           transition={{ delay: 0.5 }}
           className="text-3xl md:text-6xl font-bold mb-4 drop-shadow-lg"
         >
-          Rayara Matta Honali
+          {t('hero.title')}
         </motion.h2>
         <motion.p 
           initial={{ y: 20, opacity: 0 }}
@@ -54,7 +56,7 @@ export const Hero: React.FC = () => {
           transition={{ delay: 0.7 }}
           className="text-lg md:text-2xl max-w-2xl font-light italic opacity-90"
         >
-          "Om Sri Raghavendraya Namaha"
+          {t('hero.mantra')}
         </motion.p>
       </div>
 

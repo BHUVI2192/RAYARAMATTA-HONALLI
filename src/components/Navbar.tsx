@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Menu, X, ChevronRight } from 'lucide-react';
+import { Menu, X, ChevronRight, Languages } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface NavbarProps {
   onNavigate: (page: string) => void;
@@ -9,17 +10,18 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { language, toggleLanguage, t } = useLanguage();
 
   const menuItems = [
-    { id: 'home', label: 'Home' },
-    { id: 'about', label: 'About Us' },
-    { id: 'activities', label: 'Activities' },
-    { id: 'poojas', label: 'Poojas' },
-    { id: 'events', label: 'Events' },
-    { id: 'gallery', label: 'Gallery' },
-    { id: 'slokas', label: 'Slokas' },
-    { id: 'contact', label: 'Contact & Feedback' },
-    { id: 'donate', label: 'Donate' },
+    { id: 'home', label: t('nav.home') },
+    { id: 'about', label: t('nav.about') },
+    { id: 'activities', label: t('nav.activities') },
+    { id: 'poojas', label: t('nav.poojas') },
+    { id: 'events', label: t('nav.events') },
+    { id: 'gallery', label: t('nav.gallery') },
+    { id: 'slokas', label: t('nav.slokas') },
+    { id: 'contact', label: t('nav.contact') },
+    { id: 'donate', label: t('nav.donate') },
   ];
 
   const handleNavigate = (id: string) => {
@@ -38,18 +40,27 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
           <div className="flex flex-col">
-            <h1 className="text-lg md:text-xl font-bold leading-tight">Shri Raghavendra Seva Trust Honali</h1>
-            <p className="text-[10px] md:text-xs opacity-80 uppercase tracking-wider">Rayara Matta Honali</p>
+            <h1 className="text-lg md:text-xl font-bold leading-tight">{t('nav.title')}</h1>
+            <p className="text-[10px] md:text-xs opacity-80 uppercase tracking-wider">{t('nav.subtitle')}</p>
           </div>
         </div>
         
-        <div className="hidden md:flex items-center gap-6">
-          <button 
-            onClick={() => handleNavigate('donate')}
-            className="bg-yellow-500 hover:bg-yellow-600 text-[#8B0000] px-4 py-1.5 rounded-full font-bold text-sm transition-all transform hover:scale-105"
+        <div className="flex items-center gap-4">
+          <button
+            onClick={toggleLanguage}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-all text-sm font-medium border border-white/20"
           >
-            Donate
+            <Languages size={16} />
+            <span>{language === 'en' ? 'ಕನ್ನಡ' : 'English'}</span>
           </button>
+          <div className="hidden md:flex items-center gap-6">
+            <button 
+              onClick={() => handleNavigate('donate')}
+              className="bg-yellow-500 hover:bg-yellow-600 text-[#8B0000] px-4 py-1.5 rounded-full font-bold text-sm transition-all transform hover:scale-105"
+            >
+              {t('nav.donate')}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -71,7 +82,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
               className="fixed top-0 left-0 bottom-0 w-72 bg-white text-[#8B0000] z-50 shadow-2xl overflow-y-auto"
             >
               <div className="p-6 border-bottom border-gray-100 flex justify-between items-center bg-[#8B0000] text-white">
-                <h2 className="font-bold text-lg">Menu</h2>
+                <h2 className="font-bold text-lg">{t('nav.menu')}</h2>
                 <button onClick={() => setIsOpen(false)}><X size={24} /></button>
               </div>
               <div className="py-4">
@@ -89,7 +100,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
                 ))}
               </div>
               <div className="p-6 text-center">
-                <p className="text-xs text-gray-400">© 2024 Shri Raghavendra Seva Trust Honali</p>
+                <p className="text-xs text-gray-400">© 2024 {t('nav.title')}</p>
               </div>
             </motion.div>
           </>

@@ -1,25 +1,27 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MapPin, Phone, Mail, Clock, Send, Star, MessageSquare, ThumbsUp } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export const ContactFeedback: React.FC = () => {
   const [activeForm, setActiveForm] = useState<'message' | 'feedback'>('message');
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
+  const { t } = useLanguage();
 
   return (
     <div className="pt-24 pb-16 bg-white min-h-screen">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">Contact & Feedback</h1>
-          <p className="text-gray-600">We are here to assist you and value your thoughts</p>
+          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">{t('contact.title')}</h1>
+          <p className="text-gray-600">{t('contact.subtitle')}</p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Left Column: Contact Info */}
           <div className="lg:col-span-1 space-y-8">
             <div className="bg-gray-50 p-8 rounded-3xl border border-gray-100">
-              <h3 className="text-xl font-bold text-[#8B0000] mb-8">Get in Touch</h3>
+              <h3 className="text-xl font-bold text-[#8B0000] mb-8">{t('contact.getInTouch')}</h3>
               
               <div className="space-y-6">
                 <div className="flex gap-4">
@@ -27,7 +29,7 @@ export const ContactFeedback: React.FC = () => {
                     <MapPin size={24} />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400 font-bold uppercase mb-1">Address</p>
+                    <p className="text-xs text-gray-400 font-bold uppercase mb-1">{t('contact.address')}</p>
                     <p className="text-sm text-gray-700 leading-relaxed">
                       Venkateswara Nagar (West), Honali, Karnataka - 577217
                     </p>
@@ -39,7 +41,7 @@ export const ContactFeedback: React.FC = () => {
                     <Phone size={24} />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400 font-bold uppercase mb-1">Phone</p>
+                    <p className="text-xs text-gray-400 font-bold uppercase mb-1">{t('contact.phone')}</p>
                     <p className="text-sm text-gray-700">+91 99403 83604</p>
                     <p className="text-sm text-gray-700">+91 72993 17877</p>
                   </div>
@@ -50,7 +52,7 @@ export const ContactFeedback: React.FC = () => {
                     <Mail size={24} />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400 font-bold uppercase mb-1">Email</p>
+                    <p className="text-xs text-gray-400 font-bold uppercase mb-1">{t('contact.email')}</p>
                     <p className="text-sm text-gray-700">honali.mutt@gmail.com</p>
                   </div>
                 </div>
@@ -60,7 +62,7 @@ export const ContactFeedback: React.FC = () => {
             <div className="bg-[#8B0000] text-white p-8 rounded-3xl shadow-xl">
               <div className="flex items-center gap-3 mb-6">
                 <Clock size={24} className="text-yellow-500" />
-                <h3 className="text-xl font-bold">Office Hours</h3>
+                <h3 className="text-xl font-bold">{t('contact.officeHours')}</h3>
               </div>
               <div className="space-y-3 text-sm opacity-80">
                 <div className="flex justify-between">
@@ -87,7 +89,7 @@ export const ContactFeedback: React.FC = () => {
                   }`}
                 >
                   <Send size={18} />
-                  Send Message
+                  {t('contact.tabs.message')}
                 </button>
                 <button
                   onClick={() => setActiveForm('feedback')}
@@ -98,7 +100,7 @@ export const ContactFeedback: React.FC = () => {
                   }`}
                 >
                   <MessageSquare size={18} />
-                  Give Feedback
+                  {t('contact.tabs.feedback')}
                 </button>
               </div>
 
@@ -110,44 +112,44 @@ export const ContactFeedback: React.FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                   >
-                    <h3 className="text-2xl font-bold text-[#8B0000] mb-8">Send a Message</h3>
+                    <h3 className="text-2xl font-bold text-[#8B0000] mb-8">{t('contact.form.title')}</h3>
                     <form className="space-y-6">
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
-                          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Full Name</label>
+                          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('contact.form.name')}</label>
                           <input 
                             type="text" 
                             className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
-                            placeholder="Enter your name"
+                            placeholder={t('contact.form.name.placeholder')}
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Email Address</label>
+                          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('contact.form.email')}</label>
                           <input 
                             type="email" 
                             className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
-                            placeholder="Enter your email"
+                            placeholder={t('contact.form.email.placeholder')}
                           />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Subject</label>
+                        <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('contact.form.subject')}</label>
                         <input 
                           type="text" 
                           className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
-                          placeholder="What is this regarding?"
+                          placeholder={t('contact.form.subject.placeholder')}
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Message</label>
+                        <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('contact.form.message')}</label>
                         <textarea 
                           rows={6}
                           className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all resize-none"
-                          placeholder="Write your message here..."
+                          placeholder={t('contact.form.message.placeholder')}
                         ></textarea>
                       </div>
                       <button className="w-full md:w-auto px-12 py-4 bg-[#8B0000] text-white rounded-full font-bold hover:bg-[#6B0000] transition-all shadow-lg flex items-center justify-center gap-2">
-                        <Send size={18} /> Send Message
+                        <Send size={18} /> {t('contact.form.submit')}
                       </button>
                     </form>
                   </motion.div>
@@ -158,10 +160,10 @@ export const ContactFeedback: React.FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                   >
-                    <h3 className="text-2xl font-bold text-[#8B0000] mb-8">Share Your Experience</h3>
+                    <h3 className="text-2xl font-bold text-[#8B0000] mb-8">{t('feedback.title')}</h3>
                     
                     <div className="mb-10 text-center bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                      <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Rate your experience</p>
+                      <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">{t('feedback.rate')}</p>
                       <div className="flex justify-center gap-2">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <button
@@ -190,41 +192,41 @@ export const ContactFeedback: React.FC = () => {
                     <form className="space-y-6">
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
-                          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Your Name</label>
+                          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('feedback.form.name')}</label>
                           <input 
                             type="text" 
                             className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
-                            placeholder="Enter your name"
+                            placeholder={t('feedback.form.name.placeholder')}
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Location</label>
+                          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('feedback.form.location')}</label>
                           <input 
                             type="text" 
                             className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
-                            placeholder="Where are you from?"
+                            placeholder={t('feedback.form.location.placeholder')}
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Your Comments</label>
+                        <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('feedback.form.comments')}</label>
                         <textarea 
                           rows={5}
                           className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all resize-none"
-                          placeholder="Share your thoughts with us..."
+                          placeholder={t('feedback.form.comments.placeholder')}
                         ></textarea>
                       </div>
 
                       <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-2xl border border-blue-100">
                         <ThumbsUp className="text-blue-600 shrink-0" size={20} />
                         <p className="text-xs text-blue-800 leading-relaxed">
-                          Your feedback is valuable to us. We may use your comments in our testimonials section to inspire other devotees.
+                          {t('feedback.note')}
                         </p>
                       </div>
 
                       <button className="w-full py-4 bg-[#8B0000] text-white rounded-full font-bold hover:bg-[#6B0000] transition-all shadow-lg">
-                        Submit Feedback
+                        {t('feedback.form.submit')}
                       </button>
                     </form>
                   </motion.div>

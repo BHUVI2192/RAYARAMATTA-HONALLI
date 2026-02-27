@@ -14,8 +14,17 @@ import { SevaBooking } from './components/SevaBooking';
 import { Footer } from './components/Footer';
 import { motion, AnimatePresence } from 'motion/react';
 import { Seva } from './types';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
 
 export default function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
+  );
+}
+
+function AppContent() {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedSeva, setSelectedSeva] = useState<Seva | null>(null);
 
@@ -40,32 +49,7 @@ export default function App() {
           >
             <Hero />
             <VideoSection />
-            <div className="bg-gray-50 py-16">
-              <div className="max-w-7xl mx-auto px-4 text-center">
-                <h2 className="text-3xl font-bold text-[#8B0000] mb-8">Welcome to Honali Rayara Mutt</h2>
-                <p className="text-gray-600 max-w-3xl mx-auto leading-relaxed mb-12">
-                  Shri Raghavendra Swamy Seva Trust, Honali is a spiritual oasis dedicated to the teachings and grace of Guru Raghavendra. 
-                  Located in the serene town of Honali, our Mutt serves as a center for devotion, Vedic learning, and social service.
-                </p>
-                <div className="grid md:grid-cols-3 gap-8">
-                  <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 className="text-xl font-bold text-[#8B0000] mb-4">Daily Poojas</h3>
-                    <p className="text-sm text-gray-500 mb-6">Experience the divine presence through our meticulously performed daily rituals.</p>
-                    <button onClick={() => setCurrentPage('poojas')} className="text-[#8B0000] font-bold text-sm hover:underline">View Schedule →</button>
-                  </div>
-                  <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 className="text-xl font-bold text-[#8B0000] mb-4">Goshala</h3>
-                    <p className="text-sm text-gray-500 mb-6">Support our mission to protect and care for the sacred cows in our Goshala.</p>
-                    <button onClick={() => setCurrentPage('activities')} className="text-[#8B0000] font-bold text-sm hover:underline">Learn More →</button>
-                  </div>
-                  <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 className="text-xl font-bold text-[#8B0000] mb-4">Online Seva</h3>
-                    <p className="text-sm text-gray-500 mb-6">Book your sevas and offerings from the comfort of your home.</p>
-                    <button onClick={() => setCurrentPage('poojas')} className="text-[#8B0000] font-bold text-sm hover:underline">Book Now →</button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <WelcomeSection onNavigate={setCurrentPage} />
           </motion.div>
         );
       case 'about': return <About />;
@@ -106,6 +90,41 @@ export default function App() {
       </main>
 
       <Footer />
+    </div>
+  );
+}
+
+interface WelcomeSectionProps {
+  onNavigate: (page: string) => void;
+}
+
+const WelcomeSection: React.FC<WelcomeSectionProps> = ({ onNavigate }) => {
+  const { t } = useLanguage();
+  return (
+    <div className="bg-gray-50 py-16">
+      <div className="max-w-7xl mx-auto px-4 text-center">
+        <h2 className="text-3xl font-bold text-[#8B0000] mb-8">{t('welcome.title')}</h2>
+        <p className="text-gray-600 max-w-3xl mx-auto leading-relaxed mb-12">
+          {t('welcome.desc')}
+        </p>
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+            <h3 className="text-xl font-bold text-[#8B0000] mb-4">{t('welcome.poojas.title')}</h3>
+            <p className="text-sm text-gray-500 mb-6">{t('welcome.poojas.desc')}</p>
+            <button onClick={() => onNavigate('poojas')} className="text-[#8B0000] font-bold text-sm hover:underline">{t('welcome.view')} →</button>
+          </div>
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+            <h3 className="text-xl font-bold text-[#8B0000] mb-4">{t('welcome.goshala.title')}</h3>
+            <p className="text-sm text-gray-500 mb-6">{t('welcome.goshala.desc')}</p>
+            <button onClick={() => onNavigate('activities')} className="text-[#8B0000] font-bold text-sm hover:underline">{t('welcome.more')} →</button>
+          </div>
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+            <h3 className="text-xl font-bold text-[#8B0000] mb-4">{t('welcome.online.title')}</h3>
+            <p className="text-sm text-gray-500 mb-6">{t('welcome.online.desc')}</p>
+            <button onClick={() => onNavigate('poojas')} className="text-[#8B0000] font-bold text-sm hover:underline">{t('welcome.book')} →</button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

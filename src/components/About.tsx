@@ -1,8 +1,10 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { History, Award, Users } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export const About: React.FC = () => {
+  const { t } = useLanguage();
   return (
     <div className="pt-24 pb-16 bg-white">
       <div className="max-w-7xl mx-auto px-4">
@@ -14,21 +16,15 @@ export const About: React.FC = () => {
           >
             <div className="inline-flex items-center gap-2 text-yellow-600 font-bold uppercase tracking-widest text-sm mb-4">
               <History size={16} />
-              <span>Our Legacy</span>
+              <span>{t('about.legacy')}</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-[#8B0000] mb-8 leading-tight">
-              The History of Honali Rayara Mutt
+              {t('about.title')}
             </h1>
             <div className="space-y-6 text-gray-600 leading-relaxed">
-              <p>
-                In the early 1980s, two philanthropic devotees of Sri Raghavendra Swamy offered more than two grounds of land at Honali free of cost with a specific request to construct a temple for Sri Raghavendra Swamy to benefit a large number of public living in and around the area.
-              </p>
-              <p>
-                A committee of like-minded persons was formed and the site donated was taken over by the entity in the name and style of "Shri Raghavendra Swamy Seva Trust, Honali" and got the organization registered in December 1983.
-              </p>
-              <p>
-                Appeals were made soliciting donations for taking up the construction of the Brindavana by various means including conducting of Bhajans, Unchivathis at various parts of the city, newspaper advertisements, door to door collection from devotees, celebration of Sri Raghavendra Swamy Aradhana, conduct of fund raising cultural programmes, etc.
-              </p>
+              <p>{t('about.p1')}</p>
+              <p>{t('about.p2')}</p>
+              <p>{t('about.p3')}</p>
             </div>
           </motion.div>
           
@@ -48,7 +44,7 @@ export const About: React.FC = () => {
             </div>
             <div className="absolute -bottom-8 -left-8 bg-yellow-500 text-[#8B0000] p-8 rounded-2xl shadow-xl hidden md:block">
               <p className="text-4xl font-bold mb-1">40+</p>
-              <p className="text-sm font-bold uppercase tracking-wider">Years of Devotion</p>
+              <p className="text-sm font-bold uppercase tracking-wider">{t('about.years')}</p>
             </div>
           </motion.div>
         </div>
@@ -57,18 +53,18 @@ export const About: React.FC = () => {
           {[
             {
               icon: <Award className="text-yellow-600" size={32} />,
-              title: "Spiritual Excellence",
-              desc: "Maintaining the highest standards of Vedic rituals and traditions."
+              title: t('about.excellence'),
+              desc: t('about.excellence.desc')
             },
             {
               icon: <Users className="text-yellow-600" size={32} />,
-              title: "Community Service",
-              desc: "Supporting the local community through various social initiatives."
+              title: t('about.community'),
+              desc: t('about.community.desc')
             },
             {
               icon: <History className="text-yellow-600" size={32} />,
-              title: "Rich Heritage",
-              desc: "Preserving the legacy of Guru Raghavendra for future generations."
+              title: t('about.heritage'),
+              desc: t('about.heritage.desc')
             }
           ].map((item, i) => (
             <motion.div

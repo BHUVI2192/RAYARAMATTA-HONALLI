@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Calendar, Clock, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Seva } from '../types';
+import { useLanguage } from '../context/LanguageContext';
 
 const dailyPoojas = [
   { time: "06:30 AM", name: "Nirmalya Visarjana" },
@@ -28,6 +29,7 @@ interface PoojasProps {
 }
 
 export const Poojas: React.FC<PoojasProps> = ({ onSelectSeva }) => {
+  const { t } = useLanguage();
   return (
     <div className="pt-24 pb-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4">
@@ -36,7 +38,7 @@ export const Poojas: React.FC<PoojasProps> = ({ onSelectSeva }) => {
             <div className="bg-[#8B0000] text-white p-8 rounded-3xl shadow-xl sticky top-24">
               <div className="flex items-center gap-3 mb-8">
                 <Clock size={24} className="text-yellow-500" />
-                <h2 className="text-2xl font-bold">Daily Schedule</h2>
+                <h2 className="text-2xl font-bold">{t('pooja.schedule')}</h2>
               </div>
               <div className="space-y-6">
                 {dailyPoojas.map((pooja, i) => (
@@ -59,8 +61,8 @@ export const Poojas: React.FC<PoojasProps> = ({ onSelectSeva }) => {
             <div className="bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-gray-100">
               <div className="flex items-center justify-between mb-12">
                 <div>
-                  <h1 className="text-3xl font-bold text-[#8B0000] mb-2">Book a Seva Online</h1>
-                  <p className="text-gray-500">Select from the list of sacred offerings</p>
+                  <h1 className="text-3xl font-bold text-[#8B0000] mb-2">{t('pooja.book.title')}</h1>
+                  <p className="text-gray-500">{t('pooja.book.subtitle')}</p>
                 </div>
                 <Calendar size={48} className="text-gray-100 hidden md:block" />
               </div>
@@ -92,12 +94,12 @@ export const Poojas: React.FC<PoojasProps> = ({ onSelectSeva }) => {
               </div>
 
               <div className="mt-12 p-8 bg-yellow-50 rounded-2xl border border-yellow-100 text-center">
-                <h3 className="text-xl font-bold text-[#8B0000] mb-4">Need Assistance?</h3>
+                <h3 className="text-xl font-bold text-[#8B0000] mb-4">{t('pooja.assistance.title')}</h3>
                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                  If you have any questions regarding seva bookings or special requests, please contact our office.
+                  {t('pooja.assistance.desc')}
                 </p>
                 <button className="bg-[#8B0000] text-white px-8 py-3 rounded-full font-bold hover:bg-[#6B0000] transition-colors shadow-lg">
-                  Contact Office
+                  {t('pooja.contact')}
                 </button>
               </div>
             </div>

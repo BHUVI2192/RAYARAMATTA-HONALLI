@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Book, Music, Play } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const slokas = [
   {
@@ -18,6 +19,7 @@ const slokas = [
 ];
 
 export const Slokas: React.FC = () => {
+  const { t } = useLanguage();
   return (
     <div className="pt-24 pb-16 bg-orange-50 min-h-screen">
       <div className="max-w-4xl mx-auto px-4">
@@ -29,8 +31,8 @@ export const Slokas: React.FC = () => {
           >
             <Book size={48} />
           </motion.div>
-          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">Sacred Slokas</h1>
-          <p className="text-gray-600">Divine hymns for daily chanting and meditation</p>
+          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">{t('sloka.title')}</h1>
+          <p className="text-gray-600">{t('sloka.desc')}</p>
         </div>
 
         <div className="space-y-8">
@@ -63,7 +65,7 @@ export const Slokas: React.FC = () => {
                 </div>
 
                 <div>
-                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Meaning</h4>
+                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">{t('sloka.meaning')}</h4>
                   <p className="text-gray-600 leading-relaxed">
                     {sloka.meaning}
                   </p>
@@ -74,12 +76,12 @@ export const Slokas: React.FC = () => {
         </div>
 
         <div className="mt-16 p-8 bg-[#8B0000] text-white rounded-3xl text-center shadow-2xl">
-          <h3 className="text-xl font-bold mb-4">Download Sloka Book</h3>
+          <h3 className="text-xl font-bold mb-4">{t('sloka.download.title')}</h3>
           <p className="text-sm opacity-80 mb-8 max-w-md mx-auto">
-            Get our comprehensive collection of slokas and prayers in PDF format for offline use.
+            {t('sloka.download.desc')}
           </p>
           <button className="bg-yellow-500 text-[#8B0000] px-8 py-3 rounded-full font-bold hover:bg-yellow-600 transition-all shadow-lg">
-            Download PDF
+            {t('sloka.download.btn')}
           </button>
         </div>
       </div>
