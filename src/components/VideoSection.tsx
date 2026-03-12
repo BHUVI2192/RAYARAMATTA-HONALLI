@@ -67,9 +67,9 @@ export const VideoSection: React.FC = () => {
             loop
             muted={isMuted}
             playsInline
-            poster="https://picsum.photos/seed/video-poster/1280/720"
+            poster="https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&q=80&w=1280&h=720"
           >
-            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
+            <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
 

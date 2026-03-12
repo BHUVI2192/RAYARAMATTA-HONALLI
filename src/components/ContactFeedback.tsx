@@ -79,10 +79,10 @@ export const ContactFeedback: React.FC = () => {
           {/* Right Column: Merged Form */}
           <div className="lg:col-span-2">
             <div className="bg-white p-8 md:p-12 rounded-3xl shadow-xl border border-gray-100">
-              <div className="flex gap-4 mb-10 border-b border-gray-100 pb-6">
+              <div className="flex flex-col sm:flex-row gap-4 mb-10 border-b border-gray-100 pb-6">
                 <button
                   onClick={() => setActiveForm('message')}
-                  className={`flex items-center gap-2 px-6 py-2 rounded-full font-bold transition-all ${
+                  className={`flex items-center justify-center gap-2 px-6 py-3 sm:py-2 rounded-full font-bold transition-all ${
                     activeForm === 'message' 
                       ? 'bg-[#8B0000] text-white shadow-lg' 
                       : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
@@ -93,7 +93,7 @@ export const ContactFeedback: React.FC = () => {
                 </button>
                 <button
                   onClick={() => setActiveForm('feedback')}
-                  className={`flex items-center gap-2 px-6 py-2 rounded-full font-bold transition-all ${
+                  className={`flex items-center justify-center gap-2 px-6 py-3 sm:py-2 rounded-full font-bold transition-all ${
                     activeForm === 'feedback' 
                       ? 'bg-[#8B0000] text-white shadow-lg' 
                       : 'bg-gray-50 text-gray-500 hover:bg-gray-100'

@@ -4,16 +4,18 @@ import { Image as ImageIcon, Video, FileText, X, Maximize2 } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext';
 
 const photos = [
-  'https://picsum.photos/seed/gall1/800/600',
-  'https://picsum.photos/seed/gall2/800/600',
-  'https://picsum.photos/seed/gall3/800/600',
-  'https://picsum.photos/seed/gall4/800/600',
-  'https://picsum.photos/seed/gall5/800/600',
-  'https://picsum.photos/seed/gall6/800/600',
+  'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&q=80&w=800&h=600',
+  'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&q=80&w=800&h=600',
+  'https://images.unsplash.com/photo-1600080972464-8e5fce84662f?auto=format&fit=crop&q=80&w=800&h=600',
+  'https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&q=80&w=800&h=600',
+  'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&q=80&w=800&h=600',
+  'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800&h=600',
+  'https://images.unsplash.com/photo-1560179406-1c6c60e0dc26?auto=format&fit=crop&q=80&w=800&h=600',
+  'https://images.unsplash.com/photo-1580227146864-1c2f60625ea1?auto=format&fit=crop&q=80&w=800&h=600',
 ];
 
 export const Gallery: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'photos' | 'videos' | 'souvenirs'>('photos');
+  const [activeTab, setActiveTab] = useState<'photos' | 'videos'>('photos');
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
   const { t } = useLanguage();
 
@@ -26,7 +28,6 @@ export const Gallery: React.FC = () => {
             {[
               { id: 'photos', label: t('gallery.photos'), icon: <ImageIcon size={18} /> },
               { id: 'videos', label: t('gallery.videos'), icon: <Video size={18} /> },
-              { id: 'souvenirs', label: t('gallery.souvenirs'), icon: <FileText size={18} /> },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -88,28 +89,6 @@ export const Gallery: React.FC = () => {
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                     allowFullScreen
                   ></iframe>
-                </div>
-              ))}
-            </motion.div>
-          )}
-
-          {activeTab === 'souvenirs' && (
-            <motion.div
-              key="souvenirs"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="grid md:grid-cols-3 gap-6"
-            >
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="p-6 bg-gray-50 rounded-2xl border border-gray-100 flex items-center gap-4 hover:shadow-md transition-all cursor-pointer group">
-                  <div className="w-12 h-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition-colors">
-                    <FileText size={24} />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-gray-800">Annual Souvenir 202{i}</h4>
-                    <p className="text-xs text-gray-400">PDF Document • 12MB</p>
-                  </div>
                 </div>
               ))}
             </motion.div>

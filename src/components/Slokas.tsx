@@ -1,22 +1,129 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Book, Music, Play } from 'lucide-react';
+import { Book } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-const slokas = [
-  {
-    title: "Sri Raghavendra Stotra",
-    sanskrit: "श्री राघवेन्द्र स्तोत्रम्",
-    meaning: "The sacred hymn praising Guru Raghavendra, written by Sri Appannacharya.",
-    content: "Pujyaya Raghavendraya Satya Dharma Ratayacha | Bhajatam Kalpavrikshaya Namatam Kamadhenave ||"
-  },
-  {
-    title: "Guru Stotram",
-    sanskrit: "गुरु स्तोत्रम्",
-    meaning: "Salutations to the Guru who is the embodiment of the Trinity.",
-    content: "Gurur Brahma Gurur Vishnu Gurur Devo Maheshwarah | Gurur Sakshat Parabrahma Tasmai Shri Gurave Namah ||"
-  }
-];
+const raghavendraStotra = `ಶ್ರೀಪೂರ್ಣಬೋಧಗುರುತೀರ್ಥಪಯೋಬ್ಧಿಪಾರಾ
+ಕಾಮಾರಿಮಾಕ್ಷವಿಷಮಾಕ್ಷಶಿರಃ ಸ್ಪೃಶಂತೀ |
+ಪೂರ್ವೋತ್ತರಾಮಿತತರಂಗಚರತ್ಸುಹಂಸಾ
+ದೇವಾಳಿಸೇವಿತಪರಾಂಘ್ರಿಪಯೋಜಲಗ್ನಾ || ೧ ||
+
+ಜೀವೇಶಭೇದಗುಣಪೂರ್ತಿಜಗತ್ಸುಸತ್ತ್ವ-
+-ನೀಚೋಚ್ಚಭಾವಮುಖನಕ್ರಗಣೈಃ ಸಮೇತಾ |
+ದುರ್ವಾದ್ಯಜಾಪತಿಗಿಳೈರ್ಗುರುರಾಘವೇಂದ್ರ-
+-ವಾಗ್ದೇವತಾಸರಿದಮುಂ ವಿಮಲೀ ಕರೋತು || ೨ ||
+
+ಶ್ರೀರಾಘವೇಂದ್ರಃ ಸಕಲಪ್ರದಾತಾ
+ಸ್ವಪಾದಕಂಜದ್ವಯಭಕ್ತಿಮದ್ಭ್ಯಃ |
+ಅಘಾದ್ರಿಸಂಭೇದನದೃಷ್ಟಿವಜ್ರಃ
+ಕ್ಷಮಾಸುರೇಂದ್ರೋವತು ಮಾಂ ಸದಾಯಮ್ || ೩ ||
+
+ಶ್ರೀರಾಘವೇಂದ್ರೋ ಹರಿಪಾದಕಂಜ-
+-ನಿಷೇವಣಾಲ್ಲಬ್ಧಸಮಸ್ತಸಂಪತ್ |
+ದೇವಸ್ವಭಾವೋ ದಿವಿಜದ್ರುಮೋಯ-
+-ಮಿಷ್ಟಪ್ರದೋ ಮೇ ಸತತಂ ಸ ಭೂಯಾತ್ || ೪ ||
+
+ಭವ್ಯಸ್ವರೂಪೋ ಭವದುಃಖತೂಲ-
+-ಸಂಘಾಗ್ನಿಚರ್ಯಃ ಸುಖಧೈರ್ಯಶಾಲೀ |
+ಸಮಸ್ತದುಷ್ಟಗ್ರಹನಿಗ್ರಹೇಶೋ
+ದುರತ್ಯಯೋಪಪ್ಲವಸಿಂಧುಸೇತುಃ || ೫ ||
+
+ನಿರಸ್ತದೋಷೋ ನಿರವದ್ಯವೇಷಃ
+ಪ್ರತ್ಯರ್ಥಿಮೂಕತ್ತ್ವನಿದಾನಭಾಷಃ |
+ವಿದ್ವತ್ಪರಿಜ್ಞೇಯಮಹಾವಿಶೇಷೋ
+ವಾಗ್ವೈಖರೀನಿರ್ಜಿತಭವ್ಯಶೇಷಃ || ೬ ||
+
+ಸಂತಾನಸಂಪತ್ಪರಿಶುದ್ಧಭಕ್ತಿ-
+-ವಿಜ್ಞಾನವಾಗ್ದೇಹಸುಪಾಟವಾದೀನ್ |
+ದತ್ವಾ ಶರೀರೋತ್ಥಸಮಸ್ತದೋಷಾನ್
+ಹತ್ತ್ವಾ ಸ ನೋವ್ಯಾದ್ಗುರುರಾಘವೇಂದ್ರಃ || ೭ ||
+
+ಯತ್ಪಾದೋದಕಸಂಚಯಃ ಸುರನದೀಮುಖ್ಯಾಪಗಾಸಾದಿತಾ-
+-ಸಂಖ್ಯಾನುತ್ತಮಪುಣ್ಯಸಂಘವಿಲಸತ್ಪ್ರಖ್ಯಾತಪುಣ್ಯಾವಹಃ |
+ದುಸ್ತಾಪತ್ರಯನಾಶನೋ ಭುವಿ ಮಹಾವಂಧ್ಯಾಸುಪುತ್ರಪ್ರದೋ
+ವ್ಯಂಗಸ್ವಂಗಸಮೃದ್ಧಿದೋ ಗ್ರಹಮಹಾಪಾಪಾಪಹಸ್ತಂ ಶ್ರಯೇ || ೮ ||
+
+ಯತ್ಪಾದಕಂಜರಜಸಾ ಪರಿಭೂಷಿತಾಂಗಾ
+ಯತ್ಪಾದಪದ್ಮಮಧುಪಾಯಿತಮಾನಸಾ ಯೇ |
+ಯತ್ಪಾದಪದ್ಮಪರಿಕೀರ್ತನಜೀರ್ಣವಾಚ
+-ಸ್ತದ್ದರ್ಶನಂ ದುರಿತಕಾನನದಾವಭೂತಮ್ || ೯ ||
+
+ಸರ್ವತಂತ್ರಸ್ವತಂತ್ರೋಸೌ ಶ್ರೀಮಧ್ವಮತವರ್ಧನಃ
+ವಿಜಯೀಂದ್ರಕರಾಬ್ಜೋತ್ಥಸುಧೀಂದ್ರವರಪುತ್ರಕಃ || ೧೦ ||
+ಶ್ರೀರಾಘವೇಂದ್ರೋ ಯತಿರಾಟ್ ಗುರುರ್ಮೇ ಸ್ಯಾದ್ಭಯಾಪಹಃ
+ಜ್ಞಾನಭಕ್ತಿಸುಪುತ್ರಾಯುರ್ಯಶಃ ಶ್ರೀಪುಣ್ಯವರ್ಧನಃ || ೧೧ ||
+
+ಪ್ರತಿವಾದಿಜಯಸ್ವಾಂತಭೇದಚಿಹ್ನಾದರೋ ಗುರುಃ |
+ಸರ್ವವಿದ್ಯಾಪ್ರವೀಣೋನ್ಯೋ ರಾಘವೇಂದ್ರಾನ್ನ ವಿದ್ಯತೇ || ೧೨ ||
+ಅಪರೋಕ್ಷೀಕೃತಶ್ರೀಶಃ ಸಮುಪೇಕ್ಷಿತಭಾವಜಃ |
+ಅಪೇಕ್ಷಿತಪ್ರದಾತಾನ್ಯೋ ರಾಘವೇಂದ್ರಾನ್ನ ವಿದ್ಯತೇ || ೧೩ ||
+
+ದಯಾದಾಕ್ಷಿಣ್ಯವೈರಾಗ್ಯವಾಕ್ಪಾಟವಮುಖಾಂಕಿತಃ |
+ಶಾಪಾನುಗ್ರಹಶಕ್ತೋಽನ್ಯೋ ರಾಘವೇಂದ್ರಾನ್ನ ವಿದ್ಯತೇ || ೧೪ ||
+ಅಜ್ಞಾನವಿಸ್ಮೃತಿಭ್ರಾಂತಿಸಂಶಯಾಪಸ್ಮೃತಿಕ್ಷಯಾಃ |
+ತಂದ್ರಾಕಂಪವಚಃಕೌಣ್ಠ್ಯಮುಖಾ ಯೇ ಚೇಂದ್ರಿಯೋದ್ಭವಾಃ |
+ದೋಷಾಸ್ತೇ ನಾಶಮಾಯಾಂತಿ ರಾಘವೇಂದ್ರಪ್ರಸಾದತಃ || ೧೫ ||
+
+ಓಂ ಶ್ರೀರಾಘವೇಂದ್ರಾಯ ನಮಃ ಇತ್ಯಷ್ಟಾಕ್ಷರಮಂತ್ರತಃ |
+ಜಪಿತಾದ್ಭಾವಿತಾನ್ನಿತ್ಯಂ ಇಷ್ಟಾರ್ಥಾಃ ಸ್ಯುರ್ನ ಸಂಶಯಃ || ೧೬ ||
+ಹಂತು ನಃ ಕಾಯಜಾನ್ ದೋಷಾನ್ ಆತ್ಮಾತ್ಮೀಯಸಮುದ್ಭವಾನ್ |
+ಸರ್ವಾನಪಿ ಪುಮರ್ಥಾಂಶ್ಚ ದದಾತು ಗುರುರಾತ್ಮವಿತ್ || ೧೭ ||
+
+ಇತಿ ಕಾಲತ್ರಯೇ ನಿತ್ಯಂ ಪ್ರಾರ್ಥನಾಂ ಯಃ ಕರೋತಿ ಸಃ |
+ಇಹಾಮುತ್ರಾಪ್ತಸರ್ವೇಷ್ಟೋ ಮೋದತೇ ನಾತ್ರ ಸಂಶಯಃ || ೧೮ ||
+ಅಗಮ್ಯಮಹಿಮಾ ಲೋಕೇ ರಾಘವೇಂದ್ರೋ ಮಹಾಯಶಾಃ |
+ಶ್ರೀಮಧ್ವಮತದುಗ್ಧಾಬ್ಧಿಚಂದ್ರೋವತು ಸದಾನಘಃ || ೧೯ ||
+
+ಸರ್ವಯಾತ್ರಾಫಲಾವಾಪ್ತ್ಯೈ ಯಥಾಶಕ್ತಿಪ್ರದಕ್ಷಿಣಮ್ |
+ಕರೋಮಿ ತವ ಸಿದ್ಧಸ್ಯ ಬೃಂದಾವನಗತಂ ಜಲಮ್ || ೨೦ ||
+ಶಿರಸಾ ಧಾರಯಾಮ್ಯದ್ಯ ಸರ್ವತೀರ್ಥಫಲಾಪ್ತಯೇ |
+ಸರ್ವಾಭೀಷ್ಟಾರ್ಥಸಿದ್ಧ್ಯರ್ಥಂ ನಮಸ್ಕಾರಂ ಕರೋಮ್ಯಹಮ್ |
+ತವ ಸಂಕೀರ್ತನಂ ವೇದಶಾಸ್ತ್ರಾರ್ಥಜ್ಞಾನಸಿದ್ಧಯೇ || ೨೧ ||
+
+ಸಂಸಾರೇಕ್ಷಯಸಾಗರೇ ಪ್ರಕೃತಿತೋಗಾಧೇ ಸದಾ ದುಸ್ತರೇ
+ಸರ್ವಾವದ್ಯಜಲಗ್ರಹೈರನುಪಮೈಃ ಕಾಮಾದಿಭಂಗಾಕುಲೇ |
+ನಾನಾವಿಭ್ರಮದುರ್ಭ್ರಮೇಽಮಿತಭಯಸ್ತೋಮಾದಿಫೇನೋತ್ಕಟೇ
+ದುಃಖೋತ್ಕೃಷ್ಟವಿಷೇ ಸಮುದ್ಧರ ಗುರೋ ಮಾ ಮಗ್ನರೂಪಂ ಸದಾ || ೨೨ ||
+ರಾಘವೇಂದ್ರಗುರುಸ್ತೋತ್ರಂ ಯಃ ಪಠೇದ್ಭಕ್ತಿಪೂರ್ವಕಮ್ |
+ತಸ್ಯ ಕುಷ್ಠಾದಿರೋಗಾಣಾಂ ನಿವೃತ್ತಿಸ್ತ್ವರಯಾ ಭವೇತ್ || ೨೩ ||
+
+ಅಂಧೋಪಿ ದಿವ್ಯದೃಷ್ಟಿಃ ಸ್ಯಾದೇಡಮೂಕೋಪಿ ವಾಕ್ಪತಿಃ |
+ಪೂರ್ಣಾಯುಃ ಪೂರ್ಣಸಂಪತ್ತಿಃ ಸ್ತೋತ್ರಸ್ಯಾಸ್ಯ ಜಪಾದ್ಭವೇತ್ || ೨೪ ||
+ಯಃ ಪಿಬೇಜ್ಜಲಮೇತೇನ ಸ್ತೋತ್ರೇಣೈವಾಭಿಮಂತ್ರಿತಮ್ |
+ತಸ್ಯ ಕುಕ್ಷಿಗತಾ ದೋಷಾಃ ಸರ್ವೇ ನಶ್ಯಂತಿ ತತ್ ಕ್ಷಣಾತ್ || ೨೫ ||
+
+ಯದ್ವೃಂದಾವನಮಾಸಾದ್ಯ ಪಂಗುಃ ಖಂಜೋಪಿ ವಾ ಜನಃ |
+ಸ್ತೋತ್ರೇಣಾನೇನ ಯಃ ಕುರ್ಯಾತ್ ಪ್ರದಕ್ಷಿಣನಮಸ್ಕೃತೀ || ೨೬ ||
+ಸ ಜಂಘಾಲೋ ಭವೇದೇವ ಗುರುರಾಜಪ್ರಸಾದತಃ |
+ಸೋಮಸೂರ್ಯೋಪರಾಗೇ ಚ ಪುಷ್ಯಾರ್ಕಾದಿಸಮಾಗಮೇ || ೨೭ ||
+
+ಯೋನುತ್ತಮಮಿದಂ ಸ್ತೋತ್ರಮಷ್ಟೋತ್ತರಶತಂ ಜಪೇತ್ |
+ಭೂತಪ್ರೇತಪಿಶಾಚಾದಿ ಪೀಡಾ ತಸ್ಯ ನ ಜಾಯತೇ || ೨೮ ||
+ಏತತ್ ಸ್ತೋತ್ರಂ ಸಮುಚ್ಚಾರ್ಯ ಗುರೋರ್ವೃಂದಾವನಾಂತಿಕೇ |
+ದೀಪಸಂಯೋಜನಾಜ್ಜ್ಞಾನಂ ಪುತ್ರಲಾಭೋ ಭವೇದ್ಧ್ರುವಮ್ || ೨೯ ||
+
+ಪರವಾದಿಜಯೋ ದಿವ್ಯಜ್ಞಾನಭಕ್ತ್ಯಾದಿವರ್ಧನಮ್ |
+ಸರ್ವಾಭೀಷ್ಟಪ್ರವೃದ್ಧಿಃ ಸ್ಯಾನ್ನಾತ್ರ ಕಾರ್ಯಾ ವಿಚಾರಣಾ || ೩೦ ||
+ರಾಜಚೋರಮಹಾವ್ಯಾಘ್ರಸರ್ಪನಕ್ರಾದಿಪೀಡನಮ್ |
+ನ ಜಾಯತೇಸ್ಯ ಸ್ತೋತ್ರಸ್ಯ ಪ್ರಭಾವಾನ್ನಾತ್ರ ಸಂಶಯಃ || ೩೧ ||
+
+ಯೋ ಭಕ್ತ್ಯಾ ಗುರುರಾಘವೇಂದ್ರಚರಣದ್ವಂದ್ವಂ ಸ್ಮರನ್ ಯಃ ಪಠೇತ್
+ಸ್ತೋತ್ರಂ ದಿವ್ಯಮಿದಂ ಸದಾ ನ ಹಿ ಭವೇತ್ತಸ್ಯಾಸುಖಂ ಕಿಂಚನ |
+ಕಿಂ ತ್ವಿಷ್ಟಾರ್ಥಸಮೃದ್ಧಿರೇವ ಕಮಲಾನಾಥಪ್ರಸಾದೋದಯಾತ್
+ಕೀರ್ತಿರ್ದಿಗ್ವಿದಿತಾ ವಿಭೂತಿರತುಲಾ ಸಾಕ್ಷೀ ಹಯಾಸ್ಯೋತ್ರ ಹಿ || ೩೨ ||
+
+ಇತಿ ಶ್ರೀ ರಾಘವೇಂದ್ರಾರ್ಯ ಗುರುರಾಜಪ್ರಸಾದತಃ |
+ಕೃತಂ ಸ್ತೋತ್ರಮಿದಂ ಪುಣ್ಯಂ ಶ್ರೀಮದ್ಭಿರ್ಹ್ಯಪ್ಪಣಾಭಿದೈಃ ||
+ಪೂಜ್ಯಾಯ ರಾಘವೇಂದ್ರಾಯ ಸತ್ಯಧರ್ಮರತಾಯ ಚ |
+ಭಜತಾಂ ಕಲ್ಪವೃಕ್ಷಾಯ ನಮತಾಂ ಕಾಮಧೇನವೇ ||
+ಆಪಾದಮೌಳಿಪರ್ಯಂತಂ ಗುರೂಣಾಮಾಕೃತಿಂ ಸ್ಮರೇತ್ |
+ತೇನ ವಿಘ್ನಃ ಪ್ರಣಶ್ಯಂತಿ ಸಿದ್ಧ್ಯಂತಿ ಚ ಮನೋರಥಾಃ ||
+
+ದುರ್ವಾದಿಧ್ವಾಂತರವಯೇ ವೈಷ್ಣವೇಂದೀವರೇಂದವೇ |
+ಶ್ರೀರಾಘವೇಂದ್ರ ಗುರವೇ ನಮೋತ್ಯಂತದಯಾಳವೇ ||
+ಮೂಕೋಪಿ ಯತ್ಪ್ರಸಾದೇನ ಮುಕುಂದಶಯನಾಯ ತೇ |
+ರಾಜರಾಜಾಯತೇ ರಿಕ್ತೋ ರಾಘವೇಂದ್ರಂ ತಮಾಶ್ರಯೇ |
+ಇತಿ ಶ್ರೀ ಅಪ್ಪಣ್ಣಾಚಾರ್ಯವಿರಚಿತಂ ಶ್ರೀರಾಘವೇಂದ್ರ ಸ್ತೋತ್ರಂ ಸಂಪೂರ್ಣಂ`;
 
 export const Slokas: React.FC = () => {
   const { t } = useLanguage();
@@ -31,59 +138,22 @@ export const Slokas: React.FC = () => {
           >
             <Book size={48} />
           </motion.div>
-          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">{t('sloka.title')}</h1>
+          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">ಶ್ರೀ ರಾಘವೇಂದ್ರ ಸ್ತೋತ್ರಂ</h1>
           <p className="text-gray-600">{t('sloka.desc')}</p>
         </div>
 
-        <div className="space-y-8">
-          {slokas.map((sloka, i) => (
-            <motion.div
-              key={i}
-              initial={{ y: 20, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="bg-white p-8 md:p-12 rounded-3xl shadow-xl border border-orange-100 relative overflow-hidden"
-            >
-              <div className="absolute top-0 right-0 p-8 opacity-5">
-                <Music size={120} />
-              </div>
-
-              <div className="relative z-10">
-                <div className="flex justify-between items-start mb-8">
-                  <div>
-                    <h2 className="text-2xl font-bold text-[#8B0000] mb-1">{sloka.title}</h2>
-                    <p className="text-orange-600 font-bold text-lg">{sloka.sanskrit}</p>
-                  </div>
-                  <button className="p-3 bg-orange-50 text-orange-600 rounded-full hover:bg-[#8B0000] hover:text-white transition-all shadow-sm">
-                    <Play size={20} fill="currentColor" />
-                  </button>
-                </div>
-
-                <div className="bg-orange-50/50 p-8 rounded-2xl mb-8 text-center italic text-xl text-gray-800 leading-relaxed font-serif">
-                  "{sloka.content}"
-                </div>
-
-                <div>
-                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">{t('sloka.meaning')}</h4>
-                  <p className="text-gray-600 leading-relaxed">
-                    {sloka.meaning}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="mt-16 p-8 bg-[#8B0000] text-white rounded-3xl text-center shadow-2xl">
-          <h3 className="text-xl font-bold mb-4">{t('sloka.download.title')}</h3>
-          <p className="text-sm opacity-80 mb-8 max-w-md mx-auto">
-            {t('sloka.download.desc')}
-          </p>
-          <button className="bg-yellow-500 text-[#8B0000] px-8 py-3 rounded-full font-bold hover:bg-yellow-600 transition-all shadow-lg">
-            {t('sloka.download.btn')}
-          </button>
-        </div>
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true }}
+          className="bg-white p-8 md:p-12 rounded-3xl shadow-xl border border-orange-100 relative overflow-hidden"
+        >
+          <div className="relative z-10 text-center">
+            <div className="whitespace-pre-wrap text-base sm:text-lg md:text-xl text-gray-800 leading-loose font-serif">
+              {raghavendraStotra}
+            </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );

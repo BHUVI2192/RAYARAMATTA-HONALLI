@@ -4,8 +4,8 @@ import { Hero } from './components/Hero';
 import { VideoSection } from './components/VideoSection';
 import { About } from './components/About';
 import { Activities } from './components/Activities';
-import { Poojas } from './components/Poojas';
-import { Events } from './components/Events';
+import { SevaVivara } from './components/SevaVivara';
+import { Sevas } from './components/Sevas';
 import { Gallery } from './components/Gallery';
 import { Slokas } from './components/Slokas';
 import { ContactFeedback } from './components/ContactFeedback';
@@ -54,8 +54,8 @@ function AppContent() {
         );
       case 'about': return <About />;
       case 'activities': return <Activities />;
-      case 'poojas': return <Poojas onSelectSeva={handleSelectSeva} />;
-      case 'events': return <Events />;
+      case 'seva-vivara': return <SevaVivara onSelectSeva={handleSelectSeva} />;
+      case 'sevas': return <Sevas onSelectSeva={handleSelectSeva} />;
       case 'gallery': return <Gallery />;
       case 'slokas': return <Slokas />;
       case 'contact': return <ContactFeedback />;
@@ -70,11 +70,11 @@ function AppContent() {
               setSelectedSeva(null);
             }}
             onCancel={() => {
-              setCurrentPage('poojas');
+              setCurrentPage('seva-vivara');
               setSelectedSeva(null);
             }}
           />
-        ) : <Poojas onSelectSeva={handleSelectSeva} />;
+        ) : <SevaVivara onSelectSeva={handleSelectSeva} />;
       default: return <Hero />;
     }
   };
@@ -109,9 +109,9 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ onNavigate }) => {
         </p>
         <div className="grid md:grid-cols-3 gap-8">
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-            <h3 className="text-xl font-bold text-[#8B0000] mb-4">{t('welcome.poojas.title')}</h3>
-            <p className="text-sm text-gray-500 mb-6">{t('welcome.poojas.desc')}</p>
-            <button onClick={() => onNavigate('poojas')} className="text-[#8B0000] font-bold text-sm hover:underline">{t('welcome.view')} →</button>
+            <h3 className="text-xl font-bold text-[#8B0000] mb-4">{t('welcome.seva-vivara.title')}</h3>
+            <p className="text-sm text-gray-500 mb-6">{t('welcome.seva-vivara.desc')}</p>
+            <button onClick={() => onNavigate('seva-vivara')} className="text-[#8B0000] font-bold text-sm hover:underline">{t('welcome.view')} →</button>
           </div>
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
             <h3 className="text-xl font-bold text-[#8B0000] mb-4">{t('welcome.goshala.title')}</h3>
@@ -121,7 +121,7 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ onNavigate }) => {
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
             <h3 className="text-xl font-bold text-[#8B0000] mb-4">{t('welcome.online.title')}</h3>
             <p className="text-sm text-gray-500 mb-6">{t('welcome.online.desc')}</p>
-            <button onClick={() => onNavigate('poojas')} className="text-[#8B0000] font-bold text-sm hover:underline">{t('welcome.book')} →</button>
+            <button onClick={() => onNavigate('seva-vivara')} className="text-[#8B0000] font-bold text-sm hover:underline">{t('welcome.book')} →</button>
           </div>
         </div>
       </div>

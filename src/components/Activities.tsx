@@ -70,7 +70,7 @@ export const Activities: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-8 mb-24">
           {[
             {
               icon: <Globe className="text-blue-600" size={32} />,
@@ -99,6 +99,26 @@ export const Activities: React.FC = () => {
             </motion.div>
           ))}
         </div>
+
+        {/* Festivals Section */}
+        <motion.section
+          initial={{ y: 50, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true }}
+          className="bg-stone-50 p-8 md:p-12 rounded-3xl border border-stone-200"
+        >
+          <h2 className="text-3xl font-bold text-[#8B0000] mb-8 text-center">{t('act.festivals.title')}</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5].map((num) => (
+              <div key={num} className="flex items-start gap-4 p-4 bg-white rounded-2xl border border-stone-100 shadow-sm">
+                <div className="w-8 h-8 rounded-full bg-[#8B0000] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+                  {num}
+                </div>
+                <p className="text-gray-700 font-medium">{t(`act.festivals.${num}`)}</p>
+              </div>
+            ))}
+          </div>
+        </motion.section>
       </div>
     </div>
   );

@@ -59,19 +59,19 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
       ].map((s, i) => (
         <React.Fragment key={s.id}>
           <div className="flex flex-col items-center relative">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all ${
               step >= s.id ? 'bg-[#8B0000] text-white' : 'bg-gray-200 text-gray-400'
             }`}>
-              {step > s.id ? <CheckCircle size={20} /> : s.icon}
+              {step > s.id ? <CheckCircle size={18} className="sm:w-5 sm:h-5" /> : React.cloneElement(s.icon as React.ReactElement, { className: "w-4 h-4 sm:w-5 sm:h-5" })}
             </div>
-            <span className={`absolute -bottom-6 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${
+            <span className={`absolute -bottom-6 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${
               step >= s.id ? 'text-[#8B0000]' : 'text-gray-400'
             }`}>
               {s.label}
             </span>
           </div>
           {i < 3 && (
-            <div className={`w-12 h-0.5 mx-2 ${step > s.id ? 'bg-[#8B0000]' : 'bg-gray-200'}`} />
+            <div className={`w-6 sm:w-12 h-0.5 mx-1 sm:mx-2 ${step > s.id ? 'bg-[#8B0000]' : 'bg-gray-200'}`} />
           )}
         </React.Fragment>
       ))}
@@ -131,12 +131,12 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
           placeholder={t('booking.form.address.placeholder')}
         ></textarea>
       </div>
-      <div className="flex justify-between pt-8">
-        <button onClick={onCancel} className="text-gray-400 font-bold hover:text-gray-600 transition-colors">{t('booking.btn.cancel')}</button>
+      <div className="flex flex-col sm:flex-row justify-between pt-8 gap-4">
+        <button onClick={onCancel} className="text-gray-400 font-bold hover:text-gray-600 transition-colors order-2 sm:order-1">{t('booking.btn.cancel')}</button>
         <button
           onClick={nextStep}
           disabled={!formData.userDetails?.name || !formData.userDetails?.phone || !formData.userDetails?.email || !formData.userDetails?.address}
-          className="bg-[#8B0000] text-white px-10 py-4 rounded-full font-bold hover:bg-[#6B0000] transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-[#8B0000] text-white px-10 py-4 rounded-full font-bold hover:bg-[#6B0000] transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto order-1 sm:order-2"
         >
           {t('booking.btn.next')} <ChevronRight size={18} />
         </button>
@@ -229,14 +229,14 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
           placeholder={t('booking.pooja.message.placeholder')}
         ></textarea>
       </div>
-      <div className="flex justify-between pt-8">
-        <button onClick={prevStep} className="flex items-center gap-2 text-gray-400 font-bold hover:text-gray-600 transition-colors">
+      <div className="flex flex-col sm:flex-row justify-between pt-8 gap-4">
+        <button onClick={prevStep} className="flex items-center justify-center gap-2 text-gray-400 font-bold hover:text-gray-600 transition-colors order-2 sm:order-1">
           <ChevronLeft size={18} /> {t('booking.btn.back')}
         </button>
         <button
           onClick={nextStep}
           disabled={!formData.poojaDetails?.date}
-          className="bg-[#8B0000] text-white px-10 py-4 rounded-full font-bold hover:bg-[#6B0000] transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-[#8B0000] text-white px-10 py-4 rounded-full font-bold hover:bg-[#6B0000] transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto order-1 sm:order-2"
         >
           {t('booking.btn.next')} <ChevronRight size={18} />
         </button>
@@ -282,13 +282,13 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
         </div>
       </div>
 
-      <div className="flex justify-between pt-8">
-        <button onClick={prevStep} className="flex items-center gap-2 text-gray-400 font-bold hover:text-gray-600 transition-colors">
+      <div className="flex flex-col sm:flex-row justify-between pt-8 gap-4">
+        <button onClick={prevStep} className="flex items-center justify-center gap-2 text-gray-400 font-bold hover:text-gray-600 transition-colors order-2 sm:order-1">
           <ChevronLeft size={18} /> {t('booking.btn.back')}
         </button>
         <button
           onClick={nextStep}
-          className="bg-[#8B0000] text-white px-10 py-4 rounded-full font-bold hover:bg-[#6B0000] transition-all shadow-lg flex items-center gap-2"
+          className="bg-[#8B0000] text-white px-10 py-4 rounded-full font-bold hover:bg-[#6B0000] transition-all shadow-lg flex items-center justify-center gap-2 w-full sm:w-auto order-1 sm:order-2"
         >
           {t('booking.btn.payment')} <ChevronRight size={18} />
         </button>
@@ -329,7 +329,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
   return (
     <div className="pt-24 pb-16 bg-white min-h-screen">
       <div className="max-w-4xl mx-auto px-4">
-        <div className="bg-white p-8 md:p-12 rounded-[40px] shadow-2xl border border-gray-50">
+        <div className="bg-white p-6 sm:p-8 md:p-12 rounded-[40px] shadow-2xl border border-gray-50">
           <div className="flex items-center justify-between mb-12">
             <div>
               <h2 className="text-3xl font-bold text-[#8B0000] mb-2">{t('booking.title')}</h2>

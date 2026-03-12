@@ -24,11 +24,11 @@ const sevas: Seva[] = [
   { id: '8', name: "Annadana Seva", price: 1001 },
 ];
 
-interface PoojasProps {
+interface SevaVivaraProps {
   onSelectSeva?: (seva: Seva) => void;
 }
 
-export const Poojas: React.FC<PoojasProps> = ({ onSelectSeva }) => {
+export const SevaVivara: React.FC<SevaVivaraProps> = ({ onSelectSeva }) => {
   const { t } = useLanguage();
   return (
     <div className="pt-24 pb-16 bg-gray-50">

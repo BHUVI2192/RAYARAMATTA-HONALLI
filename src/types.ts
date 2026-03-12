@@ -1,4 +1,4 @@
-export type Page = 'home' | 'about' | 'activities' | 'poojas' | 'events' | 'gallery' | 'slokas' | 'contact' | 'feedback' | 'donate' | 'booking';
+export type Page = 'home' | 'about' | 'activities' | 'seva-vivara' | 'events' | 'gallery' | 'slokas' | 'contact' | 'feedback' | 'donate' | 'booking';
 
 export interface Seva {
   id: string;
