@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { User, BookOpen, FileText, CreditCard, ChevronRight, ChevronLeft, CheckCircle } from 'lucide-react';
+import { User, BookOpen, FileText, Smartphone, ChevronRight, ChevronLeft, CheckCircle, ExternalLink, ArrowLeft } from 'lucide-react';
 import { Seva, BookingData } from '../types';
 import { useLanguage } from '../context/LanguageContext';
+
+const UPI_ID = 'pramathscholor666@oksbi';
+const PAYEE_NAME = 'Rayara Matta Honalli';
 
 interface SevaBookingProps {
   selectedSeva: Seva;
@@ -12,6 +15,9 @@ interface SevaBookingProps {
 
 export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComplete, onCancel }) => {
   const [step, setStep] = useState(1);
+  const [paymentInitiated, setPaymentInitiated] = useState(false);
+  const [returnedFromPayment, setReturnedFromPayment] = useState(false);
+  const visibilityHandlerRef = useRef<(() => void) | null>(null);
   const { t } = useLanguage();
   const [formData, setFormData] = useState<Partial<BookingData>>({
     seva: selectedSeva,
@@ -296,35 +302,123 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
     </motion.div>
   );
 
-  const renderPayment = () => (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="text-center py-12"
-    >
-      <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-8">
-        <CreditCard size={40} />
-      </div>
-      <h3 className="text-2xl font-bold text-gray-800 mb-4">{t('booking.payment.title')}</h3>
-      <p className="text-gray-500 mb-12 max-w-md mx-auto">
-        {t('booking.payment.desc')}
-        <span className="font-bold text-[#8B0000]"> ₹{(formData.seva?.price || 0) * (formData.poojaDetails?.count || 1)}</span>.
-      </p>
-      
-      <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-12">
-        <button onClick={onComplete} className="p-4 border border-gray-100 rounded-2xl hover:bg-gray-50 transition-all flex flex-col items-center gap-2">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" className="h-6" alt="UPI" />
-          <span className="text-xs font-bold text-gray-400">UPI</span>
-        </button>
-        <button onClick={onComplete} className="p-4 border border-gray-100 rounded-2xl hover:bg-gray-50 transition-all flex flex-col items-center gap-2">
-          <Landmark size={24} className="text-blue-600" />
-          <span className="text-xs font-bold text-gray-400">Net Banking</span>
-        </button>
-      </div>
+  const handlePayNow = () => {
+    setPaymentInitiated(true);
+    setReturnedFromPayment(false);
+    // Remove any previous listener
+    if (visibilityHandlerRef.current) {
+      document.removeEventListener('visibilitychange', visibilityHandlerRef.current);
+    }
+    const handler = () => {
+      if (document.visibilityState === 'visible') {
+        setReturnedFromPayment(true);
+        document.removeEventListener('visibilitychange', handler);
+      }
+    };
+    visibilityHandlerRef.current = handler;
+    document.addEventListener('visibilitychange', handler);
+  };
 
-      <button onClick={prevStep} className="text-gray-400 font-bold hover:text-gray-600 transition-colors">{t('booking.btn.back')}</button>
-    </motion.div>
-  );
+  const renderPayment = () => {
+    const totalAmount = (formData.seva?.price || 0) * (formData.poojaDetails?.count || 1);
+    const note = encodeURIComponent(`Seva: ${formData.seva?.name} | ${formData.userDetails?.name}`);
+    const upiLink = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${totalAmount}&cu=INR&tn=${note}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiLink)}`;
+
+    // After user returns from UPI app, show confirmation screen
+    if (returnedFromPayment) {
+      return (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center py-10 space-y-6"
+        >
+          <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
+            <CheckCircle size={52} />
+          </div>
+          <div>
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">Did you complete the payment?</h3>
+            <p className="text-gray-500">Amount: <span className="font-bold text-[#8B0000]">₹{totalAmount}</span> via UPI</p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+            <button
+              onClick={() => { setReturnedFromPayment(false); setPaymentInitiated(false); }}
+              className="flex items-center justify-center gap-2 px-8 py-3 border-2 border-gray-200 rounded-full font-bold text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-all"
+            >
+              <ArrowLeft size={18} /> No, Go Back
+            </button>
+            <button
+              onClick={onComplete}
+              className="flex items-center justify-center gap-2 px-10 py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-full shadow-lg transition-all"
+            >
+              <CheckCircle size={20} /> Yes, Confirm Booking
+            </button>
+          </div>
+          <p className="text-xs text-gray-400">Please keep a screenshot of your payment as confirmation.</p>
+        </motion.div>
+      );
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="py-8"
+      >
+        {/* Amount banner */}
+        <div className="bg-[#8B0000] text-white rounded-2xl p-6 text-center mb-8">
+          <p className="text-sm opacity-75 uppercase tracking-widest font-semibold mb-1">Total Amount Due</p>
+          <p className="text-5xl font-bold">₹{totalAmount}</p>
+          <p className="text-sm opacity-75 mt-1">{formData.seva?.name} × {formData.poojaDetails?.count}</p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8 items-start">
+          {/* Mobile: Pay Now button */}
+          <div className="bg-amber-50 border border-yellow-200 rounded-2xl p-6 text-center space-y-4">
+            <div className="flex items-center justify-center gap-2 text-[#8B0000] font-bold text-lg">
+              <Smartphone size={22} />
+              On Mobile
+            </div>
+            <p className="text-sm text-gray-500">Tap below — PhonePe, GPay, Paytm or any UPI app will open with the amount pre-filled.</p>
+            <a
+              href={upiLink}
+              onClick={handlePayNow}
+              className="flex items-center justify-center gap-3 w-full bg-[#8B0000] hover:bg-[#6B0000] text-white font-bold py-4 px-6 rounded-full shadow-lg transition-all active:scale-95 mt-2"
+            >
+              <ExternalLink size={20} />
+              Pay Now ₹{totalAmount} via UPI
+            </a>
+            {paymentInitiated && !returnedFromPayment && (
+              <p className="text-xs text-amber-600 font-medium animate-pulse">⏳ Waiting for you to return after payment…</p>
+            )}
+            <p className="text-xs text-gray-400">UPI ID: <span className="font-mono text-gray-600">{UPI_ID}</span></p>
+          </div>
+
+          {/* Desktop: QR Code */}
+          <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 text-center space-y-4">
+            <p className="text-[#8B0000] font-bold text-lg">Scan QR Code</p>
+            <p className="text-sm text-gray-500">Open any UPI app → Scan QR. Amount is pre-filled.</p>
+            <div className="flex justify-center">
+              <img
+                src={qrUrl}
+                alt="UPI QR Code"
+                className="rounded-xl border border-gray-200 shadow"
+                width={220}
+                height={220}
+              />
+            </div>
+            <p className="text-xs text-gray-400">Paying to: <span className="font-semibold text-gray-700">{PAYEE_NAME}</span></p>
+          </div>
+        </div>
+
+        <div className="flex justify-start pt-6">
+          <button onClick={prevStep} className="flex items-center gap-2 text-gray-400 font-bold hover:text-gray-600 transition-colors">
+            <ChevronLeft size={18} /> {t('booking.btn.back')}
+          </button>
+        </div>
+      </motion.div>
+    );
+  };
 
   return (
     <div className="pt-24 pb-16 bg-white min-h-screen">
@@ -355,24 +449,3 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
   );
 };
 
-const Landmark: React.FC<{ size?: number; className?: string }> = ({ size = 24, className = "" }) => (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <path d="M3 22h18" />
-    <path d="M6 18v-7" />
-    <path d="M10 18v-7" />
-    <path d="M14 18v-7" />
-    <path d="M18 18v-7" />
-    <path d="M2 11h20" />
-    <path d="m2 7 10-5 10 5" />
-  </svg>
-);

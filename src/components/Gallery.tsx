@@ -4,14 +4,34 @@ import { Image as ImageIcon, Video, FileText, X, Maximize2 } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext';
 
 const photos = [
-  'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&q=80&w=800&h=600',
-  'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&q=80&w=800&h=600',
-  'https://images.unsplash.com/photo-1600080972464-8e5fce84662f?auto=format&fit=crop&q=80&w=800&h=600',
-  'https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&q=80&w=800&h=600',
-  'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&q=80&w=800&h=600',
-  'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800&h=600',
-  'https://images.unsplash.com/photo-1560179406-1c6c60e0dc26?auto=format&fit=crop&q=80&w=800&h=600',
-  'https://images.unsplash.com/photo-1580227146864-1c2f60625ea1?auto=format&fit=crop&q=80&w=800&h=600',
+  '/images/469068261_609127548118786_3086100465586628981_n.jpg',
+  '/images/469072055_609756388055902_7005467819425736701_n.jpg',
+  '/images/469138810_609126958118845_8650880760494388940_n.jpg',
+  '/images/469260819_609774168054124_3699722170139197903_n.jpg',
+  '/images/469465619_611496361215238_5830762216394880863_n.jpg',
+  '/images/469528604_611496204548587_255201209616566963_n.jpg',
+  '/images/469565261_611496367881904_8215471119611863969_n.jpg',
+  '/images/469583847_611496104548597_30826172631232671_n.jpg',
+  '/images/469620894_611496427881898_1884497419873373850_n.jpg',
+  '/images/469639136_611496407881900_8611187158501325730_n.jpg',
+  '/images/469864323_611496421215232_6826778829493628708_n.jpg',
+  '/images/486973907_693895086354728_5870470351651792592_n.jpg',
+  '/images/487367997_693894936354743_2289428756857934428_n.jpg',
+  '/images/488504163_696163352794568_2389405504010046181_n.jpg',
+  '/images/488505039_693895166354720_8100618291408477348_n.jpg',
+  '/images/488601372_693895203021383_4713706625015829855_n.jpg',
+  '/images/529710803_18093477652639429_5830789645073796337_n.webp',
+  '/images/530618472_18093605002639429_1532166081922685035_n.webp',
+  '/images/530830813_18093605047639429_3380500334174600398_n.webp',
+  '/images/530843281_18093604984639429_1449346656347248637_n.webp',
+  '/images/530863497_18093605029639429_3453030396845106587_n.webp',
+  '/images/530985758_18093605020639429_4615635884927217154_n.webp',
+  '/images/531187493_18093605011639429_8909573816403726880_n.webp',
+  '/images/531286051_18093605038639429_6413714965315958363_n.webp',
+  '/images/531978017_18093604990639429_2204854191744847342_n.webp',
+  '/images/532121467_18093604996639429_2802365550660209698_n.webp',
+  '/images/IMG-20260302-WA0029.jpg',
+  '/images/IMG-20260302-WA0030.jpg',
 ];
 
 export const Gallery: React.FC = () => {
@@ -61,7 +81,7 @@ export const Gallery: React.FC = () => {
                   onClick={() => setSelectedImg(src)}
                   className="relative aspect-square rounded-2xl overflow-hidden cursor-pointer group"
                 >
-                  <img src={src} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <img src={src} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <Maximize2 className="text-white" size={32} />
                   </div>
@@ -78,17 +98,24 @@ export const Gallery: React.FC = () => {
               exit={{ opacity: 0, y: -20 }}
               className="grid md:grid-cols-2 gap-8"
             >
-              {[1, 2].map((i) => (
-                <div key={i} className="aspect-video rounded-3xl overflow-hidden bg-gray-100 shadow-xl">
-                  <iframe 
-                    width="100%" 
-                    height="100%" 
-                    src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
-                    title="YouTube video player" 
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowFullScreen
-                  ></iframe>
+              {[
+                '/videos/VID-20260302-WA0026.mp4',
+                '/videos/WhatsApp%20Video%202026-03-07%20at%206.14.38%20PM.mp4',
+                '/videos/WhatsApp%20Video%202026-03-07%20at%206.14.39%20PM.mp4',
+                '/videos/WhatsApp%20Video%202026-03-07%20at%206.14.59%20PM.mp4',
+                '/videos/WhatsApp%20Video%202026-03-07%20at%206.19.02%20PM.mp4',
+                '/videos/WhatsApp%20Video%202026-03-07%20at%206.19.03%20PM.mp4',
+              ].map((src, i) => (
+                <div key={i} className="aspect-video rounded-3xl overflow-hidden bg-gray-900 shadow-xl">
+                  <video
+                    className="w-full h-full object-cover"
+                    controls
+                    playsInline
+                    preload="metadata"
+                  >
+                    <source src={src} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
                 </div>
               ))}
             </motion.div>
@@ -113,7 +140,6 @@ export const Gallery: React.FC = () => {
               animate={{ scale: 1 }}
               src={selectedImg}
               className="max-w-full max-h-full rounded-lg shadow-2xl"
-              referrerPolicy="no-referrer"
             />
           </motion.div>
         )}
