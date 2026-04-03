@@ -59,7 +59,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
     if (paymentId && orderId && signature) {
       window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
       
-      const savedForm = sessionStorage.getItem('sevaBookingForm');
+      const savedForm = localStorage.getItem('sevaBookingForm');
       if (savedForm) {
         const parsedForm = JSON.parse(savedForm);
         setFormData(parsedForm);
@@ -69,7 +69,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
           razorpay_order_id: orderId,
           razorpay_signature: signature
         }, parsedForm);
-        sessionStorage.removeItem('sevaBookingForm');
+        localStorage.removeItem('sevaBookingForm');
       }
     }
   }, []);
@@ -392,7 +392,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
     setIsSubmitting(true);
     try {
       // Save form state in case Razorpay redirects
-      sessionStorage.setItem('sevaBookingForm', JSON.stringify(formData));
+      localStorage.setItem('sevaBookingForm', JSON.stringify(formData));
 
       // 1. Create Order
       const orderResponse = await fetch('/api/create-order', {
@@ -427,7 +427,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
         modal: {
           ondismiss: function() {
             setIsSubmitting(false);
-            sessionStorage.removeItem('sevaBookingForm');
+            localStorage.removeItem('sevaBookingForm');
             fetch('/api/notify-failure', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -450,7 +450,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
     } catch (error: any) {
       console.error('Razorpay Error:', error);
       alert(`Could not initiate payment: ${error.message}`);
-      sessionStorage.removeItem('sevaBookingForm');
+      localStorage.removeItem('sevaBookingForm');
     } finally {
       setIsSubmitting(false);
     }

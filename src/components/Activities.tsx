@@ -41,7 +41,7 @@ export const Activities: React.FC = () => {
       // Clear URL to prevent re-triggering upon refresh
       window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
       
-      const savedForm = sessionStorage.getItem('godanaForm');
+      const savedForm = localStorage.getItem('godanaForm');
       if (savedForm) {
         const parsedForm = JSON.parse(savedForm);
         setGodanaForm(parsedForm);
@@ -51,7 +51,7 @@ export const Activities: React.FC = () => {
           razorpay_order_id: orderId,
           razorpay_signature: signature
         }, parsedForm, parseInt(parsedForm.amount));
-        sessionStorage.removeItem('godanaForm');
+        localStorage.removeItem('godanaForm');
       }
     }
   }, []);
@@ -111,7 +111,7 @@ export const Activities: React.FC = () => {
     setIsSubmitting(true);
     try {
       // Save form state in case Razorpay redirects (common on mobile)
-      sessionStorage.setItem('godanaForm', JSON.stringify(godanaForm));
+      localStorage.setItem('godanaForm', JSON.stringify(godanaForm));
 
       // 1. Create Order on Server
       const orderResponse = await fetch('/api/create-order', {
@@ -146,7 +146,7 @@ export const Activities: React.FC = () => {
         modal: {
           ondismiss: function() {
             setIsSubmitting(false);
-            sessionStorage.removeItem('godanaForm');
+            localStorage.removeItem('godanaForm');
             fetch('/api/notify-failure', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -169,7 +169,7 @@ export const Activities: React.FC = () => {
     } catch (error: any) {
       console.error('Razorpay Error:', error);
       alert(`Could not initiate payment: ${error.message}. Please ensure the server is running.`);
-      sessionStorage.removeItem('godanaForm');
+      localStorage.removeItem('godanaForm');
     } finally {
       setIsSubmitting(false);
     }

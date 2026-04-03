@@ -27,25 +27,25 @@ export default function App() {
 
 function AppContent() {
   const [currentPage, setCurrentPageState] = useState(() => {
-    const saved = sessionStorage.getItem('currentPage');
+    const saved = localStorage.getItem('currentPage');
     return saved || 'home';
   });
   const [selectedSeva, setSelectedSevaState] = useState<Seva | null>(() => {
-    const saved = sessionStorage.getItem('selectedSeva');
+    const saved = localStorage.getItem('selectedSeva');
     return saved ? JSON.parse(saved) : null;
   });
 
   const setCurrentPage = (page: string) => {
     setCurrentPageState(page);
-    sessionStorage.setItem('currentPage', page);
+    localStorage.setItem('currentPage', page);
   };
 
   const setSelectedSeva = (seva: Seva | null) => {
     setSelectedSevaState(seva);
     if (seva) {
-      sessionStorage.setItem('selectedSeva', JSON.stringify(seva));
+      localStorage.setItem('selectedSeva', JSON.stringify(seva));
     } else {
-      sessionStorage.removeItem('selectedSeva');
+      localStorage.removeItem('selectedSeva');
     }
   };
 
@@ -73,7 +73,7 @@ function AppContent() {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('razorpay_payment_id') || urlParams.has('razorpay_payment_link_id')) {
         // If it's a redirect after godana payment, stay on activities page
-        if (sessionStorage.getItem('currentPage') === 'activities') {
+        if (localStorage.getItem('currentPage') === 'activities') {
            setCurrentPage('activities');
         } else {
            setCurrentPage('booking');
