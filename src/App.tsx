@@ -76,6 +76,20 @@ function AppContent() {
         if (localStorage.getItem('currentPage') === 'activities') {
            setCurrentPage('activities');
         } else {
+           // Booking flow — ensure selectedSeva is recovered so SevaBooking mounts
+           const savedSevaRaw = localStorage.getItem('selectedSeva');
+           if (!savedSevaRaw) {
+             // Try to recover from sevaBookingForm
+             const savedFormRaw = localStorage.getItem('sevaBookingForm');
+             if (savedFormRaw) {
+               try {
+                 const parsedForm = JSON.parse(savedFormRaw);
+                 if (parsedForm?.seva) {
+                   setSelectedSeva(parsedForm.seva);
+                 }
+               } catch (e) { /* ignore parse errors */ }
+             }
+           }
            setCurrentPage('booking');
         }
     }
@@ -117,7 +131,6 @@ function AppContent() {
           <SevaBooking 
             selectedSeva={selectedSeva} 
             onComplete={() => {
-              alert('Booking Successful!');
               setCurrentPage('home');
               setSelectedSeva(null);
             }}
