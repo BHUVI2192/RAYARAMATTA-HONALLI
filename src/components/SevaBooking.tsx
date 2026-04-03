@@ -391,7 +391,10 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
     const totalAmount = (formData.seva?.price || 0) * (formData.poojaDetails?.count || 1);
     setIsSubmitting(true);
     try {
-      // Save form state in case Razorpay redirects
+      // Explicitly persist route state so App.tsx restores correctly on mobile redirect
+      localStorage.setItem('currentPage', 'booking');
+      if (formData.seva) localStorage.setItem('selectedSeva', JSON.stringify(formData.seva));
+      // Save full form state in case Razorpay redirects
       localStorage.setItem('sevaBookingForm', JSON.stringify(formData));
 
       // 1. Create Order

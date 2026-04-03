@@ -110,6 +110,8 @@ export const Activities: React.FC = () => {
 
     setIsSubmitting(true);
     try {
+      // Explicitly persist the current page so App.tsx routes back here on mobile redirect
+      localStorage.setItem('currentPage', 'activities');
       // Save form state in case Razorpay redirects (common on mobile)
       localStorage.setItem('godanaForm', JSON.stringify(godanaForm));
 
