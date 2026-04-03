@@ -20,9 +20,21 @@ app.use(cors());
 app.use(express.json());
 
 const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY!
+  process.env.SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || ''
 );
+
+// Diagnostic endpoint
+app.get('/api/debug-env', (req, res) => {
+  res.json({
+    supabase_url: process.env.SUPABASE_URL ? 'PRESENT' : 'MISSING',
+    supabase_key: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SERVICE_ROLE_PRESENT' : (process.env.SUPABASE_ANON_KEY ? 'ANON_KEY_PRESENT' : 'MISSING'),
+    admin_password: process.env.ADMIN_PASSWORD ? 'PRESENT' : 'MISSING',
+    razorpay_key: process.env.RAZORPAY_KEY_ID ? 'PRESENT' : 'MISSING',
+    smtp_user: process.env.SMTP_USER ? 'PRESENT' : 'MISSING',
+    port: port
+  });
+});
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
@@ -47,6 +59,48 @@ transporter.verify((error, success) => {
     console.error('SMTP Connection Error:', error);
   } else {
     console.log('SMTP Server is ready to take messages');
+  }
+});
+
+app.post('/api/notify-failure', async (req, res) => {
+  const { name, email, amount, errorMsg } = req.body;
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+
+  const mailOptions = {
+    from: `"Rayara Matta Honalli" <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: `Payment Not Completed - Rayara Matta Honalli`,
+    html: `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #f0f0f0; padding: 40px; color: #333;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #8B0000; margin: 0; font-size: 24px;">Payment Not Completed</h1>
+          <p style="color: #666;">Rayara Matta Honalli, Honali</p>
+        </div>
+        
+        <p>नमस्ते${name ? ' <strong>' + name + '</strong>' : ''},</p>
+        <p>Your recent payment attempt of <strong>₹${amount}</strong> was not completed or was cancelled.</p>
+        <p style="color: #8B0000; background: #fff8f8; padding: 10px; border-left: 4px solid #8B0000;">
+          Reason: ${errorMsg || 'Transaction incomplete'}
+        </p>
+        <p>If any money was mistakenly deducted from your account, it will be refunded automatically by your bank within 5-7 working days. Please try again or contact us if you need help.</p>
+        
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #999; text-align: center;">
+          <p>Rayara Matta Honalli, Venkateswara Nagar (West), Honali, Karnataka - 577217</p>
+          <p>Contact: +91 99403 83604</p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Failure email sent to:', email);
+    res.json({ success: true, message: 'Failure notification sent' });
+  } catch (mailError) {
+    console.error('Error sending failure email:', mailError);
+    res.status(500).json({ success: false, error: 'Could not send email' });
   }
 });
 
@@ -124,10 +178,10 @@ app.post('/api/bookings', async (req, res) => {
     }
 
     res.status(201).json({ success: true, message: 'Booking saved successfully' });
-  } catch (error) {
-    console.error('Error handling booking:', error);
-    res.status(500).json({ success: false, error: 'Internal server error' });
-  }
+    } catch (err: any) {
+      console.error('Login Error:', err);
+      res.status(500).json({ success: false, error: `Connection failed: ${err.message || 'Unknown error'}. Please check if the backend server is running.` });
+    }
 });
 
 app.post('/api/godana', async (req, res) => {

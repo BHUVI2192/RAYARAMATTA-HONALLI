@@ -26,8 +26,28 @@ export default function App() {
 }
 
 function AppContent() {
-  const [currentPage, setCurrentPage] = useState('home');
-  const [selectedSeva, setSelectedSeva] = useState<Seva | null>(null);
+  const [currentPage, setCurrentPageState] = useState(() => {
+    const saved = sessionStorage.getItem('currentPage');
+    return saved || 'home';
+  });
+  const [selectedSeva, setSelectedSevaState] = useState<Seva | null>(() => {
+    const saved = sessionStorage.getItem('selectedSeva');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const setCurrentPage = (page: string) => {
+    setCurrentPageState(page);
+    sessionStorage.setItem('currentPage', page);
+  };
+
+  const setSelectedSeva = (seva: Seva | null) => {
+    setSelectedSevaState(seva);
+    if (seva) {
+      sessionStorage.setItem('selectedSeva', JSON.stringify(seva));
+    } else {
+      sessionStorage.removeItem('selectedSeva');
+    }
+  };
 
   // Scroll to top on page change
   useEffect(() => {
@@ -39,13 +59,26 @@ function AppContent() {
     const handleHashChange = () => {
       if (window.location.hash === '#admin') {
         setCurrentPage('admin');
-      } else if (window.location.hash === '#home' || window.location.hash === '') {
+      } else if (window.location.hash === '#home') {
         setCurrentPage('home');
       }
     };
 
-    // Check on initial load
-    handleHashChange();
+    // Check on initial load only if hash exists
+    if (window.location.hash) {
+      handleHashChange();
+    }
+
+    // Check for Razorpay redirect signatures
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('razorpay_payment_id') || urlParams.has('razorpay_payment_link_id')) {
+        // If it's a redirect after godana payment, stay on activities page
+        if (sessionStorage.getItem('currentPage') === 'activities') {
+           setCurrentPage('activities');
+        } else {
+           setCurrentPage('booking');
+        }
+    }
 
     // Listen for changes
     window.addEventListener('hashchange', handleHashChange);

@@ -30,6 +30,76 @@ export const Activities: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    // Check for Razorpay redirect
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentId = urlParams.get('razorpay_payment_id');
+    const orderId = urlParams.get('razorpay_order_id');
+    const signature = urlParams.get('razorpay_signature');
+    
+    if (paymentId && orderId && signature) {
+      // Clear URL to prevent re-triggering upon refresh
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+      
+      const savedForm = sessionStorage.getItem('godanaForm');
+      if (savedForm) {
+        const parsedForm = JSON.parse(savedForm);
+        setGodanaForm(parsedForm);
+        setShowGodanaModal(true); // Open modal to show success later
+        verifyAndSaveGodanaPayment({
+          razorpay_payment_id: paymentId,
+          razorpay_order_id: orderId,
+          razorpay_signature: signature
+        }, parsedForm, parseInt(parsedForm.amount));
+        sessionStorage.removeItem('godanaForm');
+      }
+    }
+  }, []);
+
+  const verifyAndSaveGodanaPayment = async (response: any, formInfo: any, amountValue: number) => {
+    setIsSubmitting(true);
+    try {
+      const verifyResponse = await fetch('/api/verify-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(response),
+      });
+      
+      if (!verifyResponse.ok) throw new Error('Verification request failed');
+      const verifyData = await verifyResponse.json();
+
+      if (verifyData.success) {
+        const saveResponse = await fetch('/api/godana', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...formInfo,
+            amount: amountValue,
+            payment_id: response.razorpay_payment_id
+          }),
+        });
+        
+        if (!saveResponse.ok) throw new Error('Saving payment failed');
+        const saveData = await saveResponse.json();
+        
+        if (saveData.success) {
+          setSuccessPaymentId(response.razorpay_payment_id);
+          setShowSuccess(true);
+          setGodanaForm({ name: '', phone: '', email: '', amount: '501' });
+        } else {
+          throw new Error(saveData.error || 'Failed to save contribution details');
+        }
+      } else {
+        alert('Payment verification failed. Please contact support if your money was deducted.');
+      }
+    } catch (err: any) {
+      console.error('Post-payment error:', err);
+      alert(`Error: ${err.message}. Please save your Payment ID: ${response.razorpay_payment_id}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleGodanaPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     const amount = parseInt(godanaForm.amount);
@@ -40,6 +110,9 @@ export const Activities: React.FC = () => {
 
     setIsSubmitting(true);
     try {
+      // Save form state in case Razorpay redirects (common on mobile)
+      sessionStorage.setItem('godanaForm', JSON.stringify(godanaForm));
+
       // 1. Create Order on Server
       const orderResponse = await fetch('/api/create-order', {
         method: 'POST',
@@ -63,49 +136,7 @@ export const Activities: React.FC = () => {
         description: 'Godana Seva Contribution',
         order_id: orderData.order.id,
         handler: async (response: any) => {
-          setIsSubmitting(true);
-          try {
-            // 2. Verify Payment on Server
-            const verifyResponse = await fetch('/api/verify-payment', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(response),
-            });
-            
-            if (!verifyResponse.ok) throw new Error('Verification request failed');
-            const verifyData = await verifyResponse.json();
-
-            if (verifyData.success) {
-              // 3. Save Godana Payment
-              const saveResponse = await fetch('/api/godana', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  ...godanaForm,
-                  amount,
-                  payment_id: response.razorpay_payment_id
-                }),
-              });
-              
-              if (!saveResponse.ok) throw new Error('Saving payment failed');
-              const saveData = await saveResponse.json();
-              
-              if (saveData.success) {
-                setSuccessPaymentId(response.razorpay_payment_id);
-                setShowSuccess(true);
-                setGodanaForm({ name: '', phone: '', email: '', amount: '501' });
-              } else {
-                throw new Error(saveData.error || 'Failed to save contribution details');
-              }
-            } else {
-              alert('Payment verification failed. Please contact support if your money was deducted.');
-            }
-          } catch (err: any) {
-            console.error('Post-payment error:', err);
-            alert(`Error: ${err.message}. Please save your Payment ID: ${response.razorpay_payment_id}`);
-          } finally {
-            setIsSubmitting(false);
-          }
+          verifyAndSaveGodanaPayment(response, godanaForm, amount);
         },
         prefill: {
           name: godanaForm.name,
@@ -115,6 +146,7 @@ export const Activities: React.FC = () => {
         modal: {
           ondismiss: function() {
             setIsSubmitting(false);
+            sessionStorage.removeItem('godanaForm');
             fetch('/api/notify-failure', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -137,6 +169,7 @@ export const Activities: React.FC = () => {
     } catch (error: any) {
       console.error('Razorpay Error:', error);
       alert(`Could not initiate payment: ${error.message}. Please ensure the server is running.`);
+      sessionStorage.removeItem('godanaForm');
     } finally {
       setIsSubmitting(false);
     }

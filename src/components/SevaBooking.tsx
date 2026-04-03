@@ -50,6 +50,77 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
     }
   });
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentId = urlParams.get('razorpay_payment_id');
+    const orderId = urlParams.get('razorpay_order_id');
+    const signature = urlParams.get('razorpay_signature');
+
+    if (paymentId && orderId && signature) {
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+      
+      const savedForm = sessionStorage.getItem('sevaBookingForm');
+      if (savedForm) {
+        const parsedForm = JSON.parse(savedForm);
+        setFormData(parsedForm);
+        setStep(4); // Advance to payment step
+        verifyAndSaveBooking({
+          razorpay_payment_id: paymentId,
+          razorpay_order_id: orderId,
+          razorpay_signature: signature
+        }, parsedForm);
+        sessionStorage.removeItem('sevaBookingForm');
+      }
+    }
+  }, []);
+
+  const verifyAndSaveBooking = async (response: any, formInfo: any) => {
+    setIsSubmitting(true);
+    try {
+      const verifyResponse = await fetch('/api/verify-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(response),
+      });
+      
+      if (!verifyResponse.ok) throw new Error('Verification request failed');
+      const verifyData = await verifyResponse.json();
+
+      if (verifyData.success) {
+        const saveResponse = await fetch('/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...formInfo,
+            poojaDetails: {
+              ...formInfo.poojaDetails,
+              transactionId: response.razorpay_payment_id,
+              payment_status: 'Confirmed'
+            }
+          }),
+        });
+        
+        if (!saveResponse.ok) throw new Error('Saving booking failed');
+        const saveData = await saveResponse.json();
+        
+        if (saveData.success) {
+          setTransactionId(response.razorpay_payment_id);
+          setShowSuccess(true);
+        } else {
+          throw new Error(saveData.error || 'Failed to save booking details');
+        }
+      } else {
+        alert('Payment verification failed.');
+      }
+    } catch (err: any) {
+      console.error('Post-payment error:', err);
+      alert(`Error: ${err.message}. Please save your Payment ID: ${response.razorpay_payment_id}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+
   const updateUserDetails = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -320,6 +391,9 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
     const totalAmount = (formData.seva?.price || 0) * (formData.poojaDetails?.count || 1);
     setIsSubmitting(true);
     try {
+      // Save form state in case Razorpay redirects
+      sessionStorage.setItem('sevaBookingForm', JSON.stringify(formData));
+
       // 1. Create Order
       const orderResponse = await fetch('/api/create-order', {
         method: 'POST',
@@ -343,51 +417,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
         description: `${formData.seva?.name} Booking`,
         order_id: orderData.order.id,
         handler: async (response: any) => {
-          setIsSubmitting(true);
-          try {
-            // 2. Verify Payment
-            const verifyResponse = await fetch('/api/verify-payment', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(response),
-            });
-            
-            if (!verifyResponse.ok) throw new Error('Verification request failed');
-            const verifyData = await verifyResponse.json();
-
-            if (verifyData.success) {
-              // 3. Save Booking
-              const saveResponse = await fetch('/api/bookings', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  ...formData,
-                  poojaDetails: {
-                    ...formData.poojaDetails,
-                    transactionId: response.razorpay_payment_id,
-                    payment_status: 'Confirmed'
-                  }
-                }),
-              });
-              
-              if (!saveResponse.ok) throw new Error('Saving booking failed');
-              const saveData = await saveResponse.json();
-              
-              if (saveData.success) {
-                setTransactionId(response.razorpay_payment_id);
-                setShowSuccess(true);
-              } else {
-                throw new Error(saveData.error || 'Failed to save booking details');
-              }
-            } else {
-              alert('Payment verification failed.');
-            }
-          } catch (err: any) {
-            console.error('Post-payment error:', err);
-            alert(`Error: ${err.message}. Please save your Payment ID: ${response.razorpay_payment_id}`);
-          } finally {
-            setIsSubmitting(false);
-          }
+          verifyAndSaveBooking(response, formData);
         },
         prefill: {
           name: formData.userDetails?.name,
@@ -397,6 +427,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
         modal: {
           ondismiss: function() {
             setIsSubmitting(false);
+            sessionStorage.removeItem('sevaBookingForm');
             fetch('/api/notify-failure', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -419,6 +450,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
     } catch (error: any) {
       console.error('Razorpay Error:', error);
       alert(`Could not initiate payment: ${error.message}`);
+      sessionStorage.removeItem('sevaBookingForm');
     } finally {
       setIsSubmitting(false);
     }

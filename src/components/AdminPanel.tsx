@@ -63,27 +63,37 @@ export const AdminPanel: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
     try {
       const headers = { 'x-admin-password': password };
       const res = await fetch('/api/admin/bookings', { headers });
       
+      let data;
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(`Server returned non-JSON response (${res.status}): ${text.substring(0, 100)}`);
+      }
+
       if (res.status === 401) {
         setError('Invalid admin password');
-      } else {
-        const data = await res.json();
-        if (data.success) {
-          setBookings(data.bookings);
-          setIsAuthenticated(true);
-          const godanaRes = await fetch('/api/admin/godana', { headers });
+      } else if (res.ok && data.success) {
+        setBookings(data.bookings);
+        setIsAuthenticated(true);
+        
+        // Fetch godana data too
+        const godanaRes = await fetch('/api/admin/godana', { headers });
+        if (godanaRes.ok) {
           const godanaData = await godanaRes.json();
           if (godanaData.success) setGodanaPayments(godanaData.godana);
-        } else {
-          setError(data.error || 'Access denied');
         }
+      } else {
+        setError(data.error || data.message || 'Access denied');
       }
-    } catch (err) {
-      setError('Connection failed. Please check your internet or retry.');
+    } catch (err: any) {
+      console.error('Login Error:', err);
+      setError(`Login failed: ${err.message || 'Connection error'}`);
     } finally {
       setLoading(false);
     }
@@ -105,8 +115,15 @@ export const AdminPanel: React.FC = () => {
         return;
       }
 
-      const bookingsData = await bookingsRes.json();
-      const godanaData = await godanaRes.json();
+      const getJson = async (res: Response) => {
+        const ct = res.headers.get('content-type');
+        if (ct && ct.includes('application/json')) return res.json();
+        const text = await res.text();
+        throw new Error(`Server error (${res.status}): ${text.substring(0, 100)}`);
+      };
+
+      const bookingsData = await getJson(bookingsRes);
+      const godanaData = await getJson(godanaRes);
 
       if (bookingsData.success) {
         setBookings(bookingsData.bookings);
@@ -116,13 +133,13 @@ export const AdminPanel: React.FC = () => {
 
       if (godanaData.success) {
         setGodanaPayments(godanaData.godana);
-      } else if (!bookingsData.success) {
-        // If both failed, show a combined or the godana error if it's different
-        setError(prev => prev + ' | ' + (godanaData.error || 'Failed to sync godana'));
+      } else if (bookingsData.success) {
+        setError(godanaData.error || 'Failed to sync godana');
       }
       
     } catch (err: any) {
-      setError('Data sync failed: ' + (err.message || 'Unknown error'));
+      console.error('Sync Error:', err);
+      setError('Data sync failed: ' + (err.message || 'Check connection'));
     } finally {
       setLoading(false);
     }
