@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Heart, Info, BookOpen, Globe } from 'lucide-react';
+import { Heart, Info, BookOpen, Globe, CreditCard, User, Phone, Mail, IndianRupee, CheckCircle, Loader2, X } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 const goshalaImages = [
@@ -11,6 +11,14 @@ const goshalaImages = [
 
 export const Activities: React.FC = () => {
   const [currentImg, setCurrentImg] = useState(0);
+  const [showGodanaModal, setShowGodanaModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [godanaForm, setGodanaForm] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    amount: '501'
+  });
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -19,6 +27,82 @@ export const Activities: React.FC = () => {
     }, 4000);
     return () => clearInterval(timer);
   }, []);
+
+  const handleGodanaPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const amount = parseInt(godanaForm.amount);
+    if (isNaN(amount) || amount < 1) {
+      alert('Please enter a valid amount');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // 1. Create Order on Server
+      const orderResponse = await fetch('/api/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount, type: 'godana' }),
+      });
+      const orderData = await orderResponse.json();
+      if (!orderData.success) throw new Error('Order creation failed');
+
+      const options = {
+        key: 'rzp_live_SX8dAraaIbrAei', // Using the key from the other components
+        amount: orderData.order.amount,
+        currency: 'INR',
+        name: 'Rayara Matta Honalli',
+        description: 'Godana Seva Contribution',
+        order_id: orderData.order.id,
+        handler: async (response: any) => {
+          // 2. Verify Payment on Server
+          const verifyResponse = await fetch('/api/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(response),
+          });
+          const verifyData = await verifyResponse.json();
+
+          if (verifyData.success) {
+            // 3. Save Godana Payment
+            const saveResponse = await fetch('/api/godana', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ...godanaForm,
+                amount,
+                payment_id: response.razorpay_payment_id
+              }),
+            });
+            const saveData = await saveResponse.json();
+            if (saveData.success) {
+              alert(t('act.goshala.success'));
+              setShowGodanaModal(false);
+              setGodanaForm({ name: '', phone: '', email: '', amount: '501' });
+            }
+          } else {
+            alert('Payment verification failed.');
+          }
+        },
+        prefill: {
+          name: godanaForm.name,
+          email: godanaForm.email,
+          contact: godanaForm.phone,
+        },
+        theme: {
+          color: '#8B0000',
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error('Razorpay Error:', error);
+      alert('Failed to initiate payment. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="pt-24 pb-16 bg-white">
@@ -67,8 +151,134 @@ export const Activities: React.FC = () => {
                 <p className="text-xs text-orange-600 font-bold uppercase">{t('act.goshala.fodder')}</p>
               </div>
             </div>
+            
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowGodanaModal(true)}
+              className="mt-8 w-full sm:w-auto bg-[#8B0000] text-white px-8 py-4 rounded-full font-bold shadow-xl hover:bg-[#6B0000] transition-all flex items-center justify-center gap-3"
+            >
+              <Heart size={20} fill="currentColor" />
+              {t('act.goshala.btn')}
+            </motion.button>
           </div>
         </div>
+
+        <AnimatePresence>
+          {showGodanaModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="bg-white w-full max-w-xl rounded-[32px] shadow-2xl overflow-y-auto max-h-[90vh] relative mx-4"
+              >
+                <button 
+                  onClick={() => setShowGodanaModal(false)}
+                  className="absolute right-6 top-6 p-2 hover:bg-gray-100 rounded-full text-gray-400 transition-colors z-10"
+                >
+                  <X size={24} />
+                </button>
+
+                <div className="p-6 sm:p-12">
+                  <div className="text-center mb-8 sm:mb-10">
+                    <div className="inline-block p-2.5 sm:p-3 bg-emerald-100 text-emerald-600 rounded-2xl mb-4">
+                      <Heart size={28} fill="currentColor" className="sm:w-8 sm:h-8" />
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-[#8B0000]">{t('act.goshala.mdl.title')}</h2>
+                    <p className="text-sm sm:text-base text-gray-500 mt-2 px-2">{t('act.goshala.mdl.desc')}</p>
+                  </div>
+
+                  <form onSubmit={handleGodanaPayment} className="space-y-6">
+                    <div className="grid sm:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                          <User size={14} /> {t('act.goshala.form.name')}
+                        </label>
+                        <input
+                          required
+                          type="text"
+                          value={godanaForm.name}
+                          onChange={(e) => setGodanaForm({...godanaForm, name: e.target.value})}
+                          className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
+                          placeholder="John Doe"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                          <Phone size={14} /> {t('act.goshala.form.phone')}
+                        </label>
+                        <input
+                          required
+                          type="tel"
+                          value={godanaForm.phone}
+                          onChange={(e) => setGodanaForm({...godanaForm, phone: e.target.value})}
+                          className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
+                          placeholder="+91 99000 00000"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                        <Mail size={14} /> {t('act.goshala.form.email')}
+                      </label>
+                      <input
+                        required
+                        type="email"
+                        value={godanaForm.email}
+                        onChange={(e) => setGodanaForm({...godanaForm, email: e.target.value})}
+                        className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
+                        placeholder="john@example.com"
+                      />
+                    </div>
+
+                    <div className="space-y-4">
+                      <label className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                        <IndianRupee size={14} /> {t('act.goshala.form.amount')}
+                      </label>
+                      <div className="grid grid-cols-4 gap-2">
+                        {['501', '1001', '5001', '10001'].map((val) => (
+                          <button
+                            key={val}
+                            type="button"
+                            onClick={() => setGodanaForm({...godanaForm, amount: val})}
+                            className={`py-3 rounded-xl text-sm font-bold border transition-all ${
+                              godanaForm.amount === val 
+                                ? 'bg-[#8B0000] text-white border-[#8B0000]' 
+                                : 'bg-white text-gray-600 border-gray-100 hover:border-[#8B0000]'
+                            }`}
+                          >
+                            ₹{val}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="relative">
+                        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</span>
+                        <input
+                          required
+                          type="number"
+                          value={godanaForm.amount}
+                          onChange={(e) => setGodanaForm({...godanaForm, amount: e.target.value})}
+                          className="w-full pl-10 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all font-bold text-lg"
+                          placeholder="Other amount"
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      disabled={isSubmitting}
+                      className="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-bold shadow-xl hover:bg-[#6B0000] transition-all flex items-center justify-center gap-3 disabled:opacity-50 mt-4"
+                    >
+                      {isSubmitting ? <Loader2 className="animate-spin" /> : <CreditCard size={20} />}
+                      {isSubmitting ? t('act.goshala.form.processing') : `${t('act.goshala.form.submit')} ₹${godanaForm.amount}`}
+                    </button>
+                  </form>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
         <div className="grid md:grid-cols-3 gap-8 mb-24">
           {[

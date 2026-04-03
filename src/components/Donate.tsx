@@ -1,16 +1,17 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Heart, CreditCard, Landmark, Copy } from 'lucide-react';
+import { Heart, CreditCard, Landmark, Copy, Smartphone } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export const Donate: React.FC = () => {
   const { t } = useLanguage();
+
   const bankDetails = {
     accountName: "Shri Raghavendra Swamy Seva Trust",
-    accountNumber: "1234567890",
-    bankName: "State Bank of India",
-    branch: "Honali Branch",
-    ifscCode: "SBIN0001234",
+    accountNumber: "3102500101501101",
+    bankName: "KARNATAKA BANK LTD",
+    branch: "Honnali- 577217",
+    ifscCode: "KARB0000310",
     upiId: "honali.mutt@sbi"
   };
 
@@ -18,6 +19,7 @@ export const Donate: React.FC = () => {
     navigator.clipboard.writeText(text);
     alert('Copied to clipboard!');
   };
+
 
   return (
     <div className="min-h-screen pt-24 pb-16 bg-gray-50">
@@ -68,29 +70,33 @@ export const Donate: React.FC = () => {
           <motion.div 
             initial={{ x: 20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            className="bg-[#8B0000] text-white p-8 rounded-2xl shadow-xl"
+            className="bg-[#8B0000] text-white p-8 rounded-2xl shadow-xl space-y-8 flex flex-col justify-center"
           >
-            <div className="flex items-center gap-3 mb-6">
-              <CreditCard size={24} />
-              <h2 className="text-xl font-bold">{t('donate.online.title')}</h2>
+            <div className="text-center space-y-4">
+              <div className="inline-block p-4 bg-white/10 rounded-full mb-2">
+                <Smartphone size={32} />
+              </div>
+              <h2 className="text-2xl font-bold">{t('donate.online.title')}</h2>
+              <p className="text-red-100 opacity-80 text-sm">
+                For quick donations, please use any UPI app (Google Pay, PhonePe, Paytm) to scan or enter our UPI ID.
+              </p>
             </div>
             
-            <div className="bg-white p-4 rounded-xl mb-6 flex justify-center">
-              <img 
-                src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=honali.mutt@sbi&pn=Shri%20Raghavendra%20Swamy%20Seva%20Trust&cu=INR" 
-                alt="UPI QR Code"
-                className="w-48 h-48"
-              />
+            <div className="bg-white/10 border border-white/20 rounded-2xl p-6 text-center space-y-4">
+              <p className="text-xs font-bold text-red-200 uppercase tracking-widest">Official UPI ID</p>
+              <p className="text-2xl font-bold select-all">{bankDetails.upiId}</p>
+              <button 
+                onClick={() => copyToClipboard(bankDetails.upiId)}
+                className="inline-flex items-center gap-2 bg-white text-[#8B0000] px-6 py-2 rounded-full font-bold text-sm hover:bg-red-50 transition-all"
+              >
+                <Copy size={16} /> Copy UPI ID
+              </button>
             </div>
 
-            <div className="text-center">
-              <p className="text-sm opacity-80 mb-2">{t('donate.online.scan')}</p>
-              <p className="font-mono font-bold text-lg tracking-wider">UPI ID: {bankDetails.upiId}</p>
-            </div>
-
-            <div className="mt-8 pt-8 border-t border-white/10">
-              <p className="text-xs opacity-60 leading-relaxed">
-                {t('donate.note')}
+            <div className="text-center space-y-2">
+              <p className="text-xs opacity-60 uppercase tracking-widest leading-relaxed">
+                Thank you for your support.<br/>
+                Online payment gateway will be enabled soon.
               </p>
             </div>
           </motion.div>

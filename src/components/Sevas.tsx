@@ -39,7 +39,6 @@ export const Sevas: React.FC<SevasProps> = ({ onSelectSeva }) => {
     { id: 'godana-madhyama', name: t('seva.godana.madhyama'), price: 5000 },
     { id: 'godana-uttama', name: t('seva.godana.uttama'), price: 10000 },
     { id: 'godana-salankruta', name: t('seva.godana.salankruta'), price: 20000 },
-    { id: 'godana-hidihullu', name: t('seva.godana.hidihullu'), price: 100 },
   ];
 
   return (

@@ -22,6 +22,7 @@ export interface BookingData {
     rashi: string;
     vedha: string;
     message?: string;
+    transactionId?: string;
   };
 }
 

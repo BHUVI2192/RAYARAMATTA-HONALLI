@@ -11,6 +11,7 @@ import { Slokas } from './components/Slokas';
 import { ContactFeedback } from './components/ContactFeedback';
 import { Donate } from './components/Donate';
 import { SevaBooking } from './components/SevaBooking';
+import { AdminPanel } from './components/AdminPanel';
 import { Footer } from './components/Footer';
 import { motion, AnimatePresence } from 'motion/react';
 import { Seva } from './types';
@@ -32,6 +33,24 @@ function AppContent() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [currentPage]);
+
+  // Handle secret admin access via URL hash (#admin)
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#admin') {
+        setCurrentPage('admin');
+      } else if (window.location.hash === '#home' || window.location.hash === '') {
+        setCurrentPage('home');
+      }
+    };
+
+    // Check on initial load
+    handleHashChange();
+
+    // Listen for changes
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   const handleSelectSeva = (seva: Seva) => {
     setSelectedSeva(seva);
@@ -75,6 +94,8 @@ function AppContent() {
             }}
           />
         ) : <SevaVivara onSelectSeva={handleSelectSeva} />;
+      case 'admin':
+        return <AdminPanel />;
       default: return <Hero />;
     }
   };
