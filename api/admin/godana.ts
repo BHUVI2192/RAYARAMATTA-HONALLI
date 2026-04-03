@@ -16,11 +16,14 @@ export default async function handler(
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase Admin Godana Error:', error);
+      return res.status(500).json({ success: false, error: `Supabase Error: ${error.message} (${error.code})` });
+    }
 
     res.status(200).json({ success: true, godana: data });
   } catch (error: any) {
-    console.error('Error fetching admin godana payments:', error);
-    res.status(500).json({ success: false, error: error.message });
+    console.error('System Error fetching admin godana payments:', error);
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }
 }

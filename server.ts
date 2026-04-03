@@ -208,10 +208,14 @@ app.get('/api/admin/bookings', async (req, res) => {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase Bookings Error:', error);
+      return res.status(500).json({ success: false, error: `Supabase Error: ${error.message} (${error.code})` });
+    }
     res.json({ success: true, bookings });
   } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Fetch Bookings System Error:', error);
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }
 });
 
@@ -227,10 +231,14 @@ app.get('/api/admin/godana', async (req, res) => {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase Godana Error:', error);
+      return res.status(500).json({ success: false, error: `Supabase Error: ${error.message} (${error.code})` });
+    }
     res.json({ success: true, godana });
   } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Fetch Godana System Error:', error);
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }
 });
 

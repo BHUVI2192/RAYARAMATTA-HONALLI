@@ -29,6 +29,7 @@ CREATE TABLE godana_payments (
     email TEXT,
     amount INTEGER NOT NULL,
     payment_id TEXT,
+    status TEXT DEFAULT 'Confirmed',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

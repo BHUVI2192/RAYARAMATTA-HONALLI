@@ -70,8 +70,6 @@ export const AdminPanel: React.FC = () => {
       
       if (res.status === 401) {
         setError('Invalid admin password');
-      } else if (!res.ok) {
-        setError('Server error while logging in');
       } else {
         const data = await res.json();
         if (data.success) {
@@ -81,7 +79,7 @@ export const AdminPanel: React.FC = () => {
           const godanaData = await godanaRes.json();
           if (godanaData.success) setGodanaPayments(godanaData.godana);
         } else {
-          setError(data.error || 'Login failed');
+          setError(data.error || 'Access denied');
         }
       }
     } catch (err) {
@@ -110,11 +108,21 @@ export const AdminPanel: React.FC = () => {
       const bookingsData = await bookingsRes.json();
       const godanaData = await godanaRes.json();
 
-      if (bookingsData.success) setBookings(bookingsData.bookings);
-      if (godanaData.success) setGodanaPayments(godanaData.godana);
+      if (bookingsData.success) {
+        setBookings(bookingsData.bookings);
+      } else {
+        setError(bookingsData.error || 'Failed to sync bookings');
+      }
+
+      if (godanaData.success) {
+        setGodanaPayments(godanaData.godana);
+      } else if (!bookingsData.success) {
+        // If both failed, show a combined or the godana error if it's different
+        setError(prev => prev + ' | ' + (godanaData.error || 'Failed to sync godana'));
+      }
       
-    } catch (err) {
-      setError('Failed to refresh data');
+    } catch (err: any) {
+      setError('Data sync failed: ' + (err.message || 'Unknown error'));
     } finally {
       setLoading(false);
     }
