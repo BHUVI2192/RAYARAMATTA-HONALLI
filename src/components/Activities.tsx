@@ -37,7 +37,7 @@ export const Activities: React.FC = () => {
     const orderId = urlParams.get('razorpay_order_id');
     const signature = urlParams.get('razorpay_signature');
     
-    if (paymentId && orderId && signature) {
+    if (paymentId) {
       // Clear URL to prevent re-triggering upon refresh
       window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
       

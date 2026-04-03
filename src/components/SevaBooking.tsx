@@ -56,7 +56,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
     const orderId = urlParams.get('razorpay_order_id');
     const signature = urlParams.get('razorpay_signature');
 
-    if (paymentId && orderId && signature) {
+    if (paymentId) {
       window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
       
       const savedForm = localStorage.getItem('sevaBookingForm');
