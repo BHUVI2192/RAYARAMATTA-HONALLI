@@ -66,22 +66,24 @@ app.post('/api/bookings', async (req, res) => {
           address: userDetails.address,
           date: poojaDetails.date,
           count: poojaDetails.count,
+          total_price: seva.price * poojaDetails.count,
           gothra: poojaDetails.gothra,
           nakshathra: poojaDetails.nakshathra,
           rashi: poojaDetails.rashi,
           vedha: poojaDetails.vedha,
           message: poojaDetails.message,
-          transaction_id: poojaDetails.transactionId
+          transaction_id: poojaDetails.transactionId,
+          payment_status: req.body.payment_status || 'Pending Verification'
         }
       ]);
 
     if (dbError) throw dbError;
 
-    // Send confirmation email
+    // Send confirmation email for Seva
     const mailOptions = {
       from: `"Rayara Matta Honalli" <${process.env.SMTP_USER}>`,
       to: userDetails.email,
-      subject: 'Seva Booking Confirmation - Rayara Matta Honalli',
+      subject: `Seva Booking Confirmation - ${seva.name}`,
       html: `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #f0f0f0; padding: 40px; color: #333;">
           <div style="text-align: center; margin-bottom: 30px;">
@@ -90,7 +92,7 @@ app.post('/api/bookings', async (req, res) => {
           </div>
           
           <p>नमस्ते <strong>${userDetails.name}</strong>,</p>
-          <p>Thank you for booking <strong>${seva.name}</strong>. Your payment has been received and the seva has been scheduled.</p>
+          <p>Your booking for <strong>${seva.name}</strong> has been successfully received. May the blessings of Guru Raghavendra Swamy be with you.</p>
           
           <div style="background: #fff8f8; padding: 25px; border-radius: 12px; margin: 30px 0; border: 1px solid #ffebeb;">
             <p style="color: #8B0000; font-weight: bold; margin-top: 0; border-bottom: 1px solid #ffebeb; padding-bottom: 10px;">Booking Summary</p>
@@ -100,12 +102,13 @@ app.post('/api/bookings', async (req, res) => {
               <tr><td style="padding: 5px 0; color: #777;">Amount Paid</td><td style="padding: 5px 0; text-align: right; font-weight: bold; color: #8B0000;">₹${seva.price * poojaDetails.count}</td></tr>
               <tr><td style="padding: 5px 0; color: #777;">Gothra</td><td style="padding: 5px 0; text-align: right;">${poojaDetails.gothra || 'N/A'}</td></tr>
               <tr><td style="padding: 5px 0; color: #777;">Nakshathra</td><td style="padding: 5px 0; text-align: right;">${poojaDetails.nakshathra || 'N/A'}</td></tr>
+              <tr><td style="padding: 5px 0; color: #777;">Transaction ID</td><td style="padding: 5px 0; text-align: right; font-family: monospace;">${poojaDetails.transactionId || 'N/A'}</td></tr>
             </table>
           </div>
           
           <p style="line-height: 1.6;">Your seva will be performed with all rituals. May the blessings of Guru Raghavendra Swamy be with you always.</p>
           
-          <div style="margin-top: 40px; pt-20; border-top: 1px solid #eee; font-size: 12px; color: #999; text-align: center;">
+          <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #999; text-align: center;">
             <p>Rayara Matta Honalli, Venkateswara Nagar (West), Honali, Karnataka - 577217</p>
             <p>Contact: +91 99403 83604</p>
           </div>
@@ -139,7 +142,8 @@ app.post('/api/godana', async (req, res) => {
           phone,
           email,
           amount,
-          payment_id
+          payment_id,
+          status: req.body.status || 'Confirmed'
         }
       ]);
 
@@ -230,6 +234,28 @@ app.get('/api/admin/godana', async (req, res) => {
   }
 });
 
+app.post('/api/admin/confirm-booking', async (req, res) => {
+  const password = req.headers['x-admin-password'];
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  if (password !== adminPassword) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+
+  const { bookingId, status } = req.body;
+  try {
+    const { data, error } = await supabase
+      .from('bookings')
+      .update({ payment_status: status || 'Confirmed' })
+      .eq('id', bookingId)
+      .select();
+
+    if (error) throw error;
+    res.json({ success: true, message: 'Status updated', booking: data[0] });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 app.post('/api/create-order', async (req, res) => {
   const { amount, type } = req.body; // type: 'seva', 'godana', or 'donate'
 
@@ -244,7 +270,11 @@ app.post('/api/create-order', async (req, res) => {
     // For now, it goes to the main account.
     
     const order = await razorpay.orders.create(options);
-    res.json({ success: true, order });
+    res.json({ 
+      success: true, 
+      order,
+      keyId: process.env.RAZORPAY_KEY_ID
+    });
   } catch (error) {
     console.error('Error creating Razorpay order:', error);
     res.status(500).json({ success: false, error: 'Failed to create order' });
@@ -264,6 +294,22 @@ app.post('/api/verify-payment', async (req, res) => {
     res.json({ success: true, message: 'Payment verified successfully' });
   } else {
     res.status(400).json({ success: false, message: 'Invalid signature' });
+  }
+});
+
+app.post('/api/notify-failure', async (req, res) => {
+  const { email, name, amount, errorMsg } = req.body;
+  try {
+    const mailOptions = {
+      from: `"Rayara Matta Honalli" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: 'Payment Failed - Rayara Matta Honalli',
+      html: `<p>नमस्ते ${name},</p><p>Your payment of ₹${amount} failed. Reason: ${errorMsg || 'Cancelled by user'}</p>`
+    };
+    await transporter.sendMail(mailOptions);
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

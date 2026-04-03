@@ -21,7 +21,8 @@ export default async function handler(
           phone,
           email,
           amount,
-          payment_id
+          payment_id,
+          status: req.body.status || 'Confirmed'
         }
       ]);
 

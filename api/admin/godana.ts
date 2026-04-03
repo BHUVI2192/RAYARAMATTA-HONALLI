@@ -5,7 +5,8 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse
 ) {
-  if (req.headers['x-admin-password'] !== 'admin123') {
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  if (req.headers['x-admin-password'] !== adminPassword) {
     return res.status(401).json({ success: false, message: 'Unauthorized' });
   }
 

@@ -20,17 +20,21 @@ export default async function handler(
           name: userDetails.name,
           phone: userDetails.phone,
           email: userDetails.email,
+          address: userDetails.address,
           seva_id: seva.id,
           seva_name: seva.name,
           seva_price: seva.price,
           date: poojaDetails.date,
           gothra: poojaDetails.gothra,
           nakshathra: poojaDetails.nakshathra,
+          rashi: poojaDetails.rashi,
+          vedha: poojaDetails.vedha,
           count: poojaDetails.count,
           total_price: seva.price * poojaDetails.count,
-          payment_status: 'Pending Verification',
+          payment_status: req.body.payment_status || 'Pending Verification',
           message: poojaDetails.message,
-          transaction_id: poojaDetails.transactionId
+          transaction_id: poojaDetails.transactionId,
+          transaction_details: req.body.transactionDetails // For Razorpay raw response if needed
         }
       ]);
 

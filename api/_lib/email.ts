@@ -98,3 +98,42 @@ export const sendGodanaEmail = async (name: string, email: string, amount: numbe
     return false;
   }
 };
+
+export const sendFailureEmail = async (email: string, name: string, amount: number, errorMsg: string) => {
+  const mailOptions = {
+    from: `"Rayara Matta Honalli" <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: 'Payment Transaction Failed - Rayara Matta Honalli',
+    html: `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #f0f0f0; padding: 40px; color: #333; text-align: left;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #d32f2f; margin: 0; font-size: 24px;">Payment Failed</h1>
+          <p style="color: #666;">Rayara Matta Honalli, Honali</p>
+        </div>
+        
+        <p>नमस्ते <strong>${name}</strong>,</p>
+        <p>Your recent payment attempt of <strong>₹${amount}</strong> was not successful.</p>
+        
+        <div style="background: #fff8f8; padding: 25px; border-radius: 12px; margin: 30px 0; border: 1px solid #ffebeb;">
+          <p style="color: #d32f2f; font-weight: bold; margin-top: 0; border-bottom: 1px solid #ffebeb; padding-bottom: 10px;">Transaction Status</p>
+          <p style="font-size: 14px; color: #777;">Details: <span style="color: #333; font-weight: bold;">${errorMsg || 'Incomplete or cancelled transaction'}</span></p>
+        </div>
+        
+        <p style="line-height: 1.6;">If money was deducted, it will be automatically refunded by your bank. You can try performing the seva booking again.</p>
+        
+        <div style="margin-top: 40px; border-top: 1px solid #eee; font-size: 12px; color: #999; text-align: center;">
+          <p>Rayara Matta Honalli, Venkateswara Nagar (West), Honali, Karnataka - 577217</p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Failure email sent:', info.messageId);
+    return true;
+  } catch (err) {
+    console.error('Error sending failure email:', err);
+    return false;
+  }
+};

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   BarChart3, 
   Users, 
@@ -57,47 +57,64 @@ export const AdminPanel: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'admin123') { // Simple local check
-      setIsAuthenticated(true);
-      fetchData();
-    } else {
-      setError('Invalid password');
+    setLoading(true);
+    setError('');
+    
+    try {
+      const headers = { 'x-admin-password': password };
+      const res = await fetch('/api/admin/bookings', { headers });
+      
+      if (res.status === 401) {
+        setError('Invalid admin password');
+      } else if (!res.ok) {
+        setError('Server error while logging in');
+      } else {
+        const data = await res.json();
+        if (data.success) {
+          setBookings(data.bookings);
+          setIsAuthenticated(true);
+          const godanaRes = await fetch('/api/admin/godana', { headers });
+          const godanaData = await godanaRes.json();
+          if (godanaData.success) setGodanaPayments(godanaData.godana);
+        } else {
+          setError(data.error || 'Login failed');
+        }
+      }
+    } catch (err) {
+      setError('Connection failed. Please check your internet or retry.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchData = async () => {
     setLoading(true);
+    setError('');
     try {
       const headers = { 'x-admin-password': password };
-      
       const [bookingsRes, godanaRes] = await Promise.all([
         fetch('/api/admin/bookings', { headers }),
         fetch('/api/admin/godana', { headers })
       ]);
 
+      if (bookingsRes.status === 401) {
+        setIsAuthenticated(false);
+        setError('Session expired. Please log in again.');
+        return;
+      }
+
       const bookingsData = await bookingsRes.json();
       const godanaData = await godanaRes.json();
 
-      if (bookingsData.success) {
-        setBookings(bookingsData.bookings);
-      } else {
-        setError(bookingsData.error || 'Failed to fetch bookings');
-      }
-
-      if (godanaRes.ok && godanaData.success) {
-        setGodanaPayments(godanaData.godana);
-      } else {
-        console.warn('Godana payments fetch failed or table not found');
-      }
+      if (bookingsData.success) setBookings(bookingsData.bookings);
+      if (godanaData.success) setGodanaPayments(godanaData.godana);
       
-      if (!bookingsData.success || !godanaData.success) {
-        setError('Partial data fetch failure');
-      }
     } catch (err) {
-      setError('Server connection failed. Make sure the backend is running.');
+      setError('Failed to refresh data');
     } finally {
       setLoading(false);
     }
@@ -114,6 +131,37 @@ export const AdminPanel: React.FC = () => {
     p.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.phone.includes(searchTerm)
   );
+
+  const confirmBooking = async (id: number) => {
+    if (!window.confirm('Are you sure you want to mark this booking as Confirmed?')) return;
+    
+    setLoading(true);
+    try {
+      const headers = { 
+        'Content-Type': 'application/json',
+        'x-admin-password': password 
+      };
+      const res = await fetch('/api/admin/confirm-booking', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ bookingId: id, status: 'Confirmed' })
+      });
+      
+      const data = await res.json();
+      if (data.success) {
+        setBookings(prev => prev.map(b => b.id === id ? { ...b, payment_status: 'Confirmed' } : b));
+        if (selectedBooking && selectedBooking.id === id) {
+          setSelectedBooking({ ...selectedBooking, payment_status: 'Confirmed' });
+        }
+      } else {
+        alert(data.error || 'Failed to update status');
+      }
+    } catch (err) {
+      alert('Network error while updating status');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const sevaRevenue = bookings.reduce((acc, b) => acc + (b.seva_price * b.count), 0);
   const godanaRevenue = godanaPayments.reduce((acc, p) => acc + p.amount, 0);
@@ -147,9 +195,12 @@ export const AdminPanel: React.FC = () => {
                 placeholder="Enter password"
               />
             </div>
-            {error && <p className="text-red-500 text-xs font-bold">{error}</p>}
-            <button className="w-full bg-[#8B0000] text-white py-4 rounded-full font-bold shadow-xl hover:bg-[#6B0000] transition-all transform active:scale-95">
-              Unlock Terminal
+            {error && <p className="text-red-500 text-xs font-bold bg-red-50 p-3 rounded-xl border border-red-100">{error}</p>}
+            <button 
+              disabled={loading}
+              className="w-full bg-[#8B0000] text-white py-4 rounded-full font-bold shadow-xl hover:bg-[#6B0000] transition-all transform active:scale-95 disabled:opacity-50"
+            >
+              {loading ? <RefreshCw className="animate-spin mx-auto" size={20} /> : 'Unlock Dashboard'}
             </button>
           </form>
         </motion.div>
@@ -240,11 +291,11 @@ export const AdminPanel: React.FC = () => {
               />
             </div>
             <div className="flex gap-3 w-full md:w-auto">
-              <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-gray-50 text-gray-600 rounded-full font-bold border border-gray-100 hover:bg-gray-100 transition-all text-sm">
-                <Filter size={16} /> Filters
-              </button>
-              <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-[#8B0000] text-white rounded-full font-bold shadow-lg hover:bg-[#6B0000] transition-all text-sm">
-                <Download size={16} /> Export CSV
+              <button 
+                onClick={fetchData}
+                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-gray-50 text-gray-600 rounded-full font-bold border border-gray-100 hover:bg-gray-100 transition-all text-sm"
+              >
+                <RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> Refresh
               </button>
             </div>
           </div>
@@ -274,7 +325,7 @@ export const AdminPanel: React.FC = () => {
                         <div className="flex flex-col">
                           <span className="font-bold text-gray-800">{booking.name}</span>
                           <span className="text-xs text-gray-400 flex items-center gap-1 mt-1">
-                            <Clock size={12} /> {new Date(booking.created_at).toLocaleDateString()} at {new Date(booking.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            <Clock size={12} /> {new Date(booking.created_at).toLocaleDateString()}
                           </span>
                         </div>
                       </td>
@@ -289,19 +340,26 @@ export const AdminPanel: React.FC = () => {
                       </td>
                       <td className="px-8 py-6">
                         <div className="flex flex-col gap-2">
-                          <span className="text-[10px] font-mono text-stone-400 bg-stone-100 px-2 py-1 rounded truncate w-32" title={booking.transaction_id || booking.payment_id}>
-                            UTR: {booking.transaction_id || booking.payment_id || 'N/A'}
+                          <span className="text-[10px] font-mono text-stone-400 bg-stone-100 px-2 py-1 rounded truncate w-32" title={booking.transaction_id}>
+                            UTR: {booking.transaction_id || 'N/A'}
                           </span>
-                          <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold w-fit ${
-                            booking.payment_status === 'confirmed' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold w-fit shadow-sm border ${
+                            booking.payment_status === 'Confirmed' 
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
+                              : booking.payment_status === 'Failed'
+                              ? 'bg-red-50 text-red-700 border-red-100'
+                              : 'bg-amber-50 text-amber-700 border-amber-100'
                           }`}>
-                            {booking.payment_status === 'confirmed' ? <CheckCircle2 size={10} /> : <Clock size={10} />}
-                            {booking.payment_status}
+                            {booking.payment_status === 'Confirmed' ? <CheckCircle2 size={12} /> : <Clock size={12} />}
+                            {booking.payment_status || 'Pending Verification'}
                           </span>
                         </div>
                       </td>
                       <td className="px-8 py-6 text-right">
-                        <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-400 transition-colors">
+                        <button 
+                          onClick={() => setSelectedBooking(booking)}
+                          className="p-2 hover:bg-[#8B0000]/10 rounded-lg text-[#8B0000] transition-colors"
+                        >
                           <ChevronRight size={20} />
                         </button>
                       </td>
@@ -323,7 +381,7 @@ export const AdminPanel: React.FC = () => {
                         <div className="flex flex-col">
                           <span className="font-bold text-gray-800">{payment.name}</span>
                           <span className="text-xs text-gray-400 flex items-center gap-1 mt-1">
-                            <Clock size={12} /> {new Date(payment.created_at).toLocaleDateString()} at {new Date(payment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            <Clock size={12} /> {new Date(payment.created_at).toLocaleDateString()}
                           </span>
                         </div>
                       </td>
@@ -342,7 +400,7 @@ export const AdminPanel: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-8 py-6 text-right">
-                        <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-400 transition-colors">
+                        <button className="p-2 text-stone-300 cursor-not-allowed">
                           <ChevronRight size={20} />
                         </button>
                       </td>
@@ -368,6 +426,119 @@ export const AdminPanel: React.FC = () => {
             </p>
           </div>
         </div>
+
+        {/* Detailed Booking Modal */}
+        <AnimatePresence>
+          {selectedBooking && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="bg-white rounded-[40px] shadow-2xl w-full max-w-2xl overflow-hidden"
+              >
+                <div className="p-8 bg-[#8B0000] text-white flex justify-between items-center">
+                  <div>
+                    <h3 className="text-2xl font-bold">Booking Details</h3>
+                    <p className="opacity-80 text-sm">UTR: {selectedBooking.transaction_id || 'N/A'}</p>
+                  </div>
+                  <button 
+                    onClick={() => setSelectedBooking(null)}
+                    className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                  >
+                    ×
+                  </button>
+                </div>
+                
+                <div className="p-8 grid md:grid-cols-2 gap-8 max-h-[70vh] overflow-y-auto">
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Donor Details</h4>
+                      <p className="font-bold text-gray-800 text-lg">{selectedBooking.name}</p>
+                      <p className="text-sm text-gray-600">{selectedBooking.email || 'No email provided'}</p>
+                      <p className="text-sm text-gray-600">{selectedBooking.phone}</p>
+                      {selectedBooking.address && (
+                        <div className="mt-4 p-4 bg-stone-50 rounded-2xl border border-stone-100 text-sm italic">
+                          \"{selectedBooking.address}\"
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Ritual Info</h4>
+                      <div className="grid grid-cols-2 gap-4 text-sm mt-2">
+                        <div className="p-3 bg-red-50/50 rounded-xl">
+                          <p className="text-[9px] text-[#8B0000] font-bold uppercase">Gothra</p>
+                          <p className="font-bold">{selectedBooking.gothra || '-'}</p>
+                        </div>
+                        <div className="p-3 bg-red-50/50 rounded-xl">
+                          <p className="text-[9px] text-[#8B0000] font-bold uppercase">Nakshathra</p>
+                          <p className="font-bold">{selectedBooking.nakshathra || '-'}</p>
+                        </div>
+                        <div className="p-3 bg-red-50/50 rounded-xl">
+                          <p className="text-[9px] text-[#8B0000] font-bold uppercase">Rashi</p>
+                          <p className="font-bold">{selectedBooking.rashi || '-'}</p>
+                        </div>
+                        <div className="p-3 bg-red-50/50 rounded-xl">
+                          <p className="text-[9px] text-[#8B0000] font-bold uppercase">Vedha</p>
+                          <p className="font-bold">{selectedBooking.vedha || '-'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Seva Details</h4>
+                      <p className="font-bold text-gray-800">{selectedBooking.seva_name}</p>
+                      <p className="text-sm text-gray-600">Scheduled for: {selectedBooking.date}</p>
+                      <p className="text-sm text-gray-600">Quantity: {selectedBooking.count}</p>
+                    </div>
+                    <div className="p-6 bg-stone-50 rounded-3xl border border-stone-100">
+                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 text-center">Payment Status</h4>
+                      <div className="text-center">
+                        <p className="text-3xl font-black text-[#8B0000] mb-2">₹{(selectedBooking.seva_price * selectedBooking.count).toLocaleString()}</p>
+                        <span className={`px-4 py-2 rounded-full text-xs font-bold ${
+                          selectedBooking.payment_status === 'Confirmed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                        }`}>
+                          {selectedBooking.payment_status || 'Pending Verification'}
+                        </span>
+                      </div>
+                    </div>
+                    {selectedBooking.message && (
+                      <div>
+                        <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Special Message</h4>
+                        <p className="text-sm text-gray-500 italic p-3 bg-gray-50 rounded-xl">\"{selectedBooking.message}\"</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="p-8 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-4">
+                  <div className="text-xs text-gray-400">
+                    ID: {selectedBooking.id} • Registered: {new Date(selectedBooking.created_at).toLocaleString()}
+                  </div>
+                  <div className="flex gap-3 w-full sm:w-auto">
+                    {selectedBooking.payment_status !== 'Confirmed' && (
+                      <button 
+                        onClick={() => confirmBooking(selectedBooking.id)}
+                        disabled={loading}
+                        className="flex-1 sm:flex-none bg-emerald-600 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-emerald-700 transition-all transform active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                      >
+                        <ShieldCheck size={18} /> Confirm Payment
+                      </button>
+                    )}
+                    <button 
+                      onClick={() => setSelectedBooking(null)}
+                      className="flex-1 sm:flex-none border border-gray-200 text-gray-600 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition-all"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

@@ -27,6 +27,8 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
   const [paymentInitiated, setPaymentInitiated] = useState(false);
   const [returnedFromPayment, setReturnedFromPayment] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [transactionId, setTransactionId] = useState('');
   const visibilityHandlerRef = useRef<(() => void) | null>(null);
   const { t } = useLanguage();
   const [formData, setFormData] = useState<Partial<BookingData>>({
@@ -312,6 +314,116 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
     </motion.div>
   );
 
+  const [paymentMode, setPaymentMode] = useState<'online' | 'manual' | null>(null);
+
+  const handleOnlinePayment = async () => {
+    const totalAmount = (formData.seva?.price || 0) * (formData.poojaDetails?.count || 1);
+    setIsSubmitting(true);
+    try {
+      // 1. Create Order
+      const orderResponse = await fetch('/api/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: totalAmount, type: 'seva' }),
+      });
+
+      if (!orderResponse.ok) {
+        const errorText = await orderResponse.text();
+        throw new Error(`Server error (${orderResponse.status}): ${errorText || 'Unknown error'}`);
+      }
+
+      const orderData = await orderResponse.json();
+      if (!orderData.success) throw new Error(orderData.error || 'Order creation failed');
+
+      const options = {
+        key: orderData.keyId || 'rzp_live_SX8dAraaIbrAei',
+        amount: orderData.order.amount,
+        currency: 'INR',
+        name: 'Rayara Matta Honalli',
+        description: `${formData.seva?.name} Booking`,
+        order_id: orderData.order.id,
+        handler: async (response: any) => {
+          setIsSubmitting(true);
+          try {
+            // 2. Verify Payment
+            const verifyResponse = await fetch('/api/verify-payment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(response),
+            });
+            
+            if (!verifyResponse.ok) throw new Error('Verification request failed');
+            const verifyData = await verifyResponse.json();
+
+            if (verifyData.success) {
+              // 3. Save Booking
+              const saveResponse = await fetch('/api/bookings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  ...formData,
+                  poojaDetails: {
+                    ...formData.poojaDetails,
+                    transactionId: response.razorpay_payment_id,
+                    payment_status: 'Confirmed'
+                  }
+                }),
+              });
+              
+              if (!saveResponse.ok) throw new Error('Saving booking failed');
+              const saveData = await saveResponse.json();
+              
+              if (saveData.success) {
+                setTransactionId(response.razorpay_payment_id);
+                setShowSuccess(true);
+              } else {
+                throw new Error(saveData.error || 'Failed to save booking details');
+              }
+            } else {
+              alert('Payment verification failed.');
+            }
+          } catch (err: any) {
+            console.error('Post-payment error:', err);
+            alert(`Error: ${err.message}. Please save your Payment ID: ${response.razorpay_payment_id}`);
+          } finally {
+            setIsSubmitting(false);
+          }
+        },
+        prefill: {
+          name: formData.userDetails?.name,
+          email: formData.userDetails?.email,
+          contact: formData.userDetails?.phone,
+        },
+        modal: {
+          ondismiss: function() {
+            setIsSubmitting(false);
+            fetch('/api/notify-failure', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name: formData.userDetails?.name,
+                email: formData.userDetails?.email,
+                amount: (formData.seva?.price || 0) * (formData.poojaDetails?.count || 1),
+                errorMsg: 'Transaction cancelled by user'
+              })
+            });
+          }
+        },
+        theme: {
+          color: '#8B0000',
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (error: any) {
+      console.error('Razorpay Error:', error);
+      alert(`Could not initiate payment: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleConfirmBooking = async () => {
     if (!formData.poojaDetails?.transactionId) {
       alert(t('booking.manual.field.utr.placeholder'));
@@ -323,11 +435,17 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
       const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          poojaDetails: {
+            ...formData.poojaDetails,
+            payment_status: 'Pending Verification'
+          }
+        }),
       });
       if (!response.ok) throw new Error('Failed to save booking');
-      alert(t('booking.manual.success'));
-      onComplete();
+      setTransactionId(formData.poojaDetails.transactionId);
+      setShowSuccess(true);
     } catch (error) {
       console.error('Error saving booking:', error);
       alert('There was an error saving your booking. Please contact the Mutt administrator.');
@@ -335,6 +453,35 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
       setIsSubmitting(false);
     }
   };
+
+  const renderSuccess = () => (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="text-center py-12"
+    >
+      <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+        <CheckCircle size={40} />
+      </div>
+      <h2 className="text-3xl font-bold text-[#8B0000] mb-4">Seva Booked Successfully!</h2>
+      <p className="text-gray-600 mb-8 px-4">
+        Your booking for <strong>{formData.seva?.name}</strong> has been received. 
+        A confirmation email has been sent to <strong>{formData.userDetails?.email}</strong>.
+      </p>
+      
+      <div className="bg-stone-50 rounded-2xl p-6 border border-stone-200 mb-10 max-w-sm mx-auto text-left">
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Transaction Reference</p>
+        <p className="font-mono font-bold text-gray-700 text-sm break-all">{transactionId}</p>
+      </div>
+
+      <button
+        onClick={onComplete}
+        className="bg-[#8B0000] text-white px-12 py-4 rounded-full font-bold shadow-xl hover:bg-[#6B0000] transition-all"
+      >
+        Done
+      </button>
+    </motion.div>
+  );
 
   const renderPayment = () => {
     const totalAmount = (formData.seva?.price || 0) * (formData.poojaDetails?.count || 1);
@@ -351,66 +498,127 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
           <p className="text-sm opacity-80 mt-2 font-medium">{formData.seva?.name} × {formData.poojaDetails?.count}</p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          {/* Bank Details */}
-          <div className="bg-stone-50 border border-stone-200 rounded-3xl p-6">
-            <h3 className="text-[#8B0000] font-bold mb-4 flex items-center gap-2">
-              <Landmark size={20} /> {t('booking.manual.bank.title')}
-            </h3>
-            <div className="space-y-3">
-              {[
-                { label: 'A/C Name', value: BANK_DETAILS.accountName },
-                { label: 'A/C No', value: BANK_DETAILS.accountNumber },
-                { label: 'Bank', value: BANK_DETAILS.bankName },
-                { label: 'IFSC', value: BANK_DETAILS.ifscCode },
-              ].map((item, i) => (
-                <div key={i} className="flex justify-between items-center text-sm border-b border-stone-200 pb-2">
-                  <span className="text-gray-400 font-bold uppercase text-[10px]">{item.label}</span>
-                  <span className="font-bold text-gray-700">{item.value}</span>
+        {!paymentMode ? (
+          <div className="space-y-4">
+            <p className="text-center text-gray-500 font-bold uppercase tracking-widest text-xs mb-6">Select Payment Method</p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <button
+                onClick={() => setPaymentMode('online')}
+                className="flex flex-col items-center justify-center gap-4 p-8 bg-white border-2 border-stone-100 rounded-3xl hover:border-[#8B0000] hover:bg-stone-50 transition-all group"
+              >
+                <div className="p-4 bg-stone-50 rounded-2xl group-hover:bg-[#8B0000]/10 transition-all">
+                  <CreditCard size={32} className="text-[#8B0000]" />
                 </div>
-              ))}
+                <div className="text-center">
+                  <p className="font-bold text-gray-900">Online Payment</p>
+                  <p className="text-xs text-gray-400 mt-1">UPI, Cards, Netbanking</p>
+                </div>
+              </button>
+              <button
+                onClick={() => setPaymentMode('manual')}
+                className="flex flex-col items-center justify-center gap-4 p-8 bg-white border-2 border-stone-100 rounded-3xl hover:border-[#8B0000] hover:bg-stone-50 transition-all group"
+              >
+                <div className="p-4 bg-stone-50 rounded-2xl group-hover:bg-[#8B0000]/10 transition-all">
+                  <Landmark size={32} className="text-[#8B0000]" />
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-gray-900">Manual Transfer</p>
+                  <p className="text-xs text-gray-400 mt-1">Bank Transfer & UTR</p>
+                </div>
+              </button>
             </div>
           </div>
+        ) : paymentMode === 'online' ? (
+          <div className="text-center py-8">
+            <div className="mb-8">
+              <div className="w-16 h-16 bg-[#8B0000]/10 text-[#8B0000] rounded-full flex items-center justify-center mx-auto mb-4">
+                <CreditCard size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">Online Secure Payment</h3>
+              <p className="text-gray-500 text-sm mt-2">Proceed to pay ₹{totalAmount} via Razorpay</p>
+            </div>
+            <button
+              onClick={handleOnlinePayment}
+              disabled={isSubmitting}
+              className="w-full max-w-sm bg-[#8B0000] text-white py-5 rounded-2xl font-bold shadow-xl hover:bg-[#6B0000] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+            >
+              {isSubmitting ? <Loader2 className="animate-spin" /> : <ExternalLink size={20} />}
+              {isSubmitting ? 'Processing...' : 'Pay Now'}
+            </button>
+            <button onClick={() => setPaymentMode(null)} className="mt-6 text-sm font-bold text-gray-400 hover:text-gray-600">
+              Change Payment Method
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Bank Details */}
+              <div className="bg-stone-50 border border-stone-200 rounded-3xl p-6">
+                <h3 className="text-[#8B0000] font-bold mb-4 flex items-center gap-2">
+                  <Landmark size={20} /> {t('booking.manual.bank.title')}
+                </h3>
+                <div className="space-y-3">
+                  {[
+                    { label: 'A/C Name', value: BANK_DETAILS.accountName },
+                    { label: 'A/C No', value: BANK_DETAILS.accountNumber },
+                    { label: 'Bank', value: BANK_DETAILS.bankName },
+                    { label: 'IFSC', value: BANK_DETAILS.ifscCode },
+                  ].map((item, i) => (
+                    <div key={i} className="flex justify-between items-center text-sm border-b border-stone-200 pb-2">
+                      <span className="text-gray-400 font-bold uppercase text-[10px]">{item.label}</span>
+                      <span className="font-bold text-gray-700">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-          {/* UPI QR / ID */}
-          <div className="bg-stone-50 border border-stone-200 rounded-3xl p-6 text-center flex flex-col items-center justify-center">
-            <h3 className="text-[#8B0000] font-bold mb-4 flex items-center gap-2">
-              <Smartphone size={20} /> {t('booking.manual.upi.title')}
-            </h3>
-            <div className="bg-white p-4 rounded-2xl shadow-sm mb-4 border border-stone-100">
-              <div className="w-32 h-32 bg-stone-100 flex items-center justify-center text-stone-300 rounded-lg">
-                <p className="text-[10px] px-2">Scan QR code in app</p>
+              {/* UPI QR / ID */}
+              <div className="bg-stone-50 border border-stone-200 rounded-3xl p-6 text-center flex flex-col items-center justify-center">
+                <h3 className="text-[#8B0000] font-bold mb-4 flex items-center gap-2">
+                  <Smartphone size={20} /> {t('booking.manual.upi.title')}
+                </h3>
+                <div className="bg-white p-4 rounded-2xl shadow-sm mb-4 border border-stone-100">
+                  <div className="w-32 h-32 bg-stone-100 flex items-center justify-center text-stone-300 rounded-lg">
+                    <p className="text-[10px] px-2">Scan QR code in app</p>
+                  </div>
+                </div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">UPI ID</p>
+                <p className="font-bold text-[#8B0000]">{BANK_DETAILS.upiId}</p>
               </div>
             </div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">UPI ID</p>
-            <p className="font-bold text-[#8B0000]">{BANK_DETAILS.upiId}</p>
-          </div>
-        </div>
 
-        <div className="max-w-md mx-auto space-y-6">
-          <div className="space-y-4">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2 px-2">
-              <CreditCard size={14} /> {t('booking.manual.field.utr')}
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.poojaDetails?.transactionId || ''}
-              onChange={(e) => updatePoojaDetails('transactionId', e.target.value)}
-              placeholder={t('booking.manual.field.utr.placeholder')}
-              className="w-full px-8 py-5 bg-stone-50 border border-stone-200 rounded-[24px] focus:outline-none focus:ring-4 focus:ring-[#8B0000]/10 transition-all font-bold text-center text-lg"
-            />
-          </div>
+            <div className="max-w-md mx-auto space-y-6">
+              <div className="space-y-4">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2 px-2">
+                  <CreditCard size={14} /> {t('booking.manual.field.utr')}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.poojaDetails?.transactionId || ''}
+                  onChange={(e) => updatePoojaDetails('transactionId', e.target.value)}
+                  placeholder={t('booking.manual.field.utr.placeholder')}
+                  className="w-full px-8 py-5 bg-stone-50 border border-stone-200 rounded-[24px] focus:outline-none focus:ring-4 focus:ring-[#8B0000]/10 transition-all font-bold text-center text-lg"
+                />
+              </div>
 
-          <button
-            onClick={handleConfirmBooking}
-            disabled={isSubmitting}
-            className="flex items-center justify-center gap-3 w-full bg-[#8B0000] hover:bg-[#6B0000] text-white font-bold py-5 px-6 rounded-[24px] shadow-xl transition-all active:scale-95 disabled:opacity-50"
-          >
-            {isSubmitting ? <Loader2 size={24} className="animate-spin" /> : <CheckCircle size={24} />}
-            {isSubmitting ? 'Confirming...' : t('booking.manual.btn.confirm')}
-          </button>
-        </div>
+              <button
+                onClick={handleConfirmBooking}
+                disabled={isSubmitting}
+                className="flex items-center justify-center gap-3 w-full bg-[#8B0000] hover:bg-[#6B0000] text-white font-bold py-5 px-6 rounded-[24px] shadow-xl transition-all active:scale-95 disabled:opacity-50"
+              >
+                {isSubmitting ? <Loader2 size={24} className="animate-spin" /> : <CheckCircle size={24} />}
+                {isSubmitting ? 'Confirming...' : t('booking.manual.btn.confirm')}
+              </button>
+              
+              <div className="text-center">
+                <button onClick={() => setPaymentMode(null)} className="text-sm font-bold text-gray-400 hover:text-gray-600">
+                  Change Payment Method
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="flex justify-start pt-8">
           <button onClick={prevStep} className="flex items-center gap-2 text-gray-400 font-bold hover:text-gray-600 transition-colors">
@@ -439,10 +647,14 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
           {renderStepIndicator()}
 
           <AnimatePresence mode="wait">
-            {step === 1 && renderUserDetails()}
-            {step === 2 && renderPoojaDetails()}
-            {step === 3 && renderSummary()}
-            {step === 4 && renderPayment()}
+            {showSuccess ? renderSuccess() : (
+              <>
+                {step === 1 && renderUserDetails()}
+                {step === 2 && renderPoojaDetails()}
+                {step === 3 && renderSummary()}
+                {step === 4 && renderPayment()}
+              </>
+            )}
           </AnimatePresence>
         </div>
       </div>
