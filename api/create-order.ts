@@ -43,8 +43,8 @@ export default async function handler(
 
     return res.status(200).json({
       success: true,
-      order,
-      keyId // Send key_id back so frontend can use it
+      order_id: order.id,
+      keyId // Send key_id back so frontend can safely initialize without hardcoding if desired
     });
   } catch (error: any) {
     console.error('[create-order] Razorpay Order Error:', error);

@@ -137,11 +137,11 @@ export const Activities: React.FC = () => {
 
       const options = {
         key: orderData.keyId || 'rzp_live_SX8dAraaIbrAei', // Fallback or from server
-        amount: orderData.order.amount,
+        amount: amount * 100,
         currency: 'INR',
-        name: 'Rayara Matta Honalli',
-        description: 'Godana Seva Contribution',
-        order_id: orderData.order.id,
+        name: 'Trust Donation',
+        description: 'Godana Seva',
+        order_id: orderData.order_id,
         handler: async (response: any) => {
           verifyAndSaveGodanaPayment(response, godanaForm, amount);
         },

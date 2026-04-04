@@ -415,11 +415,11 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
 
       const options = {
         key: orderData.keyId || 'rzp_live_SX8dAraaIbrAei',
-        amount: orderData.order.amount,
+        amount: totalAmount * 100,
         currency: 'INR',
-        name: 'Rayara Matta Honalli',
+        name: 'Trust Donation',
         description: `${formData.seva?.name} Booking`,
-        order_id: orderData.order.id,
+        order_id: orderData.order_id,
         handler: async (response: any) => {
           verifyAndSaveBooking(response, formData);
         },
