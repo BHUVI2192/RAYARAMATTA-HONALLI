@@ -57,30 +57,34 @@ export const Activities: React.FC = () => {
   }, []);
 
   const verifyAndSaveGodanaPayment = async (response: any, formInfo: any, amountValue: number) => {
+    console.log("Payment response:", response);
     setIsSubmitting(true);
     const paymentId = response.razorpay_payment_id;
     try {
-      const saveResponse = await fetch('/api/godana', {
+      const verifyRes = await fetch('/api/verify-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...formInfo,
-          amount: amountValue,
-          payment_id: paymentId,
+          type: 'godana',
+          razorpay_payment_id: paymentId,
           razorpay_order_id: response.razorpay_order_id,
           razorpay_signature: response.razorpay_signature,
-          status: 'Confirmed'
+          amount: amountValue,
+          ...formInfo
         }),
       });
 
-      let saveData: any = { success: false, error: 'Server error' };
-      try {
-        saveData = await saveResponse.json();
-      } catch {
-        saveData.error = `Server returned status ${saveResponse.status}`;
-      }
+      console.log("Verify response raw:", verifyRes);
 
-      if (saveData.success) {
+      let data: any = { success: false, error: 'Server error' };
+      try {
+        data = await verifyRes.json();
+      } catch {
+        data.error = `Server returned status ${verifyRes.status}`;
+      }
+      console.log("Verify response JSON:", data);
+
+      if (data.success === true) {
         // ✅ DB saved — show success
         setSuccessPaymentId(paymentId);
         setShowSuccess(true);
