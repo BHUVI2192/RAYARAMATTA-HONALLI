@@ -3,11 +3,47 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-const images = [
-  'https://picsum.photos/seed/temple1/1920/1080',
-  'https://picsum.photos/seed/temple2/1920/1080',
-  'https://picsum.photos/seed/temple3/1920/1080',
-  'https://picsum.photos/seed/temple4/1920/1080',
+const slides = [
+  {
+    src: '/images/529710803_18093477652639429_5830789645073796337_n.webp',
+    caption: 'ಶ್ರೀ ರಾಘವೇಂದ್ರ ಸ್ವಾಮಿ ಮಠ, ಹೊನ್ನಾಳಿ',
+  },
+  {
+    src: '/images/530985758_18093605020639429_4615635884927217154_n.webp',
+    caption: 'ಶ್ರೀ ರಾಯರ ಬೃಂದಾವನ ದರ್ಶನ',
+  },
+  {
+    src: '/images/469072055_609756388055902_7005467819425736701_n.jpg',
+    caption: 'ಶ್ರೀ ರಾಯರ ಅಭಿಷೇಕ ಸೇವೆ',
+  },
+  {
+    src: '/images/531286051_18093605038639429_6413714965315958363_n.webp',
+    caption: 'ವಿಶೇಷ ಉತ್ಸವ ಅಲಂಕಾರ',
+  },
+  {
+    src: '/images/530843281_18093604984639429_1449346656347248637_n.webp',
+    caption: 'ಮಠದ ನಿತ್ಯ ಪೂಜೆ',
+  },
+  {
+    src: '/images/531978017_18093604990639429_2204854191744847342_n.webp',
+    caption: 'ಶ್ರೀ ರಾಯರ ಆರಾಧನೆ ಮಹೋತ್ಸವ',
+  },
+  {
+    src: '/images/469260819_609774168054124_3699722170139197903_n.jpg',
+    caption: 'ಭಕ್ತರ ಸೇವಾ ಸಮರ್ಪಣೆ',
+  },
+  {
+    src: '/images/530618472_18093605002639429_1532166081922685035_n.webp',
+    caption: 'ಪವಿತ್ರ ಬೃಂದಾವನ ಸನ್ನಿಧಿ',
+  },
+  {
+    src: '/images/488504163_696163352794568_2389405504010046181_n.jpg',
+    caption: 'ಶ್ರೀ ಮಠದ ವಿಶೇಷ ಸೇವೆ',
+  },
+  {
+    src: '/images/IMG-20260302-WA0030.jpg',
+    caption: 'ಹೊನ್ನಾಳಿ ರಾಯರ ಮಠ — ಭಕ್ತರ ಆರಾಧ್ಯ ಕ್ಷೇತ್ರ',
+  },
 ];
 
 export const Hero: React.FC = () => {
@@ -16,20 +52,20 @@ export const Hero: React.FC = () => {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % images.length);
+      setCurrentIndex((prev) => (prev + 1) % slides.length);
     }, 5000);
     return () => clearInterval(timer);
   }, []);
 
-  const next = () => setCurrentIndex((prev) => (prev + 1) % images.length);
-  const prev = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  const next = () => setCurrentIndex((prev) => (prev + 1) % slides.length);
+  const prev = () => setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
 
   return (
     <div className="relative h-[60vh] md:h-[80vh] overflow-hidden bg-black">
       <AnimatePresence mode="wait">
         <motion.img
           key={currentIndex}
-          src={images[currentIndex]}
+          src={slides[currentIndex].src}
           initial={{ opacity: 0, scale: 1.1 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
@@ -58,6 +94,18 @@ export const Hero: React.FC = () => {
         >
           {t('hero.mantra')}
         </motion.p>
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={`caption-${currentIndex}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.6, delay: 0.9 }}
+            className="mt-4 text-sm md:text-lg font-medium text-yellow-300 tracking-widest uppercase drop-shadow-md"
+          >
+            {slides[currentIndex].caption}
+          </motion.p>
+        </AnimatePresence>
       </div>
 
       <button 
@@ -74,7 +122,7 @@ export const Hero: React.FC = () => {
       </button>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-        {images.map((_, i) => (
+        {slides.map((_, i) => (
           <button
             key={i}
             onClick={() => setCurrentIndex(i)}
