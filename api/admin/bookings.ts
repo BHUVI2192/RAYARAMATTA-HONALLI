@@ -5,8 +5,12 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse
 ) {
+  res.setHeader('Content-Type', 'application/json');
+
   const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
-  if (req.headers['x-admin-password'] !== adminPassword) {
+  const providedPassword = req.headers['x-admin-password'] || req.body?.password;
+
+  if (providedPassword !== adminPassword) {
     return res.status(401).json({ success: false, message: 'Unauthorized' });
   }
 
@@ -17,13 +21,19 @@ export default async function handler(
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Supabase Admin Bookings Error:', error);
-      return res.status(500).json({ success: false, error: `Supabase Error: ${error.message} (${error.code})` });
+      console.error('[admin/bookings] Supabase error:', error);
+      return res.status(500).json({
+        success: false,
+        error: `Database error: ${error.message} (code: ${error.code})`
+      });
     }
 
-    res.status(200).json({ success: true, bookings: data });
+    return res.status(200).json({ success: true, bookings: data || [] });
   } catch (error: any) {
-    console.error('System Error fetching admin bookings:', error);
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    console.error('[admin/bookings] Unexpected error:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Internal server error'
+    });
   }
 }

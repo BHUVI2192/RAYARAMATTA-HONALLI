@@ -6,34 +6,64 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse
 ) {
+  res.setHeader('Content-Type', 'application/json');
+
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method Not Allowed' });
+    return res.status(405).json({ success: false, message: 'Method Not Allowed' });
   }
 
-  const { name, phone, email, amount, payment_id } = req.body;
+  const { name, phone, email, amount, payment_id } = req.body || {};
+
+  if (!name || !phone || !email || !payment_id) {
+    return res.status(400).json({
+      success: false,
+      error: 'Missing required fields: name, phone, email, payment_id'
+    });
+  }
+
+  if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+    return res.status(400).json({ success: false, error: 'Invalid amount' });
+  }
 
   try {
-    const { data, error } = await supabase
+    // Check for duplicate payment (idempotency)
+    const { data: existing } = await supabase
       .from('godana_payments')
-      .insert([
-        {
-          name,
-          phone,
-          email,
-          amount,
-          payment_id,
-          status: req.body.status || 'Confirmed'
-        }
-      ]);
+      .select('id')
+      .eq('payment_id', payment_id)
+      .maybeSingle();
 
-    if (error) throw error;
+    if (existing) {
+      console.log('[godana] Duplicate payment detected, returning existing record:', payment_id);
+      return res.status(200).json({ success: true, message: 'Godana payment already recorded' });
+    }
 
-    // Send confirmation email
-    await sendGodanaEmail(name, email, amount);
+    const { error: insertError } = await supabase
+      .from('godana_payments')
+      .insert([{
+        name,
+        phone,
+        email,
+        amount: Number(amount),
+        payment_id,
+        status: req.body.status || 'Confirmed'
+      }]);
 
-    res.status(201).json({ success: true, message: 'Godana payment saved successfully' });
+    if (insertError) throw insertError;
+
+    console.log('[godana] Payment saved for:', name, '₹' + amount);
+
+    // Send confirmation email in background — do NOT let email failure block the response
+    sendGodanaEmail(name, email, Number(amount)).catch((emailErr) => {
+      console.error('[godana] Email send failed (non-fatal):', emailErr);
+    });
+
+    return res.status(201).json({ success: true, message: 'Godana payment saved successfully' });
   } catch (error: any) {
-    console.error('Error handling Godana payment:', error);
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    console.error('[godana] Error handling Godana payment:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Internal server error'
+    });
   }
 }

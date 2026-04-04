@@ -64,36 +64,56 @@ export const AdminPanel: React.FC = () => {
     setLoading(true);
     setError('');
     try {
-      const headers = { 'x-admin-password': password };
-      const res = await fetch('/api/admin/bookings', { headers });
-      
-      let data;
-      const contentType = res.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        data = await res.json();
+      // Step 1: Validate password via dedicated login endpoint (no Supabase dependency)
+      const loginRes = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+
+      let loginData;
+      const loginCt = loginRes.headers.get('content-type');
+      if (loginCt && loginCt.includes('application/json')) {
+        loginData = await loginRes.json();
       } else {
-        const text = await res.text();
-        throw new Error(`Server returned non-JSON response (${res.status}): ${text.substring(0, 100)}`);
+        const text = await loginRes.text();
+        throw new Error(`Server error (${loginRes.status}): ${text.substring(0, 200)}`);
       }
 
-      if (res.status === 401) {
-        setError('Invalid admin password');
-      } else if (res.ok && data.success) {
-        setBookings(data.bookings);
-        setIsAuthenticated(true);
-        
-        // Fetch godana data too
-        const godanaRes = await fetch('/api/admin/godana', { headers });
-        if (godanaRes.ok) {
-          const godanaData = await godanaRes.json();
-          if (godanaData.success) setGodanaPayments(godanaData.godana);
-        }
-      } else {
-        setError(data.error || data.message || 'Access denied');
+      if (loginRes.status === 401 || !loginData.success) {
+        setError('Invalid admin password. Please try again.');
+        return;
       }
+
+      // Step 2: Authenticated — now fetch data
+      setIsAuthenticated(true);
+      const headers: Record<string, string> = { 'x-admin-password': password };
+
+      const parseJson = async (res: Response) => {
+        const ct = res.headers.get('content-type');
+        if (ct && ct.includes('application/json')) return res.json();
+        const text = await res.text();
+        throw new Error(`Server error (${res.status}): ${text.substring(0, 200)}`);
+      };
+
+      const [bookingsRes, godanaRes] = await Promise.all([
+        fetch('/api/admin/bookings', { headers }),
+        fetch('/api/admin/godana', { headers }),
+      ]);
+
+      const bookingsData = await parseJson(bookingsRes);
+      const godanaData = await parseJson(godanaRes);
+
+      if (bookingsData.success) setBookings(bookingsData.bookings || []);
+      else setError(bookingsData.error || 'Failed to load seva bookings');
+
+      if (godanaData.success) setGodanaPayments(godanaData.godana || []);
+      // Godana failure is non-fatal (bookings may still load)
+
     } catch (err: any) {
       console.error('Login Error:', err);
-      setError(`Login failed: ${err.message || 'Connection error'}`);
+      if (!isAuthenticated) setIsAuthenticated(false);
+      setError(`Login failed: ${err.message || 'Connection error. Please check your network.'}`);
     } finally {
       setLoading(false);
     }

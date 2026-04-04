@@ -1,22 +1,35 @@
 import nodemailer from 'nodemailer';
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || '465'),
-  secure: true,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+// Lazily creates the transporter only when needed.
+// This prevents module-level crashes when SMTP env vars are missing on Vercel.
+function getTransporter() {
+  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    return null;
+  }
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT || '465'),
+    secure: true,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+}
 
-export const sendSevaEmail = async (userDetails: any, seva: any, poojaDetails: any) => {
+export const sendSevaEmail = async (userDetails: any, seva: any, poojaDetails: any): Promise<boolean> => {
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.warn('[email] SMTP not configured — skipping Seva confirmation email.');
+    return false;
+  }
+
   const mailOptions = {
     from: `"Rayara Matta Honalli" <${process.env.SMTP_USER}>`,
     to: userDetails.email,
     subject: 'Seva Booking Confirmation - Rayara Matta Honalli',
     html: `
-      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #f0f0f0; padding: 40px; color: #333 text-align: left;">
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #f0f0f0; padding: 40px; color: #333; text-align: left;">
         <div style="text-align: center; margin-bottom: 30px;">
           <h1 style="color: #8B0000; margin: 0; font-size: 24px;">Seva Booking Confirmed</h1>
           <p style="color: #666;">Rayara Matta Honalli, Honali</p>
@@ -48,15 +61,21 @@ export const sendSevaEmail = async (userDetails: any, seva: any, poojaDetails: a
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log('Seva confirmation email sent:', info.messageId);
+    console.log('[email] Seva confirmation email sent:', info.messageId);
     return true;
   } catch (error) {
-    console.error('Error sending Seva email:', error);
+    console.error('[email] Error sending Seva email:', error);
     return false;
   }
 };
 
-export const sendGodanaEmail = async (name: string, email: string, amount: number) => {
+export const sendGodanaEmail = async (name: string, email: string, amount: number): Promise<boolean> => {
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.warn('[email] SMTP not configured — skipping Godana confirmation email.');
+    return false;
+  }
+
   const mailOptions = {
     from: `"Rayara Matta Honalli" <${process.env.SMTP_USER}>`,
     to: email,
@@ -91,15 +110,21 @@ export const sendGodanaEmail = async (name: string, email: string, amount: numbe
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log('Godana confirmation email sent:', info.messageId);
+    console.log('[email] Godana confirmation email sent:', info.messageId);
     return true;
   } catch (error) {
-    console.error('Error sending Godana email:', error);
+    console.error('[email] Error sending Godana email:', error);
     return false;
   }
 };
 
-export const sendFailureEmail = async (email: string, name: string, amount: number, errorMsg: string) => {
+export const sendFailureEmail = async (email: string, name: string, amount: number, errorMsg: string): Promise<boolean> => {
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.warn('[email] SMTP not configured — skipping failure email.');
+    return false;
+  }
+
   const mailOptions = {
     from: `"Rayara Matta Honalli" <${process.env.SMTP_USER}>`,
     to: email,
@@ -130,10 +155,10 @@ export const sendFailureEmail = async (email: string, name: string, amount: numb
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log('Failure email sent:', info.messageId);
+    console.log('[email] Failure email sent:', info.messageId);
     return true;
   } catch (err) {
-    console.error('Error sending failure email:', err);
+    console.error('[email] Error sending failure email:', err);
     return false;
   }
 };

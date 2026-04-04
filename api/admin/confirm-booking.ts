@@ -5,16 +5,20 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse
 ) {
+  res.setHeader('Content-Type', 'application/json');
+
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method Not Allowed' });
+    return res.status(405).json({ success: false, message: 'Method Not Allowed' });
   }
 
   const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
-  if (req.headers['x-admin-password'] !== adminPassword) {
+  const providedPassword = req.headers['x-admin-password'] || req.body?.adminPassword;
+
+  if (providedPassword !== adminPassword) {
     return res.status(401).json({ success: false, message: 'Unauthorized' });
   }
 
-  const { bookingId, status } = req.body;
+  const { bookingId, status } = req.body || {};
 
   if (!bookingId) {
     return res.status(400).json({ success: false, message: 'Booking ID is required' });
@@ -29,9 +33,20 @@ export default async function handler(
 
     if (error) throw error;
 
-    res.status(200).json({ success: true, message: 'Booking status updated', booking: data[0] });
+    if (!data || data.length === 0) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Booking status updated',
+      booking: data[0]
+    });
   } catch (error: any) {
-    console.error('Error updating booking status:', error);
-    res.status(500).json({ success: false, error: error.message });
+    console.error('[admin/confirm-booking] Error:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Internal server error'
+    });
   }
 }
