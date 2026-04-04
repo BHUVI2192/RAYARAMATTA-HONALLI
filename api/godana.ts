@@ -25,6 +25,10 @@ export default async function handler(
     return res.status(400).json({ success: false, error: 'Invalid amount' });
   }
 
+  if (!supabase) {
+    return res.status(503).json({ success: false, error: 'Database not configured on server.' });
+  }
+
   try {
     // Check for duplicate payment (idempotency)
     const { data: existing } = await supabase

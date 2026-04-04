@@ -21,10 +21,14 @@ export default async function handler(
     });
   }
 
+  if (!supabase) {
+    return res.status(503).json({ success: false, error: 'Database not configured on server.' });
+  }
+
   const transactionId = poojaDetails.transactionId || null;
 
   try {
-    // Check for duplicate payment ID (if provided — may be absent for manual bookings)
+    // Check for duplicate payment ID
     if (transactionId) {
       const { data: existing } = await supabase
         .from('bookings')
@@ -57,8 +61,7 @@ export default async function handler(
         total_price: seva.price * (poojaDetails.count || 1),
         payment_status: req.body.payment_status || poojaDetails.payment_status || 'Pending Verification',
         message: poojaDetails.message || null,
-        transaction_id: transactionId,
-        transaction_details: req.body.transactionDetails || null
+        transaction_id: transactionId
       }]);
 
     if (insertError) throw insertError;
