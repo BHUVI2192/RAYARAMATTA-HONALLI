@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import crypto from 'crypto';
 import { supabase } from './_lib/supabase';
-
+import Razorpay from 'razorpay';
 export default async function handler(
   req: VercelRequest,
   res: VercelResponse
@@ -79,5 +79,50 @@ export default async function handler(
 
   // ── Path 2: Missing Signature (e.g. UPI app redirect issues) ──────
   console.log('[verify-payment] Signature missing — mobile redirect scenario:', razorpay_payment_id);
-  return res.status(400).json({ success: false, message: 'Missing payment signature' });
+  
+  try {
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID || '',
+      key_secret: secret,
+    });
+
+    const payment = await razorpay.payments.fetch(razorpay_payment_id);
+    console.log('[verify-payment] Fetched payment directly from Razorpay API:', payment.id, payment.status);
+
+    if (payment.status === 'captured') {
+      if (type === 'godana') {
+          try {
+            const { data, error } = await supabase
+              .from('godana_payments')
+              .insert([{
+                name: name,
+                phone: phone,
+                email: email || null,
+                amount: Number(amount),
+                payment_id: razorpay_payment_id,
+                status: "Confirmed"
+              }])
+              .select();
+
+            console.log("Insert result (Path 2):", data, error);
+            if (error) throw error;
+            
+            return res.status(200).json({
+              success: true,
+              payment_id: razorpay_payment_id,
+              amount: amount
+            });
+          } catch (err: any) {
+              console.error('[verify-payment] Insert Error (Path 2):', err);
+              return res.status(500).json({ success: false, error: 'Database insert failed' });
+          }
+      }
+      return res.status(200).json({ success: true, message: 'Payment verified via API fetch' });
+    } else {
+      return res.status(400).json({ success: false, message: 'Payment not captured' });
+    }
+  } catch (error: any) {
+    console.error('[verify-payment] Razorpay API Error during generic fetch:', error);
+    return res.status(500).json({ success: false, message: 'Failed to verify payment via Razorpay API' });
+  }
 }

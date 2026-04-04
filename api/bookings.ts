@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { supabase } from './_lib/supabase';
 import { sendSevaEmail } from './_lib/email';
 import crypto from 'crypto';
+import Razorpay from 'razorpay';
 
 export default async function handler(
   req: VercelRequest,
@@ -30,23 +31,44 @@ export default async function handler(
   const { razorpay_order_id, razorpay_signature } = req.body || {};
 
   try {
-    // 1. VERIFY SIGNATURE (Optional but highly recommended)
+    // 1. VERIFY SIGNATURE for Razorpay payments
     const secret = process.env.RAZORPAY_KEY_SECRET || '';
 
-    if (secret && razorpay_order_id && razorpay_signature && transactionId) {
-      const body = `${razorpay_order_id}|${transactionId}`;
-      const expectedSignature = crypto
-        .createHmac('sha256', secret)
-        .update(body)
-        .digest('hex');
+    if (transactionId && transactionId.startsWith('pay_')) {
+      if (secret && razorpay_order_id && razorpay_signature) {
+        const body = `${razorpay_order_id}|${transactionId}`;
+        const expectedSignature = crypto
+          .createHmac('sha256', secret)
+          .update(body)
+          .digest('hex');
 
-      if (expectedSignature !== razorpay_signature) {
-        console.error('[bookings] CRITICAL: Invalid Razorpay signature');
-        return res.status(400).json({ success: false, message: 'Invalid payment signature. Verification failed.' });
+        if (expectedSignature !== razorpay_signature) {
+          console.error('[bookings] CRITICAL: Invalid Razorpay signature');
+          return res.status(400).json({ success: false, message: 'Invalid payment signature. Verification failed.' });
+        }
+        console.log('[bookings] Razorpay signature verified successfully.');
+      } else {
+        // Fallback for UPI redirects without signature
+        console.log('[bookings] Razorpay signature missing. Verifying via API fetch for:', transactionId);
+        try {
+          const razorpay = new Razorpay({
+            key_id: process.env.RAZORPAY_KEY_ID || '',
+            key_secret: secret,
+          });
+
+          const payment = await razorpay.payments.fetch(transactionId);
+          console.log('[bookings] Fetched payment directly from Razorpay API:', payment.id, payment.status);
+
+          if (payment.status !== 'captured') {
+            return res.status(400).json({ success: false, message: 'Payment not captured. Verification failed.' });
+          }
+        } catch (error: any) {
+          console.error('[bookings] Razorpay API Error during generic fetch:', error);
+          return res.status(500).json({ success: false, message: 'Failed to verify payment via Razorpay API' });
+        }
       }
-      console.log('[bookings] Razorpay signature verified successfully.');
-    } else {
-      console.log('[bookings] Proceeding without strict signature verification (or missing params).');
+    } else if (transactionId) {
+      console.log('[bookings] Manual payment detected (UTR). Proceeding...');
     }
     // Check for duplicate payment ID
     if (transactionId) {

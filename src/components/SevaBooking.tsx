@@ -506,8 +506,14 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
       </p>
       
       <div className="bg-stone-50 rounded-2xl p-6 border border-stone-200 mb-10 max-w-sm mx-auto text-left">
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Transaction Reference</p>
-        <p className="font-mono font-bold text-gray-700 text-sm break-all">{transactionId}</p>
+        <div className="flex justify-between items-center pb-4 border-b border-stone-200">
+          <span className="text-gray-600 font-bold tracking-wide">Amount Paid</span>
+          <span className="text-[#8B0000] font-bold text-lg">₹{(formData.seva?.price || 0) * (formData.poojaDetails?.count || 1)}</span>
+        </div>
+        <div className="pt-4">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Transaction Reference</p>
+          <p className="font-mono font-bold text-gray-700 text-sm break-all">{transactionId}</p>
+        </div>
       </div>
 
       <button
