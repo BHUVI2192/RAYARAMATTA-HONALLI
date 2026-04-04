@@ -60,7 +60,6 @@ export const Activities: React.FC = () => {
     setIsSubmitting(true);
     const paymentId = response.razorpay_payment_id;
     try {
-      // Razorpay handler fires only on genuine success — save directly to DB
       const saveResponse = await fetch('/api/godana', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -68,6 +67,8 @@ export const Activities: React.FC = () => {
           ...formInfo,
           amount: amountValue,
           payment_id: paymentId,
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_signature: response.razorpay_signature,
           status: 'Confirmed'
         }),
       });

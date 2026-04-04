@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { supabase } from './_lib/supabase';
 import { sendGodanaEmail } from './_lib/email';
+import crypto from 'crypto';
 
 export default async function handler(
   req: VercelRequest,
@@ -30,7 +31,27 @@ export default async function handler(
   }
 
   try {
-    // Check for duplicate payment (idempotency)
+    // 1. VERIFY SIGNATURE (Optional but highly recommended)
+    const { razorpay_order_id, razorpay_signature } = req.body || {};
+    const secret = process.env.RAZORPAY_KEY_SECRET || '';
+
+    if (secret && razorpay_order_id && razorpay_signature) {
+      const body = `${razorpay_order_id}|${payment_id}`;
+      const expectedSignature = crypto
+        .createHmac('sha256', secret)
+        .update(body)
+        .digest('hex');
+
+      if (expectedSignature !== razorpay_signature) {
+        console.error('[godana] CRITICAL: Invalid Razorpay signature');
+        return res.status(400).json({ success: false, message: 'Invalid payment signature. Verification failed.' });
+      }
+      console.log('[godana] Razorpay signature verified successfully.');
+    } else {
+      console.log('[godana] Proceeding without strict signature verification (or missing params).');
+    }
+
+    // 2. CHECK FOR DUPLICATES
     const { data: existing } = await supabase
       .from('godana_payments')
       .select('id')
@@ -42,32 +63,38 @@ export default async function handler(
       return res.status(200).json({ success: true, message: 'Godana payment already recorded' });
     }
 
+    // 3. INSERT EXACTLY MATCHING SCHEMA
+    console.log('[godana] Inserting into Supabase...');
     const { error: insertError } = await supabase
       .from('godana_payments')
       .insert([{
-        name,
-        phone,
-        email,
+        name: name,
+        phone: phone,
+        email: email || null,
         amount: Number(amount),
-        payment_id,
-        status: req.body.status || 'Confirmed'
+        payment_id: payment_id,
+        status: "Confirmed"
       }]);
 
-    if (insertError) throw insertError;
+    if (insertError) {
+      console.error('[godana] Supabase Insert Error:', insertError);
+      throw insertError;
+    }
 
-    console.log('[godana] Payment saved for:', name, '₹' + amount);
+    console.log(`[godana] Payment stored successfully for ${name} (₹${amount})`);
 
-    // Send confirmation email in background — do NOT let email failure block the response
+    // 4. SEND EMAIL
     sendGodanaEmail(name, email, Number(amount)).catch((emailErr) => {
       console.error('[godana] Email send failed (non-fatal):', emailErr);
     });
 
-    return res.status(201).json({ success: true, message: 'Godana payment saved successfully' });
+    return res.status(201).json({ success: true, message: 'Payment stored successfully', payment_id });
   } catch (error: any) {
     console.error('[godana] Error handling Godana payment:', error);
     return res.status(500).json({
       success: false,
-      error: error.message || 'Internal server error'
+      error: error.message || 'Internal server error',
+      message: 'Error storing payment'
     });
   }
 }

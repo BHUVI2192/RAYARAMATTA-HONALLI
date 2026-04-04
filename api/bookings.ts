@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { supabase } from './_lib/supabase';
 import { sendSevaEmail } from './_lib/email';
+import crypto from 'crypto';
 
 export default async function handler(
   req: VercelRequest,
@@ -26,8 +27,27 @@ export default async function handler(
   }
 
   const transactionId = poojaDetails.transactionId || null;
+  const { razorpay_order_id, razorpay_signature } = req.body || {};
 
   try {
+    // 1. VERIFY SIGNATURE (Optional but highly recommended)
+    const secret = process.env.RAZORPAY_KEY_SECRET || '';
+
+    if (secret && razorpay_order_id && razorpay_signature && transactionId) {
+      const body = `${razorpay_order_id}|${transactionId}`;
+      const expectedSignature = crypto
+        .createHmac('sha256', secret)
+        .update(body)
+        .digest('hex');
+
+      if (expectedSignature !== razorpay_signature) {
+        console.error('[bookings] CRITICAL: Invalid Razorpay signature');
+        return res.status(400).json({ success: false, message: 'Invalid payment signature. Verification failed.' });
+      }
+      console.log('[bookings] Razorpay signature verified successfully.');
+    } else {
+      console.log('[bookings] Proceeding without strict signature verification (or missing params).');
+    }
     // Check for duplicate payment ID
     if (transactionId) {
       const { data: existing } = await supabase

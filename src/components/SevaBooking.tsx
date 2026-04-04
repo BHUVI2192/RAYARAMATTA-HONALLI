@@ -78,12 +78,13 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
     setIsSubmitting(true);
     const paymentId = response.razorpay_payment_id;
     try {
-      // Razorpay's handler callback fires only on genuine payment success — save directly
       const saveResponse = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formInfo,
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_signature: response.razorpay_signature,
           poojaDetails: {
             ...formInfo.poojaDetails,
             transactionId: paymentId,
