@@ -14,6 +14,10 @@ export default async function handler(
     return res.status(401).json({ success: false, message: 'Unauthorized' });
   }
 
+  if (!supabase) {
+    return res.status(503).json({ success: false, error: 'Database not configured. Add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to Vercel Environment Variables.' });
+  }
+
   try {
     const { data, error } = await supabase
       .from('bookings')
