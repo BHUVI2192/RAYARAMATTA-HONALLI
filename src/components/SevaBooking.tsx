@@ -76,6 +76,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
 
   const verifyAndSaveBooking = async (response: any, formInfo: any) => {
     setIsSubmitting(true);
+    const paymentId = response.razorpay_payment_id;
     try {
       // Razorpay's handler callback fires only on genuine payment success — save directly
       const saveResponse = await fetch('/api/bookings', {
@@ -85,32 +86,35 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
           ...formInfo,
           poojaDetails: {
             ...formInfo.poojaDetails,
-            transactionId: response.razorpay_payment_id,
+            transactionId: paymentId,
             payment_status: 'Confirmed'
           }
         }),
       });
 
-      let saveData: any = { success: false };
+      let saveData: any = { success: false, error: 'Server error' };
       try {
         saveData = await saveResponse.json();
       } catch {
-        console.warn('[bookings] Non-JSON save response, status:', saveResponse.status);
+        saveData.error = `Server returned status ${saveResponse.status}`;
       }
 
-      // Always show success — payment went through Razorpay
-      setTransactionId(response.razorpay_payment_id);
-      setShowSuccess(true);
-
-      if (!saveData.success) {
-        console.error('[bookings] DB save may have failed:', saveData.error);
-        // Don't block user — admin can verify in Razorpay dashboard
+      if (saveData.success) {
+        // ✅ DB saved — show success
+        setTransactionId(paymentId);
+        setShowSuccess(true);
+      } else {
+        // ❌ DB failed — payment went through but record wasn't saved
+        const totalAmount = (formInfo.seva?.price || 0) * (formInfo.poojaDetails?.count || 1);
+        alert(
+          `Your payment of ₹${totalAmount} was received by Razorpay (ID: ${paymentId}), but we couldn't save your booking details due to a server error.\n\nPlease contact the Mutt at +91-XXXXX-XXXXX and share this Payment ID. Your booking is confirmed.`
+        );
       }
     } catch (err: any) {
       console.error('Post-payment error:', err);
-      // Still show success — the Razorpay payment went through
-      setTransactionId(response.razorpay_payment_id);
-      setShowSuccess(true);
+      alert(
+        `Your payment was received (ID: ${paymentId}), but we encountered a network error saving your details.\n\nPlease contact the Mutt and share this Payment ID.`
+      );
     } finally {
       setIsSubmitting(false);
     }

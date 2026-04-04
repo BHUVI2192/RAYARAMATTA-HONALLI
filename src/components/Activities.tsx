@@ -58,41 +58,43 @@ export const Activities: React.FC = () => {
 
   const verifyAndSaveGodanaPayment = async (response: any, formInfo: any, amountValue: number) => {
     setIsSubmitting(true);
+    const paymentId = response.razorpay_payment_id;
     try {
-      // Razorpay's handler callback is proof of successful payment — save directly
+      // Razorpay handler fires only on genuine success — save directly to DB
       const saveResponse = await fetch('/api/godana', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formInfo,
           amount: amountValue,
-          payment_id: response.razorpay_payment_id,
+          payment_id: paymentId,
           status: 'Confirmed'
         }),
       });
 
-      let saveData: any = { success: false };
+      let saveData: any = { success: false, error: 'Server error' };
       try {
         saveData = await saveResponse.json();
       } catch {
-        // Non-JSON response from server — still show success since payment went through
-        console.warn('[godana] Non-JSON save response, status:', saveResponse.status);
+        saveData.error = `Server returned status ${saveResponse.status}`;
       }
 
-      // Show success regardless — the payment already went through via Razorpay
-      setSuccessPaymentId(response.razorpay_payment_id);
-      setShowSuccess(true);
-      setGodanaForm({ name: '', phone: '', email: '', amount: '501' });
-
-      if (!saveData.success) {
-        console.error('[godana] DB save may have failed:', saveData.error);
-        // Don't alert user — payment is done, admin can verify in Razorpay dashboard
+      if (saveData.success) {
+        // ✅ DB saved — show success
+        setSuccessPaymentId(paymentId);
+        setShowSuccess(true);
+        setGodanaForm({ name: '', phone: '', email: '', amount: '501' });
+      } else {
+        // ❌ DB failed — payment went through but record wasn't saved
+        alert(
+          `Your payment of ₹${amountValue} was received by Razorpay (ID: ${paymentId}), but we couldn't save your details due to a server error.\n\nPlease contact the Mutt at +91-XXXXX-XXXXX and share this Payment ID. Your donation is confirmed.`
+        );
       }
     } catch (err: any) {
       console.error('Post-payment error:', err);
-      // Still show success — the Razorpay payment went through
-      setSuccessPaymentId(response.razorpay_payment_id);
-      setShowSuccess(true);
+      alert(
+        `Your payment was received (ID: ${paymentId}), but we encountered a network error saving your details.\n\nPlease contact the Mutt and share this Payment ID.`
+      );
     } finally {
       setIsSubmitting(false);
     }
