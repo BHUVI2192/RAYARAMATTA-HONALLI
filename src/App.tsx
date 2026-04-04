@@ -28,6 +28,8 @@ export default function App() {
 function AppContent() {
   const [currentPage, setCurrentPageState] = useState(() => {
     const saved = localStorage.getItem('currentPage');
+    // Never restore admin from localStorage — must use #admin hash
+    if (saved === 'admin') return 'home';
     return saved || 'home';
   });
   const [selectedSeva, setSelectedSevaState] = useState<Seva | null>(() => {
@@ -37,7 +39,10 @@ function AppContent() {
 
   const setCurrentPage = (page: string) => {
     setCurrentPageState(page);
-    localStorage.setItem('currentPage', page);
+    // Don't persist admin in localStorage — it's a secret route
+    if (page !== 'admin') {
+      localStorage.setItem('currentPage', page);
+    }
   };
 
   const setSelectedSeva = (seva: Seva | null) => {
