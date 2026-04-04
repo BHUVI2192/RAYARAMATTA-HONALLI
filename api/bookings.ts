@@ -49,7 +49,6 @@ export default async function handler(
         phone: userDetails.phone,
         email: userDetails.email,
         address: userDetails.address,
-        seva_id: seva.id,
         seva_name: seva.name,
         seva_price: seva.price,
         date: poojaDetails.date,
@@ -58,7 +57,6 @@ export default async function handler(
         rashi: poojaDetails.rashi || null,
         vedha: poojaDetails.vedha || null,
         count: poojaDetails.count || 1,
-        total_price: seva.price * (poojaDetails.count || 1),
         payment_status: req.body.payment_status || poojaDetails.payment_status || 'Pending Verification',
         message: poojaDetails.message || null,
         transaction_id: transactionId
