@@ -17,21 +17,21 @@ export const Sevas: React.FC<SevasProps> = ({ onSelectSeva }) => {
       icon: <Heart className="text-emerald-600" size={32} />,
       title: t('seva.1.title'),
       desc: t('seva.1.desc'),
-      image: 'https://picsum.photos/seed/goshala/800/600'
+      image: '/images/469465619_611496361215238_5830762216394880863_n.jpg'
     },
     {
       id: 2,
       icon: <Droplets className="text-red-600" size={32} />,
       title: t('seva.2.title'),
       desc: t('seva.2.desc'),
-      image: 'https://picsum.photos/seed/blood/800/600'
+      image: '/images/469528604_611496204548587_255201209616566963_n.jpg'
     },
     {
       id: 3,
       icon: <GraduationCap className="text-blue-600" size={32} />,
       title: t('seva.3.title'),
       desc: t('seva.3.desc'),
-      image: 'https://picsum.photos/seed/scholars/800/600'
+      image: '/images/469620894_611496427881898_1884497419873373850_n.jpg'
     }
   ];
 

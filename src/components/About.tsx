@@ -37,7 +37,7 @@ export const About: React.FC = () => {
           >
             <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl">
               <img 
-                src="https://picsum.photos/seed/history/800/1000" 
+                src="/images/530863497_18093605029639429_3453030396845106587_n.webp" 
                 alt="Temple History" 
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"

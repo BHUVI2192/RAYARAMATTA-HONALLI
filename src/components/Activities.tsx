@@ -4,9 +4,9 @@ import { Heart, Info, BookOpen, Globe, CreditCard, User, Phone, Mail, IndianRupe
 import { useLanguage } from '../context/LanguageContext';
 
 const goshalaImages = [
-  'https://picsum.photos/seed/cow1/800/600',
-  'https://picsum.photos/seed/cow2/800/600',
-  'https://picsum.photos/seed/cow3/800/600',
+  '/images/469565261_611496367881904_8215471119611863969_n.jpg',
+  '/images/469864323_611496421215232_6826778829493628708_n.jpg',
+  '/images/486973907_693895086354728_5870470351651792592_n.jpg',
 ];
 
 export const Activities: React.FC = () => {
