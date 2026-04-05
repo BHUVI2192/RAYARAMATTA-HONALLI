@@ -35,11 +35,6 @@ export const Sevas: React.FC<SevasProps> = ({ onSelectSeva }) => {
     }
   ];
 
-  const godanaSevas: Seva[] = [
-    { id: 'godana-madhyama', name: t('seva.godana.madhyama'), price: 5000 },
-    { id: 'godana-uttama', name: t('seva.godana.uttama'), price: 10000 },
-    { id: 'godana-salankruta', name: t('seva.godana.salankruta'), price: 20000 },
-  ];
 
   return (
     <div className="pt-24 pb-16 bg-white">
@@ -49,7 +44,7 @@ export const Sevas: React.FC<SevasProps> = ({ onSelectSeva }) => {
           <div className="w-24 h-1 bg-yellow-500 mx-auto rounded-full" />
         </div>
 
-        <div className="space-y-16 mb-24">
+        <div className="space-y-16">
           {sevaActivities.map((seva, i) => (
             <motion.div
               key={seva.id}
@@ -81,37 +76,6 @@ export const Sevas: React.FC<SevasProps> = ({ onSelectSeva }) => {
             </motion.div>
           ))}
         </div>
-
-        {/* Godana Sevas Section */}
-        <motion.div
-          initial={{ y: 50, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true }}
-          className="bg-orange-50 rounded-3xl p-8 md:p-12 border border-orange-100"
-        >
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-[#8B0000] mb-4">{t('seva.godana.title')}</h2>
-            <p className="text-gray-700 max-w-2xl mx-auto text-lg">{t('seva.godana.desc')}</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {godanaSevas.map((seva) => (
-              <div key={seva.id} className="bg-white p-6 rounded-2xl shadow-sm border border-orange-100 flex flex-col items-center text-center hover:shadow-md transition-shadow">
-                <h3 className="font-bold text-gray-800 mb-4 flex-1">{seva.name}</h3>
-                <div className="text-2xl font-bold text-[#8B0000] mb-6 flex items-center">
-                  <IndianRupee size={24} className="mr-1" />
-                  {seva.price}
-                </div>
-                <button
-                  onClick={() => onSelectSeva(seva)}
-                  className="w-full bg-yellow-500 text-[#8B0000] py-2 rounded-full font-bold hover:bg-yellow-600 transition-colors"
-                >
-                  {t('seva.book')}
-                </button>
-              </div>
-            ))}
-          </div>
-        </motion.div>
       </div>
     </div>
   );
