@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Phone, Mail, Clock, Facebook, Youtube, Twitter } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export const Footer: React.FC = () => {
@@ -13,11 +13,7 @@ export const Footer: React.FC = () => {
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
               {t('footer.about.desc')}
             </p>
-            <div className="flex gap-4">
-              <a href="#" className="p-2 bg-white/5 hover:bg-yellow-500 hover:text-[#2D0000] rounded-full transition-all"><Facebook size={18} /></a>
-              <a href="#" className="p-2 bg-white/5 hover:bg-yellow-500 hover:text-[#2D0000] rounded-full transition-all"><Youtube size={18} /></a>
-              <a href="#" className="p-2 bg-white/5 hover:bg-yellow-500 hover:text-[#2D0000] rounded-full transition-all"><Twitter size={18} /></a>
-            </div>
+
           </div>
 
           <div>
