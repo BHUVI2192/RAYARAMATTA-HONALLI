@@ -52,17 +52,17 @@ export const translations: Record<Language, Record<string, string>> = {
     'nav.slokas': 'Slokas',
     'nav.contact': 'Contact & Feedback',
     'nav.donate': 'Donate',
-    'nav.title': 'Shri Raghavendra Seva Trust Honali',
-    'nav.subtitle': 'Rayara Matta Honali',
+    'nav.title': 'Shri Raghavendra Seva Trust Honnali',
+    'nav.subtitle': 'Rayara Matta Honnali',
     'nav.menu': 'Menu',
 
     // Hero
-    'hero.title': 'Rayara Matta Honali',
+    'hero.title': 'Rayara Matta Honnali',
     'hero.mantra': '"Om Sri Raghavendraya Namaha"',
 
     // Welcome
-    'welcome.title': 'Welcome to Honali Rayara Mutt',
-    'welcome.desc': 'Shri Raghavendra Swamy Seva Trust, Honali is a spiritual oasis dedicated to the teachings and grace of Guru Raghavendra. Located in the serene town of Honali, our Mutt serves as a center for devotion, Vedic learning, and social service.',
+    'welcome.title': 'Welcome to Honnali Rayara Mutt',
+    'welcome.desc': 'Shri Raghavendra Swamy Seva Trust, Honnali is a spiritual oasis dedicated to the teachings and grace of Guru Raghavendra. Located in the serene town of Honnali, our Mutt serves as a center for devotion, Vedic learning, and social service.',
     'welcome.seva-vivara.title': 'Seva Vivara',
     'welcome.seva-vivara.desc': 'Experience the divine presence through our meticulously performed daily rituals.',
     'welcome.goshala.title': 'Goshala',
@@ -75,9 +75,9 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // About
     'about.legacy': 'Our Legacy',
-    'about.title': 'The History of Honali Rayara Mutt',
-    'about.p1': 'In the early 1980s, two philanthropic devotees of Sri Raghavendra Swamy offered more than two grounds of land at Honali free of cost with a specific request to construct a temple for Sri Raghavendra Swamy to benefit a large number of public living in and around the area.',
-    'about.p2': 'A committee of like-minded persons was formed and the site donated was taken over by the entity in the name and style of "Shri Raghavendra Swamy Seva Trust, Honali" and got the organization registered in December 1983.',
+    'about.title': 'The History of Honnali Rayara Mutt',
+    'about.p1': 'In the early 1980s, two philanthropic devotees of Sri Raghavendra Swamy offered more than two grounds of land at Honnali free of cost with a specific request to construct a temple for Sri Raghavendra Swamy to benefit a large number of public living in and around the area.',
+    'about.p2': 'A committee of like-minded persons was formed and the site donated was taken over by the entity in the name and style of "Shri Raghavendra Swamy Seva Trust, Honnali" and got the organization registered in December 1983.',
     'about.p3': 'Appeals were made soliciting donations for taking up the construction of the Brindavana by various means including conducting of Bhajans, Unchivathis at various parts of the city, newspaper advertisements, door to door collection from devotees, celebration of Sri Raghavendra Swamy Aradhana, conduct of fund raising cultural programmes, etc.',
     'about.years': 'Years of Devotion',
     'about.excellence': 'Spiritual Excellence',
@@ -89,15 +89,15 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // About - History
     'about.history.title': 'History',
-    'about.history.desc1': 'Honnali is a sacred place situated at the confluence of the Tunga and Bhadra rivers. It is special because Sri Raghavendra Swamy himself came and settled here just two years after entering Brindavana in Mantralaya. Thus, Honali is famously known as "Dwitiya Mantralaya" (The Second Mantralaya). Every year, thousands of devotees visit the Mutt to receive the grace of Rayaru.',
+    'about.history.desc1': 'Honnali is a sacred place situated at the confluence of the Tunga and Bhadra rivers. It is special because Sri Raghavendra Swamy himself came and settled here just two years after entering Brindavana in Mantralaya. Thus, Honnali is famously known as "Dwitiya Mantralaya" (The Second Mantralaya). Every year, thousands of devotees visit the Mutt to receive the grace of Rayaru.',
     'about.history.q': 'What is the history?',
-    'about.history.desc2': 'Rayaru appeared in a dream to Ramacharya of Honali Agrahara and instructed him to install his Mrittika Brindavana. When the Acharya shared this dream with the town\'s elders, they agreed. Necessary preparations were made for the installation, and a team set out from Honali to Mantralaya to bring the Mrittika. However, even on the day of the installation (Phalguna Bahula Tritiya), the team had not returned. Ramacharya was anxious while bathing in the Tungabhadra river. At that moment, a radiant Brahmin bathing in the river said, "I have come from Mantralaya. I have Rayaru\'s Mrittika with me! Shall I perform the installation?" Though surprised, the people believed it was God\'s will and agreed so as not to miss the auspicious time. The Brahmin entered the sanctum sanctorum and closed the door. He did not come out for a long time. Finally, the elders decided to open the door. To their amazement, the Brahmin had vanished! On the Brindavana, there was a copper plate containing a Narasimha Saligrama, an idol of Prana Deva, and yellow Mantrakshate. Realizing that Sri Raghavendra Swamy himself had come and resided in the Brindavana, the people were overjoyed. Since then, this place has become Dwitiya Mantralaya.',
+    'about.history.desc2': 'Rayaru appeared in a dream to Ramacharya of Honnali Agrahara and instructed him to install his Mrittika Brindavana. When the Acharya shared this dream with the town\'s elders, they agreed. Necessary preparations were made for the installation, and a team set out from Honnali to Mantralaya to bring the Mrittika. However, even on the day of the installation (Phalguna Bahula Tritiya), the team had not returned. Ramacharya was anxious while bathing in the Tungabhadra river. At that moment, a radiant Brahmin bathing in the river said, "I have come from Mantralaya. I have Rayaru\'s Mrittika with me! Shall I perform the installation?" Though surprised, the people believed it was God\'s will and agreed so as not to miss the auspicious time. The Brahmin entered the sanctum sanctorum and closed the door. He did not come out for a long time. Finally, the elders decided to open the door. To their amazement, the Brahmin had vanished! On the Brindavana, there was a copper plate containing a Narasimha Saligrama, an idol of Prana Deva, and yellow Mantrakshate. Realizing that Sri Raghavendra Swamy himself had come and resided in the Brindavana, the people were overjoyed. Since then, this place has become Dwitiya Mantralaya.',
 
     // About - Miracles
     'about.miracle.title': 'Miracles',
     'about.miracle.q': 'What are the miracles?',
     'about.miracle.1': 'It is believed that when Dewan Purnaiya visited the Mutt and performed circumambulations, he heard the Narayana Mantra being chanted from inside the Brindavana.',
-    'about.miracle.2': 'The construction of the Honali Mutt\'s prakara was guided by dream instructions given to both a British government official and a contractor. This information has been recorded by a judge.',
+    'about.miracle.2': 'The construction of the Honnali Mutt\'s prakara was guided by dream instructions given to both a British government official and a contractor. This information has been recorded by a judge.',
     'about.miracle.3': 'Even today, Rayaru is said to go for a river bath during the early morning Brahmi Muhurta. Many have had his darshan, and some have shared their experience of hearing the sound of his wooden sandals (Avuge).',
     'about.miracle.4': 'Those who perform Sankalpa Seva for three days here have seen their wishes fulfilled. There are many instances of people recovering from long-term illnesses.',
     'about.miracle.5': 'Devotees from all corners of the country and state visit here to receive the blessings of Sri Raghavendra Swamy.',
@@ -256,9 +256,9 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Footer
     'footer.about.title': 'About the Trust',
-    'footer.about.desc': 'Shri Raghavendra Swamy Seva Trust, Honali is dedicated to the service of Guru Raghavendra and the welfare of the community through spiritual and social activities.',
+    'footer.about.desc': 'Shri Raghavendra Swamy Seva Trust, Honnali is dedicated to the service of Guru Raghavendra and the welfare of the community through spiritual and social activities.',
     'footer.contact.title': 'Contact Us',
-    'footer.contact.address': 'Venkateswara Nagar (West), Honali, Karnataka - 577217',
+    'footer.contact.address': 'Sri Raghavendra Seva Trust, c/o Sri Raghavendra Swamy Mutt, Agrahara Honnali, Davanagere (Karnataka) - 577217',
     'footer.timings.title': 'Darsana Timings',
     'footer.timings.morning': 'Morning',
     'footer.timings.evening': 'Evening',
@@ -482,7 +482,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'footer.about.title': 'ಟ್ರಸ್ಟ್ ಬಗ್ಗೆ',
     'footer.about.desc': 'ಶ್ರೀ ರಾಘವೇಂದ್ರ ಸ್ವಾಮಿ ಸೇವಾ ಟ್ರಸ್ಟ್, ಹೊನ್ನಾಳಿ ಗುರು ರಾಘವೇಂದ್ರರ ಸೇವೆಗೆ ಮತ್ತು ಆಧ್ಯಾತ್ಮಿಕ ಮತ್ತು ಸಾಮಾಜಿಕ ಚಟುವಟಿಕೆಗಳ ಮೂಲಕ ಸಮುದಾಯದ ಕಲ್ಯಾಣಕ್ಕೆ ಸಮರ್ಪಿತವಾಗಿದೆ.',
     'footer.contact.title': 'ನಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸಿ',
-    'footer.contact.address': 'ವೆಂಕಟೇಶ್ವರ ನಗರ (ಪಶ್ಚಿಮ), ಹೊನ್ನಾಳಿ, ಕರ್ನಾಟಕ - 577217',
+    'footer.contact.address': 'ಶ್ರೀ ರಾಘವೇಂದ್ರ ಸೇವಾ ಟ್ರಸ್ಟ್, c/o ಶ್ರೀ ರಾಘವೇಂದ್ರ ಸ್ವಾಮಿ ಮಠ, ಅಗ್ರಹಾರ ಹೊನ್ನಾಳಿ, ದಾವಣಗೆರೆ (ಕರ್ನಾಟಕ) - 577217',
     'footer.timings.title': 'ದರ್ಶನ ಸಮಯ',
     'footer.timings.morning': 'ಬೆಳಿಗ್ಗೆ',
     'footer.timings.evening': 'ಸಂಜೆ',

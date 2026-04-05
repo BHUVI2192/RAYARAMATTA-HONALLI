@@ -13,15 +13,15 @@ export const ContactFeedback: React.FC = () => {
     <div className="pt-24 pb-16 bg-white min-h-screen">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">{t('contact.title')}</h1>
-          <p className="text-gray-600">{t('contact.subtitle')}</p>
+          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">{t('cf.title')}</h1>
+          <p className="text-gray-600">{t('cf.desc')}</p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Left Column: Contact Info */}
           <div className="lg:col-span-1 space-y-8">
             <div className="bg-gray-50 p-8 rounded-3xl border border-gray-100">
-              <h3 className="text-xl font-bold text-[#8B0000] mb-8">{t('contact.getInTouch')}</h3>
+              <h3 className="text-xl font-bold text-[#8B0000] mb-8">{t('cf.get')}</h3>
               
               <div className="space-y-6">
                 <div className="flex gap-4">
@@ -29,9 +29,9 @@ export const ContactFeedback: React.FC = () => {
                     <MapPin size={24} />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400 font-bold uppercase mb-1">{t('contact.address')}</p>
+                    <p className="text-xs text-gray-400 font-bold uppercase mb-1">{t('cf.address')}</p>
                     <p className="text-sm text-gray-700 leading-relaxed">
-                      Venkateswara Nagar (West), Honali, Karnataka - 577217
+                      {t('footer.contact.address')}
                     </p>
                   </div>
                 </div>
@@ -41,9 +41,9 @@ export const ContactFeedback: React.FC = () => {
                     <Phone size={24} />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400 font-bold uppercase mb-1">{t('contact.phone')}</p>
-                    <p className="text-sm text-gray-700">+91 99403 83604</p>
-                    <p className="text-sm text-gray-700">+91 72993 17877</p>
+                    <p className="text-xs text-gray-400 font-bold uppercase mb-1">{t('cf.phone')}</p>
+                    <p className="text-sm text-gray-700">Sri Mutt: 9035861049</p>
+                    <p className="text-sm text-gray-700">G Vadiraj Kamarur: 9986511855</p>
                   </div>
                 </div>
 
@@ -52,7 +52,7 @@ export const ContactFeedback: React.FC = () => {
                     <Mail size={24} />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400 font-bold uppercase mb-1">{t('contact.email')}</p>
+                    <p className="text-xs text-gray-400 font-bold uppercase mb-1">{t('cf.email')}</p>
                     <p className="text-sm text-gray-700">honali.mutt@gmail.com</p>
                   </div>
                 </div>
@@ -62,7 +62,7 @@ export const ContactFeedback: React.FC = () => {
             <div className="bg-[#8B0000] text-white p-8 rounded-3xl shadow-xl">
               <div className="flex items-center gap-3 mb-6">
                 <Clock size={24} className="text-yellow-500" />
-                <h3 className="text-xl font-bold">{t('contact.officeHours')}</h3>
+                <h3 className="text-xl font-bold">{t('cf.hours')}</h3>
               </div>
               <div className="space-y-3 text-sm opacity-80">
                 <div className="flex justify-between">

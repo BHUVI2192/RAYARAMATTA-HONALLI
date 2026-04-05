@@ -208,7 +208,7 @@ export const Activities: React.FC = () => {
               />
             </AnimatePresence>
             <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-[#8B0000] font-bold text-sm shadow-lg">
-              Honali Goshala
+              Honnali Goshala
             </div>
           </div>
 

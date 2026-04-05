@@ -225,7 +225,7 @@ export const AdminPanel: React.FC = () => {
               <ShieldCheck size={32} />
             </div>
             <h2 className="text-2xl font-bold text-gray-800">Admin Portal</h2>
-            <p className="text-gray-400 text-sm">Honali Rayara Matta Management</p>
+            <p className="text-gray-400 text-sm">Honnali Rayara Matta Management</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
