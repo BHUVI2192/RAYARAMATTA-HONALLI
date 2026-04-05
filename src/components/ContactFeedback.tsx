@@ -53,7 +53,7 @@ export const ContactFeedback: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-xs text-gray-400 font-bold uppercase mb-1">{t('cf.email')}</p>
-                    <p className="text-sm text-gray-700">honali.mutt@gmail.com</p>
+                    <p className="text-sm text-gray-700">honnalirayaramata@gmail.com</p>
                   </div>
                 </div>
               </div>
