@@ -35,10 +35,10 @@ export const SevaVivara: React.FC<SevaVivaraProps> = ({ onSelectSeva }) => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid lg:grid-cols-3 gap-12">
           <div className="lg:col-span-1">
-            <div className="bg-[#8B0000] text-white p-8 rounded-3xl shadow-xl sticky top-24">
+            <div className="bg-[#8B0000] text-white p-6 sm:p-10 rounded-3xl shadow-xl sticky top-24">
               <div className="flex items-center gap-3 mb-8">
                 <Clock size={24} className="text-yellow-500" />
-                <h2 className="text-2xl font-bold">{t('pooja.schedule')}</h2>
+                <h2 className="text-2xl font-black">{t('pooja.schedule')}</h2>
               </div>
               <div className="space-y-6">
                 {dailyPoojas.map((pooja, i) => (
@@ -58,11 +58,11 @@ export const SevaVivara: React.FC<SevaVivaraProps> = ({ onSelectSeva }) => {
           </div>
 
           <div className="lg:col-span-2">
-            <div className="bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-gray-100">
-              <div className="flex items-center justify-between mb-12">
+            <div className="bg-white p-6 sm:p-10 md:p-12 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.02)] border border-gray-100">
+              <div className="flex items-center justify-between mb-8 sm:mb-12">
                 <div>
-                  <h1 className="text-3xl font-bold text-[#8B0000] mb-2">{t('pooja.book.title')}</h1>
-                  <p className="text-gray-500">{t('pooja.book.subtitle')}</p>
+                  <h1 className="text-2xl sm:text-3xl font-black text-[#8B0000] mb-2 tracking-tight">{t('pooja.book.title')}</h1>
+                  <p className="text-sm sm:text-base text-gray-500 font-medium">{t('pooja.book.subtitle')}</p>
                 </div>
                 <Calendar size={48} className="text-gray-100 hidden md:block" />
               </div>
@@ -81,8 +81,8 @@ export const SevaVivara: React.FC<SevaVivaraProps> = ({ onSelectSeva }) => {
                         <CheckCircle2 size={20} />
                       </div>
                       <div>
-                        <p className="font-bold text-gray-800">{seva.name}</p>
-                        <p className="text-xs text-gray-400">Sacred Offering</p>
+                        <p className="font-black text-gray-800 text-sm sm:text-base">{seva.name}</p>
+                        <p className="text-[10px] sm:text-xs text-gray-400 font-medium uppercase tracking-wider">Sacred Offering</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -98,7 +98,7 @@ export const SevaVivara: React.FC<SevaVivaraProps> = ({ onSelectSeva }) => {
                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
                   {t('pooja.assistance.desc')}
                 </p>
-                <button className="bg-[#8B0000] text-white px-8 py-3 rounded-full font-bold hover:bg-[#6B0000] transition-colors shadow-lg">
+                <button className="bg-[#8B0000] text-white px-8 py-3.5 rounded-full font-black hover:bg-[#6B0000] transition-all shadow-[0_10px_20px_rgba(139,0,0,0.2)] active:scale-95">
                   {t('pooja.contact')}
                 </button>
               </div>
