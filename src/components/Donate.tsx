@@ -15,6 +15,62 @@ export const Donate: React.FC = () => {
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [paymentId, setPaymentId] = React.useState('');
 
+  React.useEffect(() => {
+    // Check for Razorpay redirect
+    const urlParams = new URLSearchParams(window.location.search);
+    const pId = urlParams.get('razorpay_payment_id');
+    const oId = urlParams.get('razorpay_order_id');
+    const signature = urlParams.get('razorpay_signature');
+    
+    if (pId) {
+      // Clear URL
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+      
+      const savedForm = localStorage.getItem('donationForm');
+      if (savedForm) {
+        const parsedForm = JSON.parse(savedForm);
+        setFormData(parsedForm);
+        verifyAndSaveDonation({
+          razorpay_payment_id: pId,
+          razorpay_order_id: oId,
+          razorpay_signature: signature
+        }, parsedForm);
+        localStorage.removeItem('donationForm');
+      }
+    }
+  }, []);
+
+  const verifyAndSaveDonation = async (response: any, formInfo: any) => {
+    setLoading(true);
+    const pId = response.razorpay_payment_id;
+    try {
+      const verifyRes = await fetch('/api/verify-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'donation',
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_signature: response.razorpay_signature,
+          amount: parseInt(formInfo.amount),
+          ...formInfo
+        }),
+      });
+
+      const verifyData = await verifyRes.json();
+      if (!verifyData.success) throw new Error('Payment verification failed');
+
+      setPaymentId(pId);
+      setShowSuccess(true);
+      setFormData({ name: '', email: '', phone: '', amount: '501' });
+    } catch (err: any) {
+      console.error('Verification Error:', err);
+      alert('Payment verified but failed to save record. Please contact admin with Payment ID: ' + pId);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -30,6 +86,10 @@ export const Donate: React.FC = () => {
 
     setLoading(true);
     try {
+      // Persist state for mobile redirects
+      localStorage.setItem('currentPage', 'donate');
+      localStorage.setItem('donationForm', JSON.stringify(formData));
+
       // 1. Create Order
       const orderRes = await fetch('/api/create-order', {
         method: 'POST',
@@ -52,32 +112,7 @@ export const Donate: React.FC = () => {
         description: "General Donation",
         order_id: orderData.order_id,
         handler: async (response: any) => {
-          try {
-            // 3. Verify Payment
-            const verifyRes = await fetch('/api/verify-payment', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                type: 'donation',
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                amount: amount,
-                ...formData
-              }),
-            });
-
-            const verifyData = await verifyRes.json();
-            if (!verifyData.success) throw new Error('Payment verification failed');
-
-            // 4. Record is already saved by verify-payment for 'donation' type
-            setPaymentId(response.razorpay_payment_id);
-            setShowSuccess(true);
-            setFormData({ name: '', email: '', phone: '', amount: '501' });
-          } catch (err: any) {
-            console.error('Verification Error:', err);
-            alert('Payment verified but failed to save record. Please contact admin with Payment ID: ' + response.razorpay_payment_id);
-          }
+          verifyAndSaveDonation(response, formData);
         },
         prefill: {
           name: formData.name,
@@ -140,6 +175,19 @@ export const Donate: React.FC = () => {
             Make Another Donation
           </button>
         </motion.div>
+      </div>
+    );
+  }
+
+  // Full-screen loading state for verification (mobile redirects)
+  if (loading && window.location.search.includes('razorpay_payment_id')) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
+        <div className="w-20 h-20 border-4 border-[#8B0000]/20 border-t-[#8B0000] rounded-full animate-spin mb-8"></div>
+        <h2 className="text-2xl font-black text-[#8B0000] mb-2 uppercase tracking-tight">Verifying Donation</h2>
+        <p className="text-gray-500 font-bold text-sm text-center max-w-xs leading-relaxed">
+          Please wait a moment while we confirm your transaction with Razorpay...
+        </p>
       </div>
     );
   }

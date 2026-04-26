@@ -557,7 +557,19 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
           {renderStepIndicator()}
 
           <AnimatePresence mode="wait">
-            {showSuccess ? renderSuccess() : (
+            {showSuccess ? renderSuccess() : isSubmitting ? (
+              <motion.div
+                key="verifying"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-center py-20"
+              >
+                <div className="w-20 h-20 border-4 border-[#8B0000]/20 border-t-[#8B0000] rounded-full animate-spin mx-auto mb-8"></div>
+                <h3 className="text-2xl font-bold text-[#8B0000] mb-2">Verifying Payment</h3>
+                <p className="text-gray-500 font-medium">Please do not close or refresh the page...</p>
+              </motion.div>
+            ) : (
               <>
                 {step === 1 && renderUserDetails()}
                 {step === 2 && renderPoojaDetails()}

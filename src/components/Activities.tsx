@@ -262,7 +262,53 @@ export const Activities: React.FC = () => {
 
                   <div className="p-6 sm:p-12">
                     <AnimatePresence mode="wait">
-                      {!showSuccess ? (
+                      {showSuccess ? (
+                        <motion.div
+                          key="success"
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="text-center py-6"
+                        >
+                          <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <CheckCircle size={40} />
+                          </div>
+                          <h2 className="text-2xl font-bold text-[#8B0000] mb-2">Payment Successful 🎉</h2>
+                          <p className="text-gray-500 mb-8">{t('act.goshala.success')}</p>
+                          
+                          <div className="bg-emerald-50 rounded-2xl p-6 border border-emerald-100 mb-8 text-left">
+                            <div className="flex justify-between items-center pb-4 border-b border-emerald-200">
+                              <span className="text-emerald-900 font-bold tracking-wide">Amount Paid</span>
+                              <span className="text-[#8B0000] font-bold text-lg">₹{successAmount}</span>
+                            </div>
+                            <div className="pt-4">
+                              <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Payment ID</p>
+                              <p className="font-mono font-bold text-emerald-800 text-sm break-all">{successPaymentId}</p>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              setShowGodanaModal(false);
+                              setShowSuccess(false);
+                            }}
+                            className="bg-[#8B0000] text-white px-10 py-4 rounded-full font-bold shadow-xl hover:bg-[#6B0000] transition-all w-full"
+                          >
+                            Close
+                          </button>
+                        </motion.div>
+                      ) : isSubmitting ? (
+                        <motion.div
+                          key="verifying"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="text-center py-12"
+                        >
+                          <div className="w-16 h-16 border-4 border-[#8B0000]/20 border-t-[#8B0000] rounded-full animate-spin mx-auto mb-6"></div>
+                          <h3 className="text-xl font-bold text-[#8B0000] mb-2">Verifying Payment</h3>
+                          <p className="text-gray-500 text-sm font-medium">Please do not close this window while we confirm your contribution...</p>
+                        </motion.div>
+                      ) : (
                         <motion.div
                           key="form"
                           initial={{ opacity: 0 }}
@@ -362,40 +408,6 @@ export const Activities: React.FC = () => {
                               {isSubmitting ? t('act.goshala.form.processing') : `${t('act.goshala.form.submit')} ₹${godanaForm.amount}`}
                             </button>
                           </form>
-                        </motion.div>
-                      ) : (
-                        <motion.div
-                          key="success"
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          className="text-center py-6"
-                        >
-                          <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <CheckCircle size={40} />
-                          </div>
-                          <h2 className="text-2xl font-bold text-[#8B0000] mb-2">Payment Successful 🎉</h2>
-                          <p className="text-gray-500 mb-8">{t('act.goshala.success')}</p>
-                          
-                          <div className="bg-emerald-50 rounded-2xl p-6 border border-emerald-100 mb-8 text-left">
-                            <div className="flex justify-between items-center pb-4 border-b border-emerald-200">
-                              <span className="text-emerald-900 font-bold tracking-wide">Amount Paid</span>
-                              <span className="text-[#8B0000] font-bold text-lg">₹{successAmount}</span>
-                            </div>
-                            <div className="pt-4">
-                              <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Payment ID</p>
-                              <p className="font-mono font-bold text-emerald-800 text-sm break-all">{successPaymentId}</p>
-                            </div>
-                          </div>
-
-                          <button
-                            onClick={() => {
-                              setShowGodanaModal(false);
-                              setShowSuccess(false);
-                            }}
-                            className="bg-[#8B0000] text-white px-10 py-4 rounded-full font-bold shadow-xl hover:bg-[#6B0000] transition-all w-full"
-                          >
-                            Close
-                          </button>
                         </motion.div>
                       )}
                     </AnimatePresence>

@@ -79,22 +79,23 @@ function AppContent() {
     // Check for Razorpay redirect signatures
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('razorpay_payment_id') || urlParams.has('razorpay_payment_link_id')) {
-        // If it's a redirect after godana payment, stay on activities page
-        if (localStorage.getItem('currentPage') === 'activities') {
+        const savedPage = localStorage.getItem('currentPage');
+        
+        // Restore the specific page the user was on
+        if (savedPage === 'activities') {
            setCurrentPage('activities');
+        } else if (savedPage === 'donate') {
+           setCurrentPage('donate');
         } else {
-           // Booking flow — ensure selectedSeva is recovered so SevaBooking mounts
+           // Default to booking flow — ensure selectedSeva is recovered
            const savedSevaRaw = localStorage.getItem('selectedSeva');
            if (!savedSevaRaw) {
-             // Try to recover from sevaBookingForm
              const savedFormRaw = localStorage.getItem('sevaBookingForm');
              if (savedFormRaw) {
                try {
                  const parsedForm = JSON.parse(savedFormRaw);
-                 if (parsedForm?.seva) {
-                   setSelectedSeva(parsedForm.seva);
-                 }
-               } catch (e) { /* ignore parse errors */ }
+                 if (parsedForm?.seva) setSelectedSeva(parsedForm.seva);
+               } catch (e) {}
              }
            }
            setCurrentPage('booking');
