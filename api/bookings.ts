@@ -32,7 +32,10 @@ export default async function handler(
 
   try {
     // 1. VERIFY SIGNATURE for Razorpay payments
-    const secret = process.env.RAZORPAY_KEY_SECRET || '';
+    const type = 'seva'; // This endpoint is primarily for Seva
+    const secret = (type === 'godana' && process.env.RAZORPAY_GODANA_KEY_SECRET)
+      ? process.env.RAZORPAY_GODANA_KEY_SECRET
+      : (process.env.RAZORPAY_KEY_SECRET || '');
 
     if (transactionId && transactionId.startsWith('pay_')) {
       if (secret && razorpay_order_id && razorpay_signature) {
@@ -51,8 +54,12 @@ export default async function handler(
         // Fallback for UPI redirects without signature
         console.log('[bookings] Razorpay signature missing. Verifying via API fetch for:', transactionId);
         try {
+          const keyId = (type === 'godana' && process.env.RAZORPAY_GODANA_KEY_ID)
+            ? process.env.RAZORPAY_GODANA_KEY_ID
+            : (process.env.RAZORPAY_KEY_ID || '');
+
           const razorpay = new Razorpay({
-            key_id: process.env.RAZORPAY_KEY_ID || '',
+            key_id: keyId,
             key_secret: secret,
           });
 

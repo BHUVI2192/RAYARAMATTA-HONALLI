@@ -4,17 +4,6 @@ import { User, BookOpen, FileText, Smartphone, ChevronRight, ChevronLeft, CheckC
 import { Seva, BookingData } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 
-const UPI_ID = 'honali.mutt@sbi';
-const PAYEE_NAME = 'Shri Raghavendra Swamy Seva Trust';
-
-const BANK_DETAILS = {
-  accountName: "Shri Raghavendra Swamy Seva Trust",
-  accountNumber: "3102500101501101",
-  bankName: "KARNATAKA BANK LTD",
-  branch: "Honnali- 577217",
-  ifscCode: "KARB0000310",
-  upiId: "honali.mutt@sbi"
-};
 
 interface SevaBookingProps {
   selectedSeva: Seva;
@@ -386,7 +375,6 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
     </motion.div>
   );
 
-  const [paymentMode, setPaymentMode] = useState<'online' | 'manual' | null>(null);
 
   const handleOnlinePayment = async () => {
     const totalAmount = (formData.seva?.price || 0) * (formData.poojaDetails?.count || 1);
@@ -460,35 +448,6 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
     }
   };
 
-  const handleConfirmBooking = async () => {
-    if (!formData.poojaDetails?.transactionId) {
-      alert(t('booking.manual.field.utr.placeholder'));
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const response = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          poojaDetails: {
-            ...formData.poojaDetails,
-            payment_status: 'Pending Verification'
-          }
-        }),
-      });
-      if (!response.ok) throw new Error('Failed to save booking');
-      setTransactionId(formData.poojaDetails.transactionId);
-      setShowSuccess(true);
-    } catch (error) {
-      console.error('Error saving booking:', error);
-      alert('There was an error saving your booking. Please contact the Mutt administrator.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const renderSuccess = () => (
     <motion.div
@@ -540,127 +499,36 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
           <p className="text-sm opacity-80 mt-2 font-medium">{formData.seva?.name} × {formData.poojaDetails?.count}</p>
         </div>
 
-        {!paymentMode ? (
-          <div className="space-y-4">
-            <p className="text-center text-gray-500 font-bold uppercase tracking-widest text-xs mb-6">Select Payment Method</p>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <button
-                onClick={() => setPaymentMode('online')}
-                className="flex flex-col items-center justify-center gap-4 p-8 bg-white border-2 border-stone-100 rounded-3xl hover:border-[#8B0000] hover:bg-stone-50 transition-all group"
-              >
-                <div className="p-4 bg-stone-50 rounded-2xl group-hover:bg-[#8B0000]/10 transition-all">
-                  <CreditCard size={32} className="text-[#8B0000]" />
-                </div>
-                <div className="text-center">
-                  <p className="font-bold text-gray-900">Online Payment</p>
-                  <p className="text-xs text-gray-400 mt-1">UPI, Cards, Netbanking</p>
-                </div>
-              </button>
-              <button
-                onClick={() => setPaymentMode('manual')}
-                className="flex flex-col items-center justify-center gap-4 p-8 bg-white border-2 border-stone-100 rounded-3xl hover:border-[#8B0000] hover:bg-stone-50 transition-all group"
-              >
-                <div className="p-4 bg-stone-50 rounded-2xl group-hover:bg-[#8B0000]/10 transition-all">
-                  <Landmark size={32} className="text-[#8B0000]" />
-                </div>
-                <div className="text-center">
-                  <p className="font-bold text-gray-900">Manual Transfer</p>
-                  <p className="text-xs text-gray-400 mt-1">Bank Transfer & UTR</p>
-                </div>
-              </button>
+        <div className="text-center py-8">
+          <div className="mb-10">
+            <div className="w-20 h-20 bg-[#8B0000]/10 text-[#8B0000] rounded-full flex items-center justify-center mx-auto mb-6">
+              <CreditCard size={40} />
             </div>
+            <h3 className="text-2xl font-bold text-gray-900">Secure Online Payment</h3>
+            <p className="text-gray-500 font-medium mt-3">Click below to pay ₹{totalAmount} via Razorpay</p>
           </div>
-        ) : paymentMode === 'online' ? (
-          <div className="text-center py-8">
-            <div className="mb-8">
-              <div className="w-16 h-16 bg-[#8B0000]/10 text-[#8B0000] rounded-full flex items-center justify-center mx-auto mb-4">
-                <CreditCard size={32} />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900">Online Secure Payment</h3>
-              <p className="text-gray-500 text-sm mt-2">Proceed to pay ₹{totalAmount} via Razorpay</p>
-            </div>
-            <button
-              onClick={handleOnlinePayment}
-              disabled={isSubmitting}
-              className="w-full max-w-sm bg-[#8B0000] text-white py-5 rounded-2xl font-bold shadow-xl hover:bg-[#6B0000] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-            >
-              {isSubmitting ? <Loader2 className="animate-spin" /> : <ExternalLink size={20} />}
-              {isSubmitting ? 'Processing...' : 'Pay Now'}
-            </button>
-            <button onClick={() => setPaymentMode(null)} className="mt-6 text-sm font-bold text-gray-400 hover:text-gray-600">
-              Change Payment Method
-            </button>
+
+          <button
+            onClick={handleOnlinePayment}
+            disabled={isSubmitting}
+            className="w-full max-w-md bg-[#8B0000] text-white py-7 rounded-[30px] font-black shadow-[0_20px_50px_rgba(139,0,0,0.2)] hover:bg-[#6B0000] transition-all flex items-center justify-center gap-4 disabled:opacity-50 mx-auto text-xl uppercase tracking-wide"
+          >
+            {isSubmitting ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              <>
+                <ExternalLink size={24} />
+                Pay Now
+              </>
+            )}
+          </button>
+
+          <div className="flex items-center justify-center gap-4 mt-12 opacity-30">
+            <div className="h-px w-12 bg-gray-300"></div>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Secured by Razorpay</span>
+            <div className="h-px w-12 bg-gray-300"></div>
           </div>
-        ) : (
-          <div className="space-y-8">
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Bank Details */}
-              <div className="bg-stone-50 border border-stone-200 rounded-3xl p-6">
-                <h3 className="text-[#8B0000] font-bold mb-4 flex items-center gap-2">
-                  <Landmark size={20} /> {t('booking.manual.bank.title')}
-                </h3>
-                <div className="space-y-3">
-                  {[
-                    { label: 'A/C Name', value: BANK_DETAILS.accountName },
-                    { label: 'A/C No', value: BANK_DETAILS.accountNumber },
-                    { label: 'Bank', value: BANK_DETAILS.bankName },
-                    { label: 'IFSC', value: BANK_DETAILS.ifscCode },
-                  ].map((item, i) => (
-                    <div key={i} className="flex justify-between items-center text-sm border-b border-stone-200 pb-2">
-                      <span className="text-gray-400 font-bold uppercase text-[10px]">{item.label}</span>
-                      <span className="font-bold text-gray-700">{item.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* UPI QR / ID */}
-              <div className="bg-stone-50 border border-stone-200 rounded-3xl p-6 text-center flex flex-col items-center justify-center">
-                <h3 className="text-[#8B0000] font-bold mb-4 flex items-center gap-2">
-                  <Smartphone size={20} /> {t('booking.manual.upi.title')}
-                </h3>
-                <div className="bg-white p-4 rounded-2xl shadow-sm mb-4 border border-stone-100">
-                  <div className="w-32 h-32 bg-stone-100 flex items-center justify-center text-stone-300 rounded-lg">
-                    <p className="text-[10px] px-2">Scan QR code in app</p>
-                  </div>
-                </div>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">UPI ID</p>
-                <p className="font-bold text-[#8B0000]">{BANK_DETAILS.upiId}</p>
-              </div>
-            </div>
-
-            <div className="max-w-md mx-auto space-y-6">
-              <div className="space-y-4">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2 px-2">
-                  <CreditCard size={14} /> {t('booking.manual.field.utr')}
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.poojaDetails?.transactionId || ''}
-                  onChange={(e) => updatePoojaDetails('transactionId', e.target.value)}
-                  placeholder={t('booking.manual.field.utr.placeholder')}
-                  className="w-full px-8 py-5 bg-stone-50 border border-stone-200 rounded-[24px] focus:outline-none focus:ring-4 focus:ring-[#8B0000]/10 transition-all font-bold text-center text-lg"
-                />
-              </div>
-
-              <button
-                onClick={handleConfirmBooking}
-                disabled={isSubmitting}
-                className="flex items-center justify-center gap-3 w-full bg-[#8B0000] hover:bg-[#6B0000] text-white font-bold py-5 px-6 rounded-[24px] shadow-xl transition-all active:scale-95 disabled:opacity-50"
-              >
-                {isSubmitting ? <Loader2 size={24} className="animate-spin" /> : <CheckCircle size={24} />}
-                {isSubmitting ? 'Confirming...' : t('booking.manual.btn.confirm')}
-              </button>
-              
-              <div className="text-center">
-                <button onClick={() => setPaymentMode(null)} className="text-sm font-bold text-gray-400 hover:text-gray-600">
-                  Change Payment Method
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
 
         <div className="flex justify-start pt-8">
           <button onClick={prevStep} className="flex items-center gap-2 text-gray-400 font-bold hover:text-gray-600 transition-colors">

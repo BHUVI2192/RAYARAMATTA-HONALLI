@@ -48,12 +48,27 @@ interface GodanaPayment {
   created_at: string;
 }
 
-export const AdminPanel: React.FC = () => {
+interface GeneralDonation {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+  amount: number;
+  payment_id: string;
+  created_at: string;
+}
+
+interface AdminPanelProps {
+  onLogout?: () => void;
+}
+
+export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
-  const [activeTab, setActiveTab] = useState<'sevas' | 'godana'>('sevas');
+  const [activeTab, setActiveTab] = useState<'sevas' | 'godana' | 'donations'>('sevas');
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [godanaPayments, setGodanaPayments] = useState<GodanaPayment[]>([]);
+  const [donations, setDonations] = useState<GeneralDonation[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -96,18 +111,21 @@ export const AdminPanel: React.FC = () => {
         throw new Error(`Server error (${res.status}): ${text.substring(0, 200)}`);
       };
 
-      const [bookingsRes, godanaRes] = await Promise.all([
+      const [bookingsRes, godanaRes, donationsRes] = await Promise.all([
         fetch('/api/admin/bookings', { headers }),
         fetch('/api/admin/godana', { headers }),
+        fetch('/api/admin/donations', { headers }),
       ]);
 
       const bookingsData = await parseJson(bookingsRes);
       const godanaData = await parseJson(godanaRes);
+      const donationsData = await parseJson(donationsRes);
 
       if (bookingsData.success) setBookings(bookingsData.bookings || []);
       else setError(bookingsData.error || 'Failed to load seva bookings');
 
       if (godanaData.success) setGodanaPayments(godanaData.godana || []);
+      if (donationsData.success) setDonations(donationsData.donations || []);
       // Godana failure is non-fatal (bookings may still load)
 
     } catch (err: any) {
@@ -124,9 +142,10 @@ export const AdminPanel: React.FC = () => {
     setError('');
     try {
       const headers = { 'x-admin-password': password };
-      const [bookingsRes, godanaRes] = await Promise.all([
+      const [bookingsRes, godanaRes, donationsRes] = await Promise.all([
         fetch('/api/admin/bookings', { headers }),
-        fetch('/api/admin/godana', { headers })
+        fetch('/api/admin/godana', { headers }),
+        fetch('/api/admin/donations', { headers })
       ]);
 
       if (bookingsRes.status === 401) {
@@ -145,6 +164,8 @@ export const AdminPanel: React.FC = () => {
       const bookingsData = await getJson(bookingsRes);
       const godanaData = await getJson(godanaRes);
 
+      const donationsData = await getJson(donationsRes);
+
       if (bookingsData.success) {
         setBookings(bookingsData.bookings);
       } else {
@@ -153,8 +174,10 @@ export const AdminPanel: React.FC = () => {
 
       if (godanaData.success) {
         setGodanaPayments(godanaData.godana);
-      } else if (bookingsData.success) {
-        setError(godanaData.error || 'Failed to sync godana');
+      }
+      
+      if (donationsData.success) {
+        setDonations(donationsData.donations);
       }
       
     } catch (err: any) {
@@ -175,6 +198,12 @@ export const AdminPanel: React.FC = () => {
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.phone.includes(searchTerm)
+  );
+
+  const filteredDonations = donations.filter(d =>
+    d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    d.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    d.phone.includes(searchTerm)
   );
 
   const confirmBooking = async (id: number) => {
@@ -210,7 +239,8 @@ export const AdminPanel: React.FC = () => {
 
   const sevaRevenue = bookings.reduce((acc, b) => acc + (b.seva_price * b.count), 0);
   const godanaRevenue = godanaPayments.reduce((acc, p) => acc + p.amount, 0);
-  const totalRevenue = sevaRevenue + godanaRevenue;
+  const generalDonationRevenue = donations.reduce((acc, d) => acc + d.amount, 0);
+  const totalRevenue = sevaRevenue + godanaRevenue + generalDonationRevenue;
 
   if (!isAuthenticated) {
     return (
@@ -226,6 +256,12 @@ export const AdminPanel: React.FC = () => {
             </div>
             <h2 className="text-2xl font-bold text-gray-800">Admin Portal</h2>
             <p className="text-gray-400 text-sm">Honnali Rayara Matta Management</p>
+            <button 
+              onClick={onLogout}
+              className="mt-4 text-stone-400 hover:text-[#8B0000] text-xs font-bold uppercase tracking-widest transition-colors"
+            >
+              ← Back to Website
+            </button>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
@@ -254,7 +290,7 @@ export const AdminPanel: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-stone-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
@@ -270,10 +306,13 @@ export const AdminPanel: React.FC = () => {
               <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
             </button>
             <button 
-              onClick={() => setIsAuthenticated(false)}
+              onClick={() => {
+                setIsAuthenticated(false);
+                if (onLogout) onLogout();
+              }}
               className="flex items-center gap-2 px-6 py-3 bg-white text-gray-500 rounded-xl shadow-sm border border-gray-100 hover:bg-red-50 hover:text-red-600 transition-all font-bold"
             >
-              <LogOut size={18} /> Exit
+              <LogOut size={18} /> Logout
             </button>
           </div>
         </div>
@@ -300,6 +339,16 @@ export const AdminPanel: React.FC = () => {
           >
             Godana Seva
           </button>
+          <button
+            onClick={() => setActiveTab('donations')}
+            className={`px-8 py-3 rounded-xl font-bold transition-all ${
+              activeTab === 'donations' 
+                ? 'bg-[#8B0000] text-white shadow-lg' 
+                : 'text-stone-500 hover:bg-stone-200'
+            }`}
+          >
+            Donations
+          </button>
         </div>
 
         {/* Stats Grid */}
@@ -307,8 +356,8 @@ export const AdminPanel: React.FC = () => {
           {[
             { label: 'Seva Bookings', value: bookings.length, icon: <Calendar className="text-blue-600" />, color: 'bg-blue-50' },
             { label: 'Godana Seva', value: godanaPayments.length, icon: <Heart className="text-rose-600" />, color: 'bg-rose-50' },
+            { label: 'General Donations', value: donations.length, icon: <CreditCard className="text-indigo-600" />, color: 'bg-indigo-50' },
             { label: 'Total Revenue', value: `₹${totalRevenue.toLocaleString()}`, icon: <BarChart3 className="text-emerald-600" />, color: 'bg-emerald-50' },
-            { label: 'Total Donors', value: new Set([...bookings.map(b => b.email), ...godanaPayments.map(p => p.email)]).size, icon: <Users className="text-amber-600" />, color: 'bg-amber-50' },
           ].map((stat, i) => (
             <div key={i} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
               <div className={`p-4 ${stat.color} rounded-2xl`}>
@@ -419,55 +468,96 @@ export const AdminPanel: React.FC = () => {
                       </td>
                     </tr>
                   )
-                ) : (
-                  filteredGodana.length > 0 ? filteredGodana.map((payment) => (
-                    <tr key={payment.id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-8 py-6">
-                        <div className="flex flex-col">
-                          <span className="font-bold text-gray-800">{payment.name}</span>
-                          <span className="text-xs text-gray-400 flex items-center gap-1 mt-1">
-                            <Clock size={12} /> {new Date(payment.created_at).toLocaleDateString()}
+                  ) : activeTab === 'godana' ? (
+                    filteredGodana.length > 0 ? filteredGodana.map((payment) => (
+                      <tr key={payment.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-8 py-6">
+                          <div className="flex flex-col">
+                            <span className="font-bold text-gray-800">{payment.name}</span>
+                            <span className="text-xs text-gray-400 flex items-center gap-1 mt-1">
+                              <Clock size={12} /> {new Date(payment.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-8 py-6">
+                          <div className="flex flex-col">
+                            <span className="text-sm font-semibold text-gray-700">{payment.email}</span>
+                            <span className="text-xs text-gray-400 font-bold">{payment.phone}</span>
+                          </div>
+                        </td>
+                        <td className="px-8 py-6 text-sm font-bold text-[#8B0000]">
+                          ₹{payment.amount.toLocaleString()}
+                        </td>
+                        <td className="px-8 py-6">
+                          <span className="text-xs font-mono text-stone-400 bg-stone-100 px-2 py-1 rounded">
+                            {payment.payment_id}
                           </span>
-                        </div>
-                      </td>
-                      <td className="px-8 py-6">
-                        <div className="flex flex-col">
-                          <span className="text-sm font-semibold text-gray-700">{payment.email}</span>
-                          <span className="text-xs text-gray-400 font-bold">{payment.phone}</span>
-                        </div>
-                      </td>
-                      <td className="px-8 py-6 text-sm font-bold text-[#8B0000]">
-                        ₹{payment.amount.toLocaleString()}
-                      </td>
-                      <td className="px-8 py-6">
-                        <span className="text-xs font-mono text-stone-400 bg-stone-100 px-2 py-1 rounded">
-                          {payment.payment_id}
-                        </span>
-                      </td>
-                      <td className="px-8 py-6 text-right">
-                        <button className="p-2 text-stone-300 cursor-not-allowed">
-                          <ChevronRight size={20} />
-                        </button>
-                      </td>
-                    </tr>
-                  )) : (
-                    <tr>
-                      <td colSpan={5} className="px-8 py-20 text-center text-gray-400">
-                        <div className="flex flex-col items-center">
-                          <Heart size={48} className="opacity-10 mb-4" />
-                          <p className="font-medium">No Godana Seva contributions found</p>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                )}
+                        </td>
+                        <td className="px-8 py-6 text-right">
+                          <button className="p-2 text-stone-300 cursor-not-allowed">
+                            <ChevronRight size={20} />
+                          </button>
+                        </td>
+                      </tr>
+                    )) : (
+                      <tr>
+                        <td colSpan={5} className="px-8 py-20 text-center text-gray-400">
+                          <div className="flex flex-col items-center">
+                            <Heart size={48} className="opacity-10 mb-4" />
+                            <p className="font-medium">No Godana Seva contributions found</p>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  ) : (
+                    filteredDonations.length > 0 ? filteredDonations.map((donation) => (
+                      <tr key={donation.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-8 py-6">
+                          <div className="flex flex-col">
+                            <span className="font-bold text-gray-800">{donation.name}</span>
+                            <span className="text-xs text-gray-400 flex items-center gap-1 mt-1">
+                              <Clock size={12} /> {new Date(donation.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-8 py-6">
+                          <div className="flex flex-col">
+                            <span className="text-sm font-semibold text-gray-700">{donation.email || 'N/A'}</span>
+                            <span className="text-xs text-gray-400 font-bold">{donation.phone}</span>
+                          </div>
+                        </td>
+                        <td className="px-8 py-6 text-sm font-bold text-[#8B0000]">
+                          ₹{donation.amount.toLocaleString()}
+                        </td>
+                        <td className="px-8 py-6">
+                          <span className="text-xs font-mono text-stone-400 bg-stone-100 px-2 py-1 rounded">
+                            {donation.payment_id}
+                          </span>
+                        </td>
+                        <td className="px-8 py-6 text-right">
+                          <button className="p-2 text-stone-300 cursor-not-allowed">
+                            <ChevronRight size={20} />
+                          </button>
+                        </td>
+                      </tr>
+                    )) : (
+                      <tr>
+                        <td colSpan={5} className="px-8 py-20 text-center text-gray-400">
+                          <div className="flex flex-col items-center">
+                            <CreditCard size={48} className="opacity-10 mb-4" />
+                            <p className="font-medium">No general donations found</p>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  )}
               </tbody>
             </table>
           </div>
           
           <div className="p-8 bg-gray-50/30 border-t border-gray-50 text-center">
             <p className="text-xs text-gray-400 font-medium">
-              Showing {activeTab === 'sevas' ? filteredBookings.length : filteredGodana.length} total entries
+              Showing {activeTab === 'sevas' ? filteredBookings.length : activeTab === 'godana' ? filteredGodana.length : filteredDonations.length} total entries
             </p>
           </div>
         </div>

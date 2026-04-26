@@ -18,11 +18,17 @@ export default async function handler(
     return res.status(400).json({ success: false, error: 'Invalid amount. Must be a positive number.' });
   }
 
-  const keyId = process.env.RAZORPAY_KEY_ID;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  // Support for multiple Razorpay accounts
+  const isGodana = type === 'godana';
+  const keyId = isGodana 
+    ? (process.env.RAZORPAY_GODANA_KEY_ID || process.env.RAZORPAY_KEY_ID)
+    : process.env.RAZORPAY_KEY_ID;
+  const keySecret = isGodana
+    ? (process.env.RAZORPAY_GODANA_KEY_SECRET || process.env.RAZORPAY_KEY_SECRET)
+    : process.env.RAZORPAY_KEY_SECRET;
 
   if (!keyId || !keySecret) {
-    console.error('[create-order] RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is not set');
+    console.error(`[create-order] Razorpay keys not set for type: ${type}`);
     return res.status(500).json({ success: false, error: 'Payment gateway not configured. Contact admin.' });
   }
 

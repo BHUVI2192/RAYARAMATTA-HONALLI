@@ -27,8 +27,12 @@ export default function App() {
 
 function AppContent() {
   const [currentPage, setCurrentPageState] = useState(() => {
+    // Check URL path or hash for admin access
+    if (window.location.pathname === '/admin' || window.location.hash === '#admin') {
+      return 'admin';
+    }
     const saved = localStorage.getItem('currentPage');
-    // Never restore admin from localStorage — must use #admin hash
+    // Never restore admin from localStorage — must use the URL
     if (saved === 'admin') return 'home';
     return saved || 'home';
   });
@@ -59,20 +63,18 @@ function AppContent() {
     window.scrollTo(0, 0);
   }, [currentPage]);
 
-  // Handle secret admin access via URL hash (#admin)
+  // Handle admin access and URL changes
   useEffect(() => {
-    const handleHashChange = () => {
-      if (window.location.hash === '#admin') {
+    const handleUrlChange = () => {
+      if (window.location.hash === '#admin' || window.location.pathname === '/admin') {
         setCurrentPage('admin');
       } else if (window.location.hash === '#home') {
         setCurrentPage('home');
       }
     };
 
-    // Check on initial load only if hash exists
-    if (window.location.hash) {
-      handleHashChange();
-    }
+    // Initial check
+    handleUrlChange();
 
     // Check for Razorpay redirect signatures
     const urlParams = new URLSearchParams(window.location.search);
@@ -100,8 +102,8 @@ function AppContent() {
     }
 
     // Listen for changes
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('hashchange', handleUrlChange);
+    return () => window.removeEventListener('hashchange', handleUrlChange);
   }, []);
 
   const handleSelectSeva = (seva: Seva) => {
@@ -146,14 +148,14 @@ function AppContent() {
           />
         ) : <SevaVivara onSelectSeva={handleSelectSeva} />;
       case 'admin':
-        return <AdminPanel />;
+        return <AdminPanel onLogout={() => setCurrentPage('home')} />;
       default: return <Hero />;
     }
   };
 
   return (
     <div className="min-h-screen bg-white font-sans selection:bg-yellow-200 selection:text-[#8B0000]">
-      <Navbar onNavigate={setCurrentPage} currentPage={currentPage} />
+      {currentPage !== 'admin' && <Navbar onNavigate={setCurrentPage} currentPage={currentPage} />}
       
       <main>
         <AnimatePresence mode="wait">
@@ -161,7 +163,7 @@ function AppContent() {
         </AnimatePresence>
       </main>
 
-      <Footer />
+      {currentPage !== 'admin' && <Footer />}
     </div>
   );
 }

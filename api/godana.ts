@@ -13,7 +13,7 @@ export default async function handler(
     return res.status(405).json({ success: false, message: 'Method Not Allowed' });
   }
 
-  const { name, phone, email, amount, payment_id } = req.body || {};
+  const { name, phone, email, amount, payment_id, razorpay_order_id, razorpay_signature } = req.body || {};
 
   if (!name || !phone || !email || !payment_id) {
     return res.status(400).json({
@@ -31,24 +31,26 @@ export default async function handler(
   }
 
   try {
-    // 1. VERIFY SIGNATURE (Optional but highly recommended)
-    const { razorpay_order_id, razorpay_signature } = req.body || {};
-    const secret = process.env.RAZORPAY_KEY_SECRET || '';
+    // 1. SECURITY CHECK: Verify Razorpay Signature
+    // Godana uses the Godana Account Secret
+    const secret = process.env.RAZORPAY_GODANA_KEY_SECRET || '';
 
-    if (secret && razorpay_order_id && razorpay_signature) {
-      const body = `${razorpay_order_id}|${payment_id}`;
-      const expectedSignature = crypto
-        .createHmac('sha256', secret)
-        .update(body)
-        .digest('hex');
+    if (payment_id.startsWith('pay_')) {
+      if (secret && razorpay_order_id && razorpay_signature) {
+        const body = `${razorpay_order_id}|${payment_id}`;
+        const expectedSignature = crypto
+          .createHmac('sha256', secret)
+          .update(body)
+          .digest('hex');
 
-      if (expectedSignature !== razorpay_signature) {
-        console.error('[godana] CRITICAL: Invalid Razorpay signature');
-        return res.status(400).json({ success: false, message: 'Invalid payment signature. Verification failed.' });
+        if (expectedSignature !== razorpay_signature) {
+          console.error('[godana] SECURITY ALERT: Invalid Razorpay signature');
+          return res.status(400).json({ success: false, message: 'Invalid payment signature. Verification failed.' });
+        }
+        console.log('[godana] Razorpay signature verified successfully.');
+      } else {
+        console.log('[godana] Warning: Proceeding without strict signature verification (mobile redirect scenario or missing keys).');
       }
-      console.log('[godana] Razorpay signature verified successfully.');
-    } else {
-      console.log('[godana] Proceeding without strict signature verification (or missing params).');
     }
 
     // 2. CHECK FOR DUPLICATES
@@ -59,11 +61,11 @@ export default async function handler(
       .maybeSingle();
 
     if (existing) {
-      console.log('[godana] Duplicate payment detected, returning existing record:', payment_id);
+      console.log('[godana] Duplicate payment detected:', payment_id);
       return res.status(200).json({ success: true, message: 'Godana payment already recorded' });
     }
 
-    // 3. INSERT EXACTLY MATCHING SCHEMA
+    // 3. INSERT INTO DATABASE
     console.log('[godana] Inserting into Supabase...');
     const { error: insertError } = await supabase
       .from('godana_payments')

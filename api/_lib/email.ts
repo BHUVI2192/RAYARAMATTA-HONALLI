@@ -108,12 +108,61 @@ export const sendGodanaEmail = async (name: string, email: string, amount: numbe
     `,
   };
 
-  try {
+    try {
     const info = await transporter.sendMail(mailOptions);
     console.log('[email] Godana confirmation email sent:', info.messageId);
     return true;
   } catch (error) {
     console.error('[email] Error sending Godana email:', error);
+    return false;
+  }
+};
+
+export const sendDonationEmail = async (name: string, email: string, amount: number): Promise<boolean> => {
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.warn('[email] SMTP not configured — skipping Donation confirmation email.');
+    return false;
+  }
+
+  const mailOptions = {
+    from: `"Rayara Matta Honalli" <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: 'Donation Receipt - Rayara Matta Honalli',
+    html: `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #f0f0f0; padding: 40px; color: #333; text-align: left;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #8B0000; margin: 0; font-size: 24px;">Donation Received</h1>
+          <p style="color: #666;">Rayara Matta Honalli, Honali</p>
+        </div>
+        
+        <p>नमस्ते <strong>${name}</strong>,</p>
+        <p>Thank you for your generous donation to <strong>Rayara Matta Honalli</strong>. Your support helps us continue our spiritual and social activities.</p>
+        
+        <div style="background: #f8f8ff; padding: 25px; border-radius: 12px; margin: 30px 0; border: 1px solid #ebebff;">
+          <p style="color: #00008B; font-weight: bold; margin-top: 0; border-bottom: 1px solid #ebebff; padding-bottom: 10px;">Donation Summary</p>
+          <table style="width: 100%; font-size: 14px;">
+            <tr><td style="padding: 5px 0; color: #777;">Type</td><td style="padding: 5px 0; text-align: right; font-weight: bold;">General Donation</td></tr>
+            <tr><td style="padding: 5px 0; color: #777;">Amount</td><td style="padding: 5px 0; text-align: right; font-weight: bold; color: #00008B;">₹${amount}</td></tr>
+          </table>
+        </div>
+        
+        <p style="line-height: 1.6;">May the blessings of Guru Raghavendra Swamy be with you and your family.</p>
+        
+        <div style="margin-top: 40px; border-top: 1px solid #eee; font-size: 12px; color: #999; text-align: center;">
+          <p>Rayara Matta Honalli, Venkateswara Nagar (West), Honali, Karnataka - 577217</p>
+          <p>Contact: +91 91102 38478</p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('[email] Donation confirmation email sent:', info.messageId);
+    return true;
+  } catch (error) {
+    console.error('[email] Error sending Donation email:', error);
     return false;
   }
 };
