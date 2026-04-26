@@ -138,7 +138,7 @@ export const Activities: React.FC = () => {
       if (!orderData.success) throw new Error(orderData.error || 'Order creation failed');
 
       const options = {
-        key: orderData.keyId || 'rzp_live_SX8dAraaIbrAei', // Fallback or from server
+        key: orderData.keyId, // Fetched from server
         amount: amount * 100,
         currency: 'INR',
         name: 'Trust Donation',

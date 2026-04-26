@@ -402,7 +402,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
       if (!orderData.success) throw new Error(orderData.error || 'Order creation failed');
 
       const options = {
-        key: orderData.keyId || 'rzp_live_SX8dAraaIbrAei',
+        key: orderData.keyId,
         amount: totalAmount * 100,
         currency: 'INR',
         name: 'Trust Donation',
