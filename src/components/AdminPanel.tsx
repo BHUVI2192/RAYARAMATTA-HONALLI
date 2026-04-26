@@ -248,7 +248,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="max-w-md w-full bg-white rounded-[40px] shadow-2xl p-10 border border-stone-200"
+          className="max-w-md w-full bg-white rounded-[32px] sm:rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.1)] p-6 sm:p-10 border border-stone-100"
         >
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-[#8B0000] rounded-2xl flex items-center justify-center text-white mx-auto mb-4 shadow-lg">
@@ -293,15 +293,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
     <div className="min-h-screen bg-stone-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-[#8B0000]">Admin Dashboard</h1>
-            <p className="text-gray-400 font-medium">Monitoring Seva Bookings & Payments</p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 sm:mb-10 gap-6">
+          <div className="text-center md:text-left">
+            <h1 className="text-2xl sm:text-3xl font-black text-[#8B0000] tracking-tight">Admin Dashboard</h1>
+            <p className="text-gray-400 text-sm font-medium mt-1">Monitoring Seva Bookings & Payments</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex items-center justify-center gap-3">
             <button 
               onClick={fetchData}
-              className="p-3 bg-white text-[#8B0000] rounded-xl shadow-sm border border-gray-100 hover:bg-gray-50 transition-all"
+              className="p-3.5 bg-white text-[#8B0000] rounded-2xl shadow-sm border border-gray-100 hover:bg-gray-50 transition-all active:scale-95"
             >
               <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
             </button>
@@ -310,7 +310,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
                 setIsAuthenticated(false);
                 if (onLogout) onLogout();
               }}
-              className="flex items-center gap-2 px-6 py-3 bg-white text-gray-500 rounded-xl shadow-sm border border-gray-100 hover:bg-red-50 hover:text-red-600 transition-all font-bold"
+              className="flex items-center gap-2 px-6 py-3.5 bg-white text-gray-500 rounded-2xl shadow-sm border border-gray-100 hover:bg-red-50 hover:text-red-600 transition-all font-black text-sm active:scale-95"
             >
               <LogOut size={18} /> Logout
             </button>
@@ -318,30 +318,30 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex gap-2 p-1.5 bg-stone-200/50 w-fit rounded-2xl mb-8 backdrop-blur-sm">
+        <div className="flex gap-1.5 p-1.5 bg-stone-200/50 w-full sm:w-fit rounded-2xl mb-8 backdrop-blur-sm overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTab('sevas')}
-            className={`px-8 py-3 rounded-xl font-bold transition-all ${
+            className={`flex-1 sm:flex-none whitespace-nowrap px-6 sm:px-8 py-3.5 rounded-xl font-black text-sm transition-all ${
               activeTab === 'sevas' 
                 ? 'bg-[#8B0000] text-white shadow-lg' 
                 : 'text-stone-500 hover:bg-stone-200'
             }`}
           >
-            Seva Bookings
+            Sevas
           </button>
           <button
             onClick={() => setActiveTab('godana')}
-            className={`px-8 py-3 rounded-xl font-bold transition-all ${
+            className={`flex-1 sm:flex-none whitespace-nowrap px-6 sm:px-8 py-3.5 rounded-xl font-black text-sm transition-all ${
               activeTab === 'godana' 
                 ? 'bg-[#8B0000] text-white shadow-lg' 
                 : 'text-stone-500 hover:bg-stone-200'
             }`}
           >
-            Godana Seva
+            Godana
           </button>
           <button
             onClick={() => setActiveTab('donations')}
-            className={`px-8 py-3 rounded-xl font-bold transition-all ${
+            className={`flex-1 sm:flex-none whitespace-nowrap px-6 sm:px-8 py-3.5 rounded-xl font-black text-sm transition-all ${
               activeTab === 'donations' 
                 ? 'bg-[#8B0000] text-white shadow-lg' 
                 : 'text-stone-500 hover:bg-stone-200'
@@ -372,8 +372,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
         </div>
 
         {/* Main Table Section */}
-        <div className="bg-white rounded-[40px] shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="bg-white rounded-[32px] sm:rounded-[40px] shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden">
+          <div className="p-6 sm:p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="relative w-full md:w-96">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
               <input 
@@ -572,20 +572,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
                 className="bg-white rounded-[40px] shadow-2xl w-full max-w-2xl overflow-hidden"
               >
-                <div className="p-8 bg-[#8B0000] text-white flex justify-between items-center">
+                <div className="p-6 sm:p-8 bg-[#8B0000] text-white flex justify-between items-center">
                   <div>
-                    <h3 className="text-2xl font-bold">Booking Details</h3>
-                    <p className="opacity-80 text-sm">UTR: {selectedBooking.transaction_id || 'N/A'}</p>
+                    <h3 className="text-xl sm:text-2xl font-black tracking-tight">Booking Details</h3>
+                    <p className="opacity-70 text-[10px] sm:text-xs font-bold uppercase tracking-widest mt-1">UTR: {selectedBooking.transaction_id || 'N/A'}</p>
                   </div>
                   <button 
                     onClick={() => setSelectedBooking(null)}
-                    className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                    className="p-2 sm:p-3 hover:bg-white/10 rounded-2xl transition-colors font-bold text-2xl"
                   >
                     ×
                   </button>
                 </div>
                 
-                <div className="p-8 grid md:grid-cols-2 gap-8 max-h-[70vh] overflow-y-auto">
+                <div className="p-6 sm:p-8 grid md:grid-cols-2 gap-8 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto custom-scrollbar">
                   <div className="space-y-6">
                     <div>
                       <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Donor Details</h4>

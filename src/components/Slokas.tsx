@@ -130,23 +130,23 @@ export const Slokas: React.FC = () => {
   return (
     <div className="pt-24 pb-16 bg-orange-50 min-h-screen">
       <div className="max-w-4xl mx-auto px-4">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 sm:mb-16">
           <motion.div
             initial={{ rotate: -10, opacity: 0 }}
             animate={{ rotate: 0, opacity: 1 }}
-            className="inline-block p-4 bg-orange-100 text-orange-600 rounded-2xl mb-4"
+            className="inline-block p-3 sm:p-4 bg-orange-100 text-orange-600 rounded-2xl mb-4"
           >
-            <Book size={48} />
+            <Book size={40} className="sm:w-12 sm:h-12" />
           </motion.div>
-          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">ಶ್ರೀ ರಾಘವೇಂದ್ರ ಸ್ತೋತ್ರಂ</h1>
-          <p className="text-gray-600">{t('sloka.desc')}</p>
+          <h1 className="text-3xl sm:text-4xl font-black text-[#8B0000] mb-4 tracking-tight">ಶ್ರೀ ರಾಘವೇಂದ್ರ ಸ್ತೋತ್ರಂ</h1>
+          <p className="text-gray-500 max-w-2xl mx-auto text-sm sm:text-base font-medium px-4">{t('sloka.desc')}</p>
         </div>
 
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true }}
-          className="bg-white p-8 md:p-12 rounded-3xl shadow-xl border border-orange-100 relative overflow-hidden"
+          className="bg-white p-6 sm:p-10 md:p-12 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-orange-100 relative overflow-hidden"
         >
           <div className="relative z-10 text-center">
             <div className="whitespace-pre-wrap text-base sm:text-lg md:text-xl text-gray-800 leading-loose font-serif">

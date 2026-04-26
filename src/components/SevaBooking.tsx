@@ -129,7 +129,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
   const prevStep = () => setStep(prev => prev - 1);
 
   const renderStepIndicator = () => (
-    <div className="flex items-center justify-center mb-12">
+    <div className="flex items-center justify-center mb-10 sm:mb-12">
       {[
         { id: 1, icon: <User size={18} />, label: t('booking.steps.user') },
         { id: 2, icon: <BookOpen size={18} />, label: t('booking.steps.pooja') },
@@ -138,19 +138,19 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
       ].map((s, i) => (
         <React.Fragment key={s.id}>
           <div className="flex flex-col items-center relative">
-            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all ${
+            <div className={`w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all ${
               step >= s.id ? 'bg-[#8B0000] text-white' : 'bg-gray-200 text-gray-400'
             }`}>
-              {step > s.id ? <CheckCircle size={18} className="sm:w-5 sm:h-5" /> : React.cloneElement(s.icon as React.ReactElement<any>, { className: "w-4 h-4 sm:w-5 sm:h-5" })}
+              {step > s.id ? <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" /> : React.cloneElement(s.icon as React.ReactElement<any>, { className: "w-3.5 h-3.5 sm:w-5 sm:h-5" })}
             </div>
-            <span className={`absolute -bottom-6 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${
+            <span className={`absolute -bottom-6 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${
               step >= s.id ? 'text-[#8B0000]' : 'text-gray-400'
             }`}>
               {s.label}
             </span>
           </div>
           {i < 3 && (
-            <div className={`w-6 sm:w-12 h-0.5 mx-1 sm:mx-2 ${step > s.id ? 'bg-[#8B0000]' : 'bg-gray-200'}`} />
+            <div className={`w-4 sm:w-12 h-0.5 mx-0.5 sm:mx-2 ${step > s.id ? 'bg-[#8B0000]' : 'bg-gray-200'}`} />
           )}
         </React.Fragment>
       ))}
@@ -172,7 +172,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
             required
             value={formData.userDetails?.name}
             onChange={(e) => updateUserDetails('name', e.target.value)}
-            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
+            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition-all text-base sm:text-lg"
             placeholder={t('booking.form.name.placeholder')}
           />
         </div>
@@ -183,7 +183,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
             required
             value={formData.userDetails?.phone}
             onChange={(e) => updateUserDetails('phone', e.target.value)}
-            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
+            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition-all text-base sm:text-lg"
             placeholder={t('booking.form.phone.placeholder')}
           />
         </div>
@@ -195,7 +195,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
           required
           value={formData.userDetails?.email}
           onChange={(e) => updateUserDetails('email', e.target.value)}
-          className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
+          className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition-all text-base sm:text-lg"
           placeholder={t('booking.form.email.placeholder')}
         />
       </div>
@@ -206,7 +206,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
           rows={3}
           value={formData.userDetails?.address}
           onChange={(e) => updateUserDetails('address', e.target.value)}
-          className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all resize-none"
+          className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition-all resize-none text-base sm:text-lg"
           placeholder={t('booking.form.address.placeholder')}
         ></textarea>
       </div>
@@ -239,7 +239,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
             required
             value={formData.poojaDetails?.date}
             onChange={(e) => updatePoojaDetails('date', e.target.value)}
-            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
+            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition-all text-base"
           />
         </div>
         <div>
@@ -250,7 +250,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
             required
             value={formData.poojaDetails?.count}
             onChange={(e) => updatePoojaDetails('count', parseInt(e.target.value))}
-            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
+            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition-all text-base"
           />
         </div>
       </div>
@@ -261,7 +261,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
             type="text"
             value={formData.poojaDetails?.gothra}
             onChange={(e) => updatePoojaDetails('gothra', e.target.value)}
-            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
+            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition-all text-base"
             placeholder="e.g. Rama"
           />
         </div>
@@ -271,7 +271,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
             type="text"
             value={formData.poojaDetails?.nakshathra}
             onChange={(e) => updatePoojaDetails('nakshathra', e.target.value)}
-            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
+            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition-all text-base"
             placeholder="e.g. Ashwini"
           />
         </div>
@@ -304,7 +304,7 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
           rows={3}
           value={formData.poojaDetails?.message}
           onChange={(e) => updatePoojaDetails('message', e.target.value)}
-          className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all resize-none"
+          className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition-all resize-none text-base"
           placeholder={t('booking.pooja.message.placeholder')}
         ></textarea>
       </div>
@@ -330,34 +330,34 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
       exit={{ opacity: 0, x: -20 }}
       className="space-y-8"
     >
-      <div className="bg-gray-50 p-8 rounded-3xl border border-gray-100">
+      <div className="bg-gray-50 p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-gray-100">
         <h3 className="text-xl font-bold text-[#8B0000] mb-6">{t('booking.summary.title')}</h3>
         
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
           <div className="space-y-4">
             <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('booking.steps.user')}</h4>
-            <div className="text-sm space-y-2">
-              <p><span className="font-bold">{t('booking.form.name')}:</span> {formData.userDetails?.name}</p>
-              <p><span className="font-bold">{t('booking.form.phone')}:</span> {formData.userDetails?.phone}</p>
-              <p><span className="font-bold">{t('booking.form.email')}:</span> {formData.userDetails?.email}</p>
-              <p><span className="font-bold">{t('booking.form.address')}:</span> {formData.userDetails?.address}</p>
+            <div className="text-sm space-y-3">
+              <p className="flex justify-between sm:block"><span className="font-bold text-gray-500 sm:text-inherit">{t('booking.form.name')}:</span> <span>{formData.userDetails?.name}</span></p>
+              <p className="flex justify-between sm:block"><span className="font-bold text-gray-500 sm:text-inherit">{t('booking.form.phone')}:</span> <span>{formData.userDetails?.phone}</span></p>
+              <p className="flex justify-between sm:block"><span className="font-bold text-gray-500 sm:text-inherit">{t('booking.form.email')}:</span> <span className="text-right sm:text-left break-all">{formData.userDetails?.email}</span></p>
+              <p className="flex flex-col sm:block"><span className="font-bold text-gray-500 sm:text-inherit">{t('booking.form.address')}:</span> <span className="mt-1 sm:mt-0">{formData.userDetails?.address}</span></p>
             </div>
           </div>
           <div className="space-y-4">
             <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('booking.steps.pooja')}</h4>
-            <div className="text-sm space-y-2">
-              <p><span className="font-bold">Seva:</span> {formData.seva?.name}</p>
-              <p><span className="font-bold">{t('booking.pooja.date')}:</span> {formData.poojaDetails?.date}</p>
-              <p><span className="font-bold">{t('booking.pooja.count')}:</span> {formData.poojaDetails?.count}</p>
-              <p><span className="font-bold">{t('booking.pooja.gothra')}:</span> {formData.poojaDetails?.gothra || '-'}</p>
-              <p><span className="font-bold">{t('booking.pooja.nakshathra')}:</span> {formData.poojaDetails?.nakshathra || '-'}</p>
+            <div className="text-sm space-y-3">
+              <p className="flex justify-between sm:block"><span className="font-bold text-gray-500 sm:text-inherit">Seva:</span> <span>{formData.seva?.name}</span></p>
+              <p className="flex justify-between sm:block"><span className="font-bold text-gray-500 sm:text-inherit">{t('booking.pooja.date')}:</span> <span>{formData.poojaDetails?.date}</span></p>
+              <p className="flex justify-between sm:block"><span className="font-bold text-gray-500 sm:text-inherit">{t('booking.pooja.count')}:</span> <span>{formData.poojaDetails?.count}</span></p>
+              <p className="flex justify-between sm:block"><span className="font-bold text-gray-500 sm:text-inherit">{t('booking.pooja.gothra')}:</span> <span>{formData.poojaDetails?.gothra || '-'}</span></p>
+              <p className="flex justify-between sm:block"><span className="font-bold text-gray-500 sm:text-inherit">{t('booking.pooja.nakshathra')}:</span> <span>{formData.poojaDetails?.nakshathra || '-'}</span></p>
             </div>
           </div>
         </div>
 
         <div className="mt-8 pt-8 border-t border-gray-200 flex justify-between items-center">
-          <p className="text-gray-500">{t('booking.summary.total')}:</p>
-          <p className="text-3xl font-bold text-[#8B0000]">₹{(formData.seva?.price || 0) * (formData.poojaDetails?.count || 1)}</p>
+          <p className="text-gray-500 font-bold">{t('booking.summary.total')}:</p>
+          <p className="text-2xl sm:text-3xl font-black text-[#8B0000]">₹{(formData.seva?.price || 0) * (formData.poojaDetails?.count || 1)}</p>
         </div>
       </div>
 
@@ -455,10 +455,10 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
       animate={{ opacity: 1, scale: 1 }}
       className="text-center py-12"
     >
-      <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
-        <CheckCircle size={40} />
+      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+        <CheckCircle size={32} className="sm:w-10 sm:h-10" />
       </div>
-      <h2 className="text-3xl font-bold text-[#8B0000] mb-4">Seva Booked Successfully!</h2>
+      <h2 className="text-2xl sm:text-3xl font-bold text-[#8B0000] mb-4">Seva Booked Successfully!</h2>
       <p className="text-gray-600 mb-8 px-4">
         Your booking for <strong>{formData.seva?.name}</strong> has been received. 
         A confirmation email has been sent to <strong>{formData.userDetails?.email}</strong>.
@@ -511,13 +511,13 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
           <button
             onClick={handleOnlinePayment}
             disabled={isSubmitting}
-            className="w-full max-w-md bg-[#8B0000] text-white py-7 rounded-[30px] font-black shadow-[0_20px_50px_rgba(139,0,0,0.2)] hover:bg-[#6B0000] transition-all flex items-center justify-center gap-4 disabled:opacity-50 mx-auto text-xl uppercase tracking-wide"
+            className="w-full max-w-md bg-[#8B0000] text-white py-5 sm:py-7 rounded-[20px] sm:rounded-[30px] font-black shadow-[0_20px_50px_rgba(139,0,0,0.15)] sm:shadow-[0_20px_50px_rgba(139,0,0,0.2)] hover:bg-[#6B0000] transition-all flex items-center justify-center gap-4 disabled:opacity-50 mx-auto text-lg sm:text-xl uppercase tracking-wide"
           >
             {isSubmitting ? (
               <Loader2 className="animate-spin" />
             ) : (
               <>
-                <ExternalLink size={24} />
+                <ExternalLink size={20} className="sm:w-6 sm:h-6" />
                 Pay Now
               </>
             )}
@@ -543,14 +543,14 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
     <div className="pt-24 pb-16 bg-white min-h-screen">
       <div className="max-w-4xl mx-auto px-4">
         <div className="bg-white p-6 sm:p-8 md:p-12 rounded-[40px] shadow-2xl border border-gray-50">
-          <div className="flex items-center justify-between mb-12">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between mb-8 sm:mb-12 gap-4 text-center sm:text-left">
             <div>
-              <h2 className="text-3xl font-bold text-[#8B0000] mb-2">{t('booking.title')}</h2>
-              <p className="text-gray-400 font-medium">{selectedSeva.name}</p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-[#8B0000] mb-1 sm:mb-2">{t('booking.title')}</h2>
+              <p className="text-gray-400 font-bold text-sm">{selectedSeva.name}</p>
             </div>
-            <div className="text-right">
-              <p className="text-xs text-gray-400 uppercase tracking-widest font-bold">{t('booking.price')}</p>
-              <p className="text-2xl font-bold text-[#8B0000]">₹{selectedSeva.price}</p>
+            <div className="sm:text-right">
+              <p className="text-[10px] text-gray-400 uppercase tracking-widest font-black mb-1">{t('booking.price')}</p>
+              <p className="text-xl sm:text-2xl font-black text-[#8B0000]">₹{selectedSeva.price}</p>
             </div>
           </div>
 

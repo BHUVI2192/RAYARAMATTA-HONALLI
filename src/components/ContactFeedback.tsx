@@ -12,9 +12,9 @@ export const ContactFeedback: React.FC = () => {
   return (
     <div className="pt-24 pb-16 bg-white min-h-screen">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">{t('cf.title')}</h1>
-          <p className="text-gray-600">{t('cf.desc')}</p>
+        <div className="text-center mb-10 sm:mb-16">
+          <h1 className="text-3xl sm:text-4xl font-black text-[#8B0000] mb-4 tracking-tight">{t('cf.title')}</h1>
+          <p className="text-gray-500 max-w-2xl mx-auto text-sm sm:text-base font-medium px-4">{t('cf.desc')}</p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-12">
@@ -78,14 +78,14 @@ export const ContactFeedback: React.FC = () => {
 
           {/* Right Column: Merged Form */}
           <div className="lg:col-span-2">
-            <div className="bg-white p-8 md:p-12 rounded-3xl shadow-xl border border-gray-100">
-              <div className="flex flex-col sm:flex-row gap-4 mb-10 border-b border-gray-100 pb-6">
+            <div className="bg-white p-6 sm:p-10 md:p-12 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-gray-100">
+              <div className="flex flex-col sm:flex-row gap-3 mb-10 border-b border-gray-100 pb-6">
                 <button
                   onClick={() => setActiveForm('message')}
-                  className={`flex items-center justify-center gap-2 px-6 py-3 sm:py-2 rounded-full font-bold transition-all ${
+                  className={`flex items-center justify-center gap-2 px-6 py-4 sm:py-3 rounded-2xl sm:rounded-full font-black transition-all text-sm sm:text-base ${
                     activeForm === 'message' 
                       ? 'bg-[#8B0000] text-white shadow-lg' 
-                      : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                      : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
                   }`}
                 >
                   <Send size={18} />
@@ -93,10 +93,10 @@ export const ContactFeedback: React.FC = () => {
                 </button>
                 <button
                   onClick={() => setActiveForm('feedback')}
-                  className={`flex items-center justify-center gap-2 px-6 py-3 sm:py-2 rounded-full font-bold transition-all ${
+                  className={`flex items-center justify-center gap-2 px-6 py-4 sm:py-3 rounded-2xl sm:rounded-full font-black transition-all text-sm sm:text-base ${
                     activeForm === 'feedback' 
                       ? 'bg-[#8B0000] text-white shadow-lg' 
-                      : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                      : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
                   }`}
                 >
                   <MessageSquare size={18} />
@@ -112,14 +112,14 @@ export const ContactFeedback: React.FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                   >
-                    <h3 className="text-2xl font-bold text-[#8B0000] mb-8">{t('contact.form.title')}</h3>
+                    <h3 className="text-xl sm:text-2xl font-black text-[#8B0000] mb-8">{t('contact.form.title')}</h3>
                     <form className="space-y-6">
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
                           <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('contact.form.name')}</label>
                           <input 
                             type="text" 
-                            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
+                            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8B0000]/5 transition-all text-base"
                             placeholder={t('contact.form.name.placeholder')}
                           />
                         </div>
@@ -127,7 +127,7 @@ export const ContactFeedback: React.FC = () => {
                           <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('contact.form.email')}</label>
                           <input 
                             type="email" 
-                            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
+                            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8B0000]/5 transition-all text-base"
                             placeholder={t('contact.form.email.placeholder')}
                           />
                         </div>
@@ -144,11 +144,11 @@ export const ContactFeedback: React.FC = () => {
                         <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('contact.form.message')}</label>
                         <textarea 
                           rows={6}
-                          className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all resize-none"
+                          className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8B0000]/5 transition-all resize-none text-base"
                           placeholder={t('contact.form.message.placeholder')}
                         ></textarea>
                       </div>
-                      <button className="w-full md:w-auto px-12 py-4 bg-[#8B0000] text-white rounded-full font-bold hover:bg-[#6B0000] transition-all shadow-lg flex items-center justify-center gap-2">
+                      <button className="w-full sm:w-auto px-12 py-5 bg-[#8B0000] text-white rounded-full font-black hover:bg-[#6B0000] transition-all shadow-[0_20px_40px_rgba(139,0,0,0.2)] flex items-center justify-center gap-2 uppercase tracking-wide">
                         <Send size={18} /> {t('contact.form.submit')}
                       </button>
                     </form>
@@ -160,7 +160,7 @@ export const ContactFeedback: React.FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                   >
-                    <h3 className="text-2xl font-bold text-[#8B0000] mb-8">{t('feedback.title')}</h3>
+                    <h3 className="text-xl sm:text-2xl font-black text-[#8B0000] mb-8">{t('feedback.title')}</h3>
                     
                     <div className="mb-10 text-center bg-gray-50 p-6 rounded-2xl border border-gray-100">
                       <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">{t('feedback.rate')}</p>
@@ -195,7 +195,7 @@ export const ContactFeedback: React.FC = () => {
                           <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('feedback.form.name')}</label>
                           <input 
                             type="text" 
-                            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
+                            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8B0000]/5 transition-all text-base"
                             placeholder={t('feedback.form.name.placeholder')}
                           />
                         </div>
@@ -203,7 +203,7 @@ export const ContactFeedback: React.FC = () => {
                           <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('feedback.form.location')}</label>
                           <input 
                             type="text" 
-                            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
+                            className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8B0000]/5 transition-all text-base"
                             placeholder={t('feedback.form.location.placeholder')}
                           />
                         </div>
@@ -213,7 +213,7 @@ export const ContactFeedback: React.FC = () => {
                         <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('feedback.form.comments')}</label>
                         <textarea 
                           rows={5}
-                          className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all resize-none"
+                          className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8B0000]/5 transition-all resize-none text-base"
                           placeholder={t('feedback.form.comments.placeholder')}
                         ></textarea>
                       </div>
@@ -225,7 +225,7 @@ export const ContactFeedback: React.FC = () => {
                         </p>
                       </div>
 
-                      <button className="w-full py-4 bg-[#8B0000] text-white rounded-full font-bold hover:bg-[#6B0000] transition-all shadow-lg">
+                      <button className="w-full py-5 bg-[#8B0000] text-white rounded-2xl sm:rounded-full font-black hover:bg-[#6B0000] transition-all shadow-[0_20px_40px_rgba(139,0,0,0.2)] uppercase tracking-wide">
                         {t('feedback.form.submit')}
                       </button>
                     </form>

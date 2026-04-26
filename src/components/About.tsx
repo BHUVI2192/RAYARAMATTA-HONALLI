@@ -19,7 +19,7 @@ export const About: React.FC = () => {
               <History size={16} />
               <span>{t('about.legacy')}</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-[#8B0000] mb-8 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#8B0000] mb-6 sm:mb-8 leading-tight tracking-tight">
               {t('about.title')}
             </h1>
             <div className="space-y-6 text-gray-600 leading-relaxed">
@@ -55,7 +55,7 @@ export const About: React.FC = () => {
           initial={{ y: 50, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true }}
-          className="mb-24 bg-stone-50 p-8 md:p-12 rounded-3xl border border-stone-200"
+          className="mb-16 sm:mb-24 bg-stone-50 p-6 sm:p-10 md:p-12 rounded-3xl border border-stone-200"
         >
           <h2 className="text-3xl font-bold text-[#8B0000] mb-6 flex items-center gap-3">
             <History className="text-yellow-600" /> {t('about.history.title')}
@@ -103,7 +103,7 @@ export const About: React.FC = () => {
           initial={{ y: 50, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true }}
-          className="mb-24 bg-[#8B0000] text-white p-8 md:p-12 rounded-3xl shadow-2xl overflow-hidden relative"
+          className="mb-16 sm:mb-24 bg-[#8B0000] text-white p-6 sm:p-10 md:p-12 rounded-3xl shadow-2xl overflow-hidden relative"
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
           <div className="relative z-10">

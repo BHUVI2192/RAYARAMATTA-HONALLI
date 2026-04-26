@@ -193,9 +193,9 @@ export const Donate: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-16 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-20">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-12 sm:pb-16 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-12 sm:mb-20">
           <motion.div 
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -203,8 +203,8 @@ export const Donate: React.FC = () => {
           >
             <Heart size={40} fill="currentColor" />
           </motion.div>
-          <h1 className="text-5xl font-black text-[#8B0000] mb-6 tracking-tight">{t('donate.title')}</h1>
-          <p className="text-gray-500 max-w-2xl mx-auto text-lg font-medium leading-relaxed">
+          <h1 className="text-3xl sm:text-5xl font-black text-[#8B0000] mb-4 sm:mb-6 tracking-tight leading-tight">{t('donate.title')}</h1>
+          <p className="text-gray-500 max-w-2xl mx-auto text-base sm:text-lg font-medium leading-relaxed px-4">
             {t('donate.desc')}
           </p>
         </div>
@@ -214,15 +214,15 @@ export const Donate: React.FC = () => {
           <motion.div 
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="bg-white p-10 rounded-[40px] shadow-2xl border border-gray-100"
+            className="bg-white p-6 sm:p-10 rounded-[32px] sm:rounded-[40px] shadow-2xl border border-gray-100"
           >
-            <div className="flex items-center justify-center gap-4 mb-10 text-[#8B0000]">
-              <div className="p-4 bg-red-50 rounded-3xl">
-                <CreditCard size={32} />
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 sm:mb-10 text-[#8B0000] text-center sm:text-left">
+              <div className="p-3 sm:p-4 bg-red-50 rounded-2xl sm:rounded-3xl">
+                <CreditCard size={28} className="sm:w-8 sm:h-8" />
               </div>
               <div>
-                <h2 className="text-3xl font-black tracking-tight">{t('donate.online.title')}</h2>
-                <p className="text-gray-400 font-bold text-xs uppercase tracking-widest mt-1">Secure via Razorpay</p>
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tight">{t('donate.online.title')}</h2>
+                <p className="text-gray-400 font-bold text-[10px] sm:text-xs uppercase tracking-widest mt-0.5">Secure via Razorpay</p>
               </div>
             </div>
 
@@ -235,7 +235,7 @@ export const Donate: React.FC = () => {
                   required
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full px-8 py-5 bg-gray-50 border border-gray-100 rounded-[24px] focus:ring-4 focus:ring-[#8B0000]/10 outline-none font-bold text-gray-800 transition-all focus:bg-white text-lg"
+                  className="w-full px-6 sm:px-8 py-4 sm:py-5 bg-gray-50 border border-gray-100 rounded-[18px] sm:rounded-[24px] focus:ring-4 focus:ring-[#8B0000]/10 outline-none font-bold text-gray-800 transition-all focus:bg-white text-base sm:text-lg"
                   placeholder="Enter your full name"
                 />
               </div>
@@ -249,7 +249,7 @@ export const Donate: React.FC = () => {
                     required
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className="w-full px-8 py-5 bg-gray-50 border border-gray-100 rounded-[24px] focus:ring-4 focus:ring-[#8B0000]/10 outline-none font-bold text-gray-800 transition-all focus:bg-white"
+                    className="w-full px-6 sm:px-8 py-4 sm:py-5 bg-gray-50 border border-gray-100 rounded-[18px] sm:rounded-[24px] focus:ring-4 focus:ring-[#8B0000]/10 outline-none font-bold text-gray-800 transition-all focus:bg-white text-base"
                     placeholder="10-digit mobile number"
                   />
                 </div>
@@ -260,7 +260,7 @@ export const Donate: React.FC = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full px-8 py-5 bg-gray-50 border border-gray-100 rounded-[24px] focus:ring-4 focus:ring-[#8B0000]/10 outline-none font-bold text-gray-800 transition-all focus:bg-white"
+                    className="w-full px-6 sm:px-8 py-4 sm:py-5 bg-gray-50 border border-gray-100 rounded-[18px] sm:rounded-[24px] focus:ring-4 focus:ring-[#8B0000]/10 outline-none font-bold text-gray-800 transition-all focus:bg-white text-base"
                     placeholder="email@example.com"
                   />
                 </div>
@@ -268,13 +268,13 @@ export const Donate: React.FC = () => {
 
               <div className="space-y-6">
                 <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Select or Enter Amount (₹) *</label>
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {['501', '1001', '2501', '5001'].map((amt) => (
                     <button
                       key={amt}
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, amount: amt }))}
-                      className={`py-4 rounded-2xl font-black text-sm transition-all ${
+                      className={`py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm transition-all ${
                         formData.amount === amt 
                         ? 'bg-[#8B0000] text-white shadow-xl scale-105' 
                         : 'bg-gray-50 text-gray-500 hover:bg-stone-100 border border-stone-100'
@@ -293,7 +293,7 @@ export const Donate: React.FC = () => {
                     min="1"
                     value={formData.amount}
                     onChange={handleInputChange}
-                    className="w-full pl-16 pr-8 py-6 bg-gray-50 border-2 border-stone-100 rounded-[30px] focus:ring-8 focus:ring-[#8B0000]/5 focus:border-[#8B0000]/20 outline-none text-4xl font-black text-[#8B0000] transition-all focus:bg-white"
+                    className="w-full pl-16 pr-8 py-4 sm:py-6 bg-gray-50 border-2 border-stone-100 rounded-[24px] sm:rounded-[30px] focus:ring-8 focus:ring-[#8B0000]/5 focus:border-[#8B0000]/20 outline-none text-2xl sm:text-4xl font-black text-[#8B0000] transition-all focus:bg-white"
                   />
                 </div>
               </div>
@@ -301,7 +301,7 @@ export const Donate: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#8B0000] text-white py-7 rounded-[30px] font-black hover:bg-[#6B0000] transition-all flex items-center justify-center gap-4 shadow-[0_20px_50px_rgba(139,0,0,0.3)] disabled:opacity-50 active:scale-95 mt-8 text-xl tracking-wide uppercase"
+                className="w-full bg-[#8B0000] text-white py-5 sm:py-7 rounded-[24px] sm:rounded-[30px] font-black hover:bg-[#6B0000] transition-all flex items-center justify-center gap-4 shadow-[0_20px_50px_rgba(139,0,0,0.15)] sm:shadow-[0_20px_50px_rgba(139,0,0,0.3)] disabled:opacity-50 active:scale-95 mt-6 sm:mt-8 text-lg sm:text-xl tracking-wide uppercase"
               >
                 {loading ? (
                   <div className="flex items-center gap-3">
@@ -310,7 +310,7 @@ export const Donate: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    <Heart size={28} fill="white" className="animate-pulse" />
+                    <Heart size={24} className="sm:w-7 sm:h-7" fill="white" />
                     DONATE NOW
                   </>
                 )}

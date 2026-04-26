@@ -43,7 +43,7 @@ export const Gallery: React.FC = () => {
     <div className="pt-24 pb-16 bg-white min-h-screen">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">{t('nav.gallery')}</h1>
+          <h1 className="text-3xl sm:text-4xl font-black text-[#8B0000] mb-4 tracking-tight">{t('nav.gallery')}</h1>
           <div className="flex justify-center gap-4 mt-8">
             {[
               { id: 'photos', label: t('gallery.photos'), icon: <ImageIcon size={18} /> },
@@ -52,9 +52,9 @@ export const Gallery: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-6 py-2 rounded-full font-bold transition-all ${
+                className={`flex items-center gap-2 px-5 sm:px-8 py-2.5 sm:py-3 rounded-full font-black text-sm transition-all ${
                   activeTab === tab.id 
-                    ? 'bg-[#8B0000] text-white shadow-lg' 
+                    ? 'bg-[#8B0000] text-white shadow-[0_10px_20px_rgba(139,0,0,0.2)]' 
                     : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                 }`}
               >

@@ -187,9 +187,9 @@ export const Activities: React.FC = () => {
   return (
     <div className="pt-24 pb-16 bg-white">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-[#8B0000] mb-4">{t('act.title')}</h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+        <div className="text-center mb-10 sm:mb-16">
+          <h1 className="text-3xl sm:text-4xl font-black text-[#8B0000] mb-4 leading-tight">{t('act.title')}</h1>
+          <p className="text-gray-500 max-w-2xl mx-auto text-sm sm:text-base font-medium px-4">
             {t('act.desc')}
           </p>
         </div>
@@ -236,9 +236,9 @@ export const Activities: React.FC = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowGodanaModal(true)}
-              className="mt-8 w-full sm:w-auto bg-[#8B0000] text-white px-8 py-4 rounded-full font-bold shadow-xl hover:bg-[#6B0000] transition-all flex items-center justify-center gap-3"
+              className="mt-8 w-full sm:w-auto bg-[#8B0000] text-white px-8 py-4 sm:py-5 rounded-full font-black shadow-[0_20px_40px_rgba(139,0,0,0.2)] hover:bg-[#6B0000] transition-all flex items-center justify-center gap-3 text-lg uppercase tracking-wide"
             >
-              <Heart size={20} fill="currentColor" />
+              <Heart size={20} fill="currentColor" className="animate-pulse" />
               {t('act.goshala.btn')}
             </motion.button>
           </div>
@@ -260,7 +260,7 @@ export const Activities: React.FC = () => {
                   <X size={24} />
                 </button>
 
-                  <div className="p-6 sm:p-12">
+                  <div className="p-6 sm:p-10">
                     <AnimatePresence mode="wait">
                       {showSuccess ? (
                         <motion.div
@@ -316,11 +316,11 @@ export const Activities: React.FC = () => {
                           exit={{ opacity: 0 }}
                         >
                           <div className="text-center mb-8 sm:mb-10">
-                            <div className="inline-block p-2.5 sm:p-3 bg-emerald-100 text-emerald-600 rounded-2xl mb-4">
+                            <div className="inline-block p-2.5 sm:p-3 bg-red-50 text-[#8B0000] rounded-2xl mb-4">
                               <Heart size={28} fill="currentColor" className="sm:w-8 sm:h-8" />
                             </div>
-                            <h2 className="text-2xl sm:text-3xl font-bold text-[#8B0000]">{t('act.goshala.mdl.title')}</h2>
-                            <p className="text-sm sm:text-base text-gray-500 mt-2 px-2">{t('act.goshala.mdl.desc')}</p>
+                            <h2 className="text-2xl sm:text-3xl font-black text-[#8B0000] tracking-tight">{t('act.goshala.mdl.title')}</h2>
+                            <p className="text-sm sm:text-base text-gray-500 font-medium mt-2 px-2 leading-relaxed">{t('act.goshala.mdl.desc')}</p>
                           </div>
 
                           <form onSubmit={handleGodanaPayment} className="space-y-6">
@@ -334,7 +334,7 @@ export const Activities: React.FC = () => {
                                   type="text"
                                   value={godanaForm.name}
                                   onChange={(e) => setGodanaForm({...godanaForm, name: e.target.value})}
-                                  className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
+                                  className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8B0000]/5 transition-all text-base sm:text-lg"
                                   placeholder="John Doe"
                                 />
                               </div>
@@ -347,7 +347,7 @@ export const Activities: React.FC = () => {
                                   type="tel"
                                   value={godanaForm.phone}
                                   onChange={(e) => setGodanaForm({...godanaForm, phone: e.target.value})}
-                                  className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
+                                  className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8B0000]/5 transition-all text-base sm:text-lg"
                                   placeholder="+91 99000 00000"
                                 />
                               </div>
@@ -362,7 +362,7 @@ export const Activities: React.FC = () => {
                                 type="email"
                                 value={godanaForm.email}
                                 onChange={(e) => setGodanaForm({...godanaForm, email: e.target.value})}
-                                className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
+                                className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8B0000]/5 transition-all text-base sm:text-lg"
                                 placeholder="john@example.com"
                               />
                             </div>
@@ -371,30 +371,30 @@ export const Activities: React.FC = () => {
                               <label className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                                 <IndianRupee size={14} /> {t('act.goshala.form.amount')}
                               </label>
-                              <div className="grid grid-cols-4 gap-2">
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                 {['501', '1001', '5001', '10001'].map((val) => (
                                   <button
                                     key={val}
                                     type="button"
                                     onClick={() => setGodanaForm({...godanaForm, amount: val})}
-                                    className={`py-3 rounded-xl text-sm font-bold border transition-all ${
+                                    className={`py-3 rounded-xl text-xs sm:text-sm font-black border transition-all ${
                                       godanaForm.amount === val 
-                                        ? 'bg-[#8B0000] text-white border-[#8B0000]' 
-                                        : 'bg-white text-gray-600 border-gray-100 hover:border-[#8B0000]'
+                                        ? 'bg-[#8B0000] text-white border-[#8B0000] shadow-lg scale-105' 
+                                        : 'bg-white text-gray-500 border-gray-100 hover:border-[#8B0000]/20'
                                     }`}
                                   >
                                     ₹{val}
                                   </button>
                                 ))}
                               </div>
-                              <div className="relative">
-                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</span>
+                              <div className="relative group">
+                                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#8B0000] font-black text-xl group-focus-within:scale-110 transition-transform">₹</span>
                                 <input
                                   required
                                   type="number"
                                   value={godanaForm.amount}
                                   onChange={(e) => setGodanaForm({...godanaForm, amount: e.target.value})}
-                                  className="w-full pl-10 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all font-bold text-lg"
+                                  className="w-full pl-12 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8B0000]/5 transition-all font-black text-xl sm:text-2xl text-[#8B0000]"
                                   placeholder="Other amount"
                                 />
                               </div>
@@ -402,7 +402,7 @@ export const Activities: React.FC = () => {
 
                             <button
                               disabled={isSubmitting}
-                              className="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-bold shadow-xl hover:bg-[#6B0000] transition-all flex items-center justify-center gap-3 disabled:opacity-50 mt-4"
+                              className="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black shadow-[0_20px_40px_rgba(139,0,0,0.2)] hover:bg-[#6B0000] transition-all flex items-center justify-center gap-3 disabled:opacity-50 mt-6 text-lg uppercase tracking-wide"
                             >
                               {isSubmitting ? <Loader2 className="animate-spin" /> : <CreditCard size={20} />}
                               {isSubmitting ? t('act.goshala.form.processing') : `${t('act.goshala.form.submit')} ₹${godanaForm.amount}`}

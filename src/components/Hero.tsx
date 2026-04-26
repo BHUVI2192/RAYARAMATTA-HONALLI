@@ -82,7 +82,7 @@ export const Hero: React.FC = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="text-3xl md:text-6xl font-bold mb-4 drop-shadow-lg"
+          className="text-3xl sm:text-4xl md:text-6xl font-black mb-4 drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] tracking-tight"
         >
           {t('hero.title')}
         </motion.h2>
