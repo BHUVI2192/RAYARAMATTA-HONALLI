@@ -168,7 +168,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'seva.godana.uttama': 'Godana Uttama Kalpa',
     'seva.godana.salankruta': 'Godana Salankruta',
     'seva.godana.hidihullu': 'Hidi Hullu Punya Koti (Monthly)',
-    'act.goshala.desc': 'Godana facility is available at Sri Mutt and there is an opportunity to offer Gograsa to the cows.',
+    'seva.godana.desc': 'Godana facility is available at Sri Mutt and there is an opportunity to offer Gograsa to the cows.',
     'seva.book': 'Book Seva',
 
     // Seva List
@@ -418,7 +418,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'seva.godana.uttama': 'ಗೋದಾನ ಉತ್ತಮ ಕಲ್ಪ',
     'seva.godana.salankruta': 'ಗೋದಾನ ಸಾಲಂಕೃತ',
     'seva.godana.hidihullu': 'ಹಿಡಿ ಹುಲ್ಲು ಪುಣ್ಯ ಕೋಟಿ (ಪ್ರತಿ ತಿಂಗಳು 100 ರೂ. ಗೋಗ್ರಾಸಕ್ಕೆ ಸಲ್ಲಿಸಿ)',
-    'act.goshala.desc': 'ಶ್ರೀಮಠದಲ್ಲಿ ಗೋದಾನದ ವ್ಯವಸ್ಥೆ ಇರುತ್ತದೆ ಮತ್ತು ಗೋವುಗಳಿಗೆ ಗೋಗ್ರಾಸ ಸಲ್ಲಿಸಲು ಅವಕಾಶ ಇರುತ್ತದೆ.',
+    'seva.godana.desc': 'ಶ್ರೀಮಠದಲ್ಲಿ ಗೋದಾನದ ವ್ಯವಸ್ಥೆ ಇರುತ್ತದೆ ಮತ್ತು ಗೋವುಗಳಿಗೆ ಗೋಗ್ರಾಸ ಸಲ್ಲಿಸಲು ಅವಕಾಶ ಇರುತ್ತದೆ.',
     'seva.book': 'ಸೇವೆ ಬುಕ್ ಮಾಡಿ',
 
     // Seva List

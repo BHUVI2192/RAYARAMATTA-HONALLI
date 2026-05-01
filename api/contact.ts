@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { sendContactEmail } from './_lib/email.ts';
-import { supabase } from './_lib/supabase.ts';
+import { sendContactEmail } from './_lib/email';
+import { supabase } from './_lib/supabase';
 
 export default async function handler(
   req: VercelRequest,
