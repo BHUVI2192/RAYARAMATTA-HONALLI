@@ -293,7 +293,7 @@ export const translations: Record<Language, Record<string, string>> = {
   },
   kn: {
     // Navbar
-    'nav.home': 'ಮನೆ',
+    'nav.home': 'ಮುಖಪುಟ',
     'nav.about': 'ನಮ್ಮ ಬಗ್ಗೆ',
     'nav.activities': 'ಚಟುವಟಿಕೆಗಳು',
     'nav.seva-vivara': 'ಸೇವಾ ವಿವರ',
