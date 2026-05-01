@@ -72,6 +72,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -188,23 +190,106 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
     }
   };
 
+  const isWithinDateRange = (dateStr: string) => {
+    if (!startDate && !endDate) return true;
+    const date = new Date(dateStr);
+    if (startDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      if (date < start) return false;
+    }
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      if (date > end) return false;
+    }
+    return true;
+  };
+
   const filteredBookings = bookings.filter(b => 
-    b.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (b.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     b.seva_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    b.email.toLowerCase().includes(searchTerm.toLowerCase())
+    b.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    isWithinDateRange(b.created_at)
   );
 
   const filteredGodana = godanaPayments.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.phone.includes(searchTerm)
+    p.phone.includes(searchTerm)) &&
+    isWithinDateRange(p.created_at)
   );
 
   const filteredDonations = donations.filter(d =>
-    d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     d.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.phone.includes(searchTerm)
+    d.phone.includes(searchTerm)) &&
+    isWithinDateRange(d.created_at)
   );
+
+  const handleDownloadCSV = () => {
+    const dataToExport = activeTab === 'sevas' ? filteredBookings : activeTab === 'godana' ? filteredGodana : filteredDonations;
+    if (dataToExport.length === 0) {
+      alert('No data available to export with current filters');
+      return;
+    }
+
+    let csvContent = "";
+    if (activeTab === 'sevas') {
+      const headers = ["ID", "Name", "Seva Name", "Price", "Quantity", "Total", "Date", "Phone", "Email", "Address", "Gothra", "Nakshathra", "Rashi", "UTR", "Status", "Booking Date"];
+      csvContent = [
+        headers.join(","),
+        ...dataToExport.map(b => {
+          const booking = b as Booking;
+          return [
+            booking.id,
+            `"${booking.name}"`,
+            `"${booking.seva_name}"`,
+            booking.seva_price,
+            booking.count,
+            booking.seva_price * booking.count,
+            `"${booking.date}"`,
+            `"${booking.phone}"`,
+            `"${booking.email}"`,
+            `"${(booking.address || '').replace(/"/g, '""')}"`,
+            `"${booking.gothra}"`,
+            `"${booking.nakshathra}"`,
+            `"${booking.rashi}"`,
+            `"${booking.transaction_id}"`,
+            `"${booking.payment_status}"`,
+            `"${new Date(booking.created_at).toLocaleString()}"`
+          ].join(",");
+        })
+      ].join("\n");
+    } else {
+      const headers = ["ID", "Name", "Amount", "Phone", "Email", "Transaction ID", "Date"];
+      csvContent = [
+        headers.join(","),
+        ...dataToExport.map(p => {
+          const item = p as (GodanaPayment | GeneralDonation);
+          return [
+            item.id,
+            `"${item.name}"`,
+            item.amount,
+            `"${item.phone}"`,
+            `"${item.email}"`,
+            `"${item.payment_id}"`,
+            `"${new Date(item.created_at).toLocaleString()}"`
+          ].join(",");
+        })
+      ].join("\n");
+    }
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    const filename = `${activeTab}_report_${new Date().toISOString().split('T')[0]}.csv`;
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const confirmBooking = async (id: number) => {
     if (!window.confirm('Are you sure you want to mark this booking as Confirmed?')) return;
@@ -237,9 +322,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
     }
   };
 
-  const sevaRevenue = bookings.reduce((acc, b) => acc + (b.seva_price * b.count), 0);
-  const godanaRevenue = godanaPayments.reduce((acc, p) => acc + p.amount, 0);
-  const generalDonationRevenue = donations.reduce((acc, d) => acc + d.amount, 0);
+  const sevaRevenue = filteredBookings.reduce((acc, b) => acc + (b.seva_price * b.count), 0);
+  const godanaRevenue = filteredGodana.reduce((acc, p) => acc + p.amount, 0);
+  const generalDonationRevenue = filteredDonations.reduce((acc, d) => acc + d.amount, 0);
   const totalRevenue = sevaRevenue + godanaRevenue + generalDonationRevenue;
 
   if (!isAuthenticated) {
@@ -384,7 +469,39 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
                 className="w-full pl-12 pr-6 py-3 bg-gray-50 border border-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#8B0000] text-sm"
               />
             </div>
-            <div className="flex gap-3 w-full md:w-auto">
+            <div className="flex flex-wrap gap-4 w-full md:w-auto items-center">
+              <div className="flex items-center gap-2 bg-gray-50 border border-gray-100 px-4 py-2 rounded-full">
+                <Calendar size={14} className="text-gray-400" />
+                <input 
+                  type="date" 
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="bg-transparent border-none text-xs focus:outline-none"
+                  placeholder="Start Date"
+                />
+                <span className="text-gray-300">to</span>
+                <input 
+                  type="date" 
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="bg-transparent border-none text-xs focus:outline-none"
+                  placeholder="End Date"
+                />
+                {(startDate || endDate) && (
+                  <button 
+                    onClick={() => { setStartDate(''); setEndDate(''); }}
+                    className="ml-2 text-xs text-red-500 hover:text-red-700 font-bold"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+              <button 
+                onClick={handleDownloadCSV}
+                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-[#8B0000] text-white rounded-full font-bold shadow-md hover:bg-[#6B0000] transition-all text-sm"
+              >
+                <Download size={16} /> Export CSV
+              </button>
               <button 
                 onClick={fetchData}
                 className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-gray-50 text-gray-600 rounded-full font-bold border border-gray-100 hover:bg-gray-100 transition-all text-sm"

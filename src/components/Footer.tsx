@@ -26,8 +26,8 @@ export const Footer: React.FC = () => {
               <li className="flex gap-3 items-start">
                 <Phone size={18} className="text-yellow-500 shrink-0 mt-1" />
                 <div className="flex flex-col">
-                  <span>Sri Mutt: 9035861049</span>
-                  <span>G Vadiraj Kamarur: 9986511855</span>
+                  <span>9035861049</span>
+                  <span>9986511855</span>
                 </div>
               </li>
               <li className="flex gap-3">
@@ -44,14 +44,14 @@ export const Footer: React.FC = () => {
                 <Clock size={18} className="text-yellow-500 shrink-0" />
                 <div>
                   <p className="font-bold text-gray-200">{t('footer.timings.morning')}</p>
-                  <p>06:30 AM to 11:00 AM</p>
+                  <p>06:30 AM to 12:00 PM</p>
                 </div>
               </li>
               <li className="flex gap-3">
                 <Clock size={18} className="text-yellow-500 shrink-0" />
                 <div>
                   <p className="font-bold text-gray-200">{t('footer.timings.evening')}</p>
-                  <p>04:30 PM to 07:00 PM</p>
+                  <p>05:30 PM to 08:00 PM</p>
                   <p className="text-xs italic">{t('footer.timings.thursday')}</p>
                 </div>
               </li>

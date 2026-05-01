@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { supabase } from './_lib/supabase';
-import { sendGodanaEmail } from './_lib/email';
+import { sendGodanaEmail, sendAdminPaymentNotification } from './_lib/email';
 import crypto from 'crypto';
 
 export default async function handler(
@@ -89,6 +89,10 @@ export default async function handler(
     sendGodanaEmail(name, email, Number(amount)).catch((emailErr) => {
       console.error('[godana] Email send failed (non-fatal):', emailErr);
     });
+
+    // Notify Admin
+    sendAdminPaymentNotification('godana', { name, phone, email, amount, payment_id })
+      .catch(err => console.error('[godana] Admin notification failed:', err));
 
     return res.status(201).json({ success: true, message: 'Payment stored successfully', payment_id });
   } catch (error: any) {

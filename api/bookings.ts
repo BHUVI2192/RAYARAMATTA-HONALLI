@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { supabase } from './_lib/supabase';
-import { sendSevaEmail } from './_lib/email';
+import { sendSevaEmail, sendAdminPaymentNotification } from './_lib/email';
 import crypto from 'crypto';
 import Razorpay from 'razorpay';
 
@@ -115,6 +115,21 @@ export default async function handler(
     sendSevaEmail(userDetails, seva, poojaDetails).catch((emailErr) => {
       console.error('[bookings] Email send failed (non-fatal):', emailErr);
     });
+
+    // Notify Admin of new booking
+    sendAdminPaymentNotification('seva', {
+      name: userDetails.name,
+      phone: userDetails.phone,
+      email: userDetails.email,
+      transaction_id: transactionId,
+      amount: seva.price * (poojaDetails.count || 1),
+      seva_name: seva.name,
+      date: poojaDetails.date,
+      count: poojaDetails.count || 1,
+      gothra: poojaDetails.gothra,
+      nakshathra: poojaDetails.nakshathra,
+      rashi: poojaDetails.rashi
+    }).catch(err => console.error('[bookings] Admin notification failed:', err));
 
     return res.status(201).json({ success: true, message: 'Booking saved successfully' });
   } catch (error: any) {

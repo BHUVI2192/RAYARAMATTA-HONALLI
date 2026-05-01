@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { supabase } from './_lib/supabase';
-import { sendDonationEmail } from './_lib/email';
+import { sendDonationEmail, sendAdminPaymentNotification } from './_lib/email';
 import crypto from 'crypto';
 
 export default async function handler(
@@ -86,6 +86,10 @@ export default async function handler(
         console.error('[donation] Email send failed (non-fatal):', emailErr);
       });
     }
+
+    // Notify Admin
+    sendAdminPaymentNotification('donation', { name, phone, email, amount, payment_id })
+      .catch(err => console.error('[donation] Admin notification failed:', err));
 
     return res.status(201).json({ success: true, message: 'Donation saved successfully' });
   } catch (error: any) {

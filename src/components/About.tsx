@@ -22,10 +22,10 @@ export const About: React.FC = () => {
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#8B0000] mb-6 sm:mb-8 leading-tight tracking-tight">
               {t('about.title')}
             </h1>
-            <div className="space-y-6 text-gray-600 leading-relaxed">
-              <p>{t('about.p1')}</p>
-              <p>{t('about.p2')}</p>
-              <p>{t('about.p3')}</p>
+            <div className="space-y-6 text-gray-700 leading-relaxed text-lg sm:text-xl">
+              <p className="border-l-4 border-yellow-500 pl-6 py-2 italic font-medium">
+                {t('about.p1')}
+              </p>
             </div>
           </motion.div>
           
@@ -44,7 +44,7 @@ export const About: React.FC = () => {
               />
             </div>
             <div className="absolute -bottom-8 -left-8 bg-yellow-500 text-[#8B0000] p-8 rounded-2xl shadow-xl hidden md:block">
-              <p className="text-4xl font-bold mb-1">40+</p>
+              <p className="text-4xl font-bold mb-1">350+</p>
               <p className="text-sm font-bold uppercase tracking-wider">{t('about.years')}</p>
             </div>
           </motion.div>
@@ -60,13 +60,15 @@ export const About: React.FC = () => {
           <h2 className="text-3xl font-bold text-[#8B0000] mb-6 flex items-center gap-3">
             <History className="text-yellow-600" /> {t('about.history.title')}
           </h2>
-          <div className="space-y-6 text-gray-700 leading-relaxed">
-            <p className="font-medium text-lg text-gray-800">{t('about.history.desc1')}</p>
-            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
-              <h3 className="text-xl font-bold text-[#8B0000] mb-4 italic underline decoration-yellow-500 underline-offset-4">
+          <div className="text-gray-700 leading-relaxed">
+            <div className="bg-white p-6 sm:p-10 rounded-3xl border border-stone-200 shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-2 h-full bg-yellow-500" />
+              <h3 className="text-2xl font-bold text-[#8B0000] mb-6 italic underline decoration-yellow-500 underline-offset-8">
                 {t('about.history.q')}
               </h3>
-              <p>{t('about.history.desc2')}</p>
+              <p className="text-lg leading-loose text-gray-700">
+                {t('about.history.desc2')}
+              </p>
             </div>
           </div>
         </motion.section>
@@ -114,7 +116,7 @@ export const About: React.FC = () => {
               {t('about.trustees.desc')}
             </p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-8">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((num) => (
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
                 <div key={num} className="flex items-center gap-3 py-2 border-b border-white/10">
                   <div className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
                   <span className="text-sm font-medium">{t(`about.trustee.${num}`)}</span>

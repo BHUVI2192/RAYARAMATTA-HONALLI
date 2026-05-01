@@ -1,15 +1,19 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Play, X, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause, X, Volume2, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-const VIDEO_SRC = '/videos/WhatsApp%20Video%202026-03-07%20at%206.19.02%20PM.mp4';
+const VIDEO_SRC = '/videos/WhatsApp%20Video%202026-03-07%20at%206.14.59%20PM.mp4';
 
 export const VideoSection: React.FC = () => {
   const modalVideoRef = useRef<HTMLVideoElement>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
 
-  const openModal = () => setModalOpen(true);
+  const openModal = () => {
+    setModalOpen(true);
+    setIsPlaying(true);
+  };
 
   const closeModal = () => {
     setModalOpen(false);
@@ -22,7 +26,7 @@ export const VideoSection: React.FC = () => {
   // Auto-play when modal opens
   useEffect(() => {
     if (modalOpen && modalVideoRef.current) {
-      modalVideoRef.current.play().catch(() => {});
+      modalVideoRef.current.play().catch(() => { });
     }
   }, [modalOpen]);
 
@@ -37,6 +41,17 @@ export const VideoSection: React.FC = () => {
     if (modalVideoRef.current) {
       modalVideoRef.current.muted = !isMuted;
       setIsMuted(!isMuted);
+    }
+  };
+
+  const togglePlay = () => {
+    if (modalVideoRef.current) {
+      if (isPlaying) {
+        modalVideoRef.current.pause();
+      } else {
+        modalVideoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
     }
   };
 
@@ -78,20 +93,17 @@ export const VideoSection: React.FC = () => {
           >
             {/* Portrait thumbnail */}
             <div
-              className="relative w-64 md:w-72 rounded-2xl overflow-hidden shadow-2xl cursor-pointer group bg-gray-900"
+              className="relative w-64 md:w-72 rounded-2xl overflow-hidden shadow-2xl cursor-pointer group"
               style={{ aspectRatio: '9/16' }}
               onClick={openModal}
             >
-              <video
-                className="w-full h-full object-cover"
-                muted
-                playsInline
-                preload="metadata"
-              >
-                <source src={VIDEO_SRC} type="video/mp4" />
-              </video>
-              {/* Dark overlay + play button */}
-              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/55 transition-all flex items-center justify-center">
+              <img
+                src="/images/panchamrutha_thumbnail.png"
+                alt="Panchamrutha Abhisheka"
+                className="w-full h-full object-cover brightness-[1.05] contrast-[1.05]"
+              />
+              {/* Centered play button without overlay */}
+              <div className="absolute inset-0 flex items-center justify-center">
                 <motion.div
                   whileHover={{ scale: 1.12 }}
                   whileTap={{ scale: 0.93 }}
@@ -149,9 +161,17 @@ export const VideoSection: React.FC = () => {
               {/* Mute toggle */}
               <button
                 onClick={toggleMute}
-                className="absolute bottom-3 right-3 w-10 h-10 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-all"
+                className="absolute bottom-3 right-16 w-10 h-10 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-all"
               >
                 {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+              </button>
+
+              {/* Play/Pause toggle */}
+              <button
+                onClick={togglePlay}
+                className="absolute bottom-3 right-3 w-10 h-10 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-all"
+              >
+                {isPlaying ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
               </button>
             </motion.div>
           </motion.div>

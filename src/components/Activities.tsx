@@ -3,14 +3,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Heart, Info, BookOpen, Globe, CreditCard, User, Phone, Mail, IndianRupee, CheckCircle, Loader2, X } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-const goshalaImages = [
-  '/images/469565261_611496367881904_8215471119611863969_n.jpg',
-  '/images/469864323_611496421215232_6826778829493628708_n.jpg',
-  '/images/486973907_693895086354728_5870470351651792592_n.jpg',
-];
+const goshalaImage = '/images/469864323_611496421215232_6826778829493628708_n.jpg';
 
 export const Activities: React.FC = () => {
-  const [currentImg, setCurrentImg] = useState(0);
   const [showGodanaModal, setShowGodanaModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -20,16 +15,11 @@ export const Activities: React.FC = () => {
     name: '',
     phone: '',
     email: '',
-    amount: '501'
+    amount: '5000'
   });
   const { t } = useLanguage();
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentImg((prev) => (prev + 1) % goshalaImages.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
+
 
   useEffect(() => {
     // Check for Razorpay redirect
@@ -90,7 +80,7 @@ export const Activities: React.FC = () => {
         setSuccessPaymentId(paymentId);
         setSuccessAmount(amountValue);
         setShowSuccess(true);
-        setGodanaForm({ name: '', phone: '', email: '', amount: '501' });
+        setGodanaForm({ name: '', phone: '', email: '', amount: '5000' });
       } else {
         // ❌ DB failed — payment went through but record wasn't saved
         alert(
@@ -196,17 +186,12 @@ export const Activities: React.FC = () => {
 
         <div className="grid lg:grid-cols-2 gap-16 mb-24 items-center">
           <div className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl bg-gray-100">
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={currentImg}
-                src={goshalaImages[currentImg]}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-              />
-            </AnimatePresence>
+            <img
+              src={goshalaImage}
+              alt="Honnali Goshala"
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
             <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-[#8B0000] font-bold text-sm shadow-lg">
               Honnali Goshala
             </div>
@@ -371,32 +356,27 @@ export const Activities: React.FC = () => {
                               <label className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                                 <IndianRupee size={14} /> {t('act.goshala.form.amount')}
                               </label>
-                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                {['501', '1001', '5001', '10001'].map((val) => (
+                              <div className="grid grid-cols-1 gap-3">
+                                {[
+                                  { key: 'seva.godana.madhyama', val: '5000' },
+                                  { key: 'seva.godana.uttama', val: '10000' },
+                                  { key: 'seva.godana.salankruta', val: '20000' },
+                                  { key: 'seva.godana.hidihullu', val: '100' }
+                                ].map((item) => (
                                   <button
-                                    key={val}
+                                    key={item.val}
                                     type="button"
-                                    onClick={() => setGodanaForm({...godanaForm, amount: val})}
-                                    className={`py-3 rounded-xl text-xs sm:text-sm font-black border transition-all ${
-                                      godanaForm.amount === val 
-                                        ? 'bg-[#8B0000] text-white border-[#8B0000] shadow-lg scale-105' 
-                                        : 'bg-white text-gray-500 border-gray-100 hover:border-[#8B0000]/20'
+                                    onClick={() => setGodanaForm({...godanaForm, amount: item.val})}
+                                    className={`px-6 py-4 rounded-xl text-sm font-bold border transition-all flex justify-between items-center ${
+                                      godanaForm.amount === item.val 
+                                        ? 'bg-[#8B0000] text-white border-[#8B0000] shadow-lg' 
+                                        : 'bg-white text-gray-600 border-gray-100 hover:border-[#8B0000]/20'
                                     }`}
                                   >
-                                    ₹{val}
+                                    <span>{t(item.key)}</span>
+                                    <span className="font-black">₹{item.val}</span>
                                   </button>
                                 ))}
-                              </div>
-                              <div className="relative group">
-                                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#8B0000] font-black text-xl group-focus-within:scale-110 transition-transform">₹</span>
-                                <input
-                                  required
-                                  type="number"
-                                  value={godanaForm.amount}
-                                  onChange={(e) => setGodanaForm({...godanaForm, amount: e.target.value})}
-                                  className="w-full pl-12 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8B0000]/5 transition-all font-black text-xl sm:text-2xl text-[#8B0000]"
-                                  placeholder="Other amount"
-                                />
                               </div>
                             </div>
 

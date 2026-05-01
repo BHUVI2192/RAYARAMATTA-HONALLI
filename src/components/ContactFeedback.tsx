@@ -42,8 +42,8 @@ export const ContactFeedback: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-xs text-gray-400 font-bold uppercase mb-1">{t('cf.phone')}</p>
-                    <p className="text-sm text-gray-700">Sri Mutt: 9035861049</p>
-                    <p className="text-sm text-gray-700">G Vadiraj Kamarur: 9986511855</p>
+                    <p className="text-sm text-gray-700">9035861049</p>
+                    <p className="text-sm text-gray-700">9986511855</p>
                   </div>
                 </div>
 
@@ -66,11 +66,15 @@ export const ContactFeedback: React.FC = () => {
               </div>
               <div className="space-y-3 text-sm opacity-80">
                 <div className="flex justify-between">
-                  <span>Monday - Sunday</span>
-                  <span>06:30 AM - 08:00 PM</span>
+                  <span>Morning</span>
+                  <span>06:30 AM - 12:00 PM</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Evening</span>
+                  <span>05:30 PM - 08:00 PM</span>
                 </div>
                 <p className="text-xs italic mt-4 border-t border-white/10 pt-4">
-                  * Office remains closed during afternoon break (01:00 PM - 04:00 PM)
+                  {t('footer.timings.thursday')}
                 </p>
               </div>
             </div>
@@ -113,12 +117,44 @@ export const ContactFeedback: React.FC = () => {
                     exit={{ opacity: 0, y: -10 }}
                   >
                     <h3 className="text-xl sm:text-2xl font-black text-[#8B0000] mb-8">{t('contact.form.title')}</h3>
-                    <form className="space-y-6">
+                    <form 
+                      className="space-y-6"
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.currentTarget);
+                        const data = {
+                          type: 'message',
+                          name: formData.get('name'),
+                          email: formData.get('email'),
+                          subject: formData.get('subject'),
+                          message: formData.get('message'),
+                        };
+
+                        try {
+                          const res = await fetch('/api/contact', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data),
+                          });
+                          const result = await res.json();
+                          if (result.success) {
+                            alert(t('contact.success') || 'Message sent successfully!');
+                            (e.target as HTMLFormElement).reset();
+                          } else {
+                            alert(result.error || 'Failed to send message.');
+                          }
+                        } catch (err) {
+                          alert('Error sending message. Please try again.');
+                        }
+                      }}
+                    >
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
                           <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('contact.form.name')}</label>
                           <input 
+                            name="name"
                             type="text" 
+                            required
                             className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8B0000]/5 transition-all text-base"
                             placeholder={t('contact.form.name.placeholder')}
                           />
@@ -126,7 +162,9 @@ export const ContactFeedback: React.FC = () => {
                         <div>
                           <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('contact.form.email')}</label>
                           <input 
+                            name="email"
                             type="email" 
+                            required
                             className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8B0000]/5 transition-all text-base"
                             placeholder={t('contact.form.email.placeholder')}
                           />
@@ -135,7 +173,9 @@ export const ContactFeedback: React.FC = () => {
                       <div>
                         <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('contact.form.subject')}</label>
                         <input 
+                          name="subject"
                           type="text" 
+                          required
                           className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B0000] transition-all"
                           placeholder={t('contact.form.subject.placeholder')}
                         />
@@ -143,12 +183,14 @@ export const ContactFeedback: React.FC = () => {
                       <div>
                         <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('contact.form.message')}</label>
                         <textarea 
+                          name="message"
+                          required
                           rows={6}
                           className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8B0000]/5 transition-all resize-none text-base"
                           placeholder={t('contact.form.message.placeholder')}
                         ></textarea>
                       </div>
-                      <button className="w-full sm:w-auto px-12 py-5 bg-[#8B0000] text-white rounded-full font-black hover:bg-[#6B0000] transition-all shadow-[0_20px_40px_rgba(139,0,0,0.2)] flex items-center justify-center gap-2 uppercase tracking-wide">
+                      <button type="submit" className="w-full sm:w-auto px-12 py-5 bg-[#8B0000] text-white rounded-full font-black hover:bg-[#6B0000] transition-all shadow-[0_20px_40px_rgba(139,0,0,0.2)] flex items-center justify-center gap-2 uppercase tracking-wide">
                         <Send size={18} /> {t('contact.form.submit')}
                       </button>
                     </form>
@@ -179,7 +221,7 @@ export const ContactFeedback: React.FC = () => {
                                 (hoveredRating || rating) >= star 
                                   ? 'text-yellow-500 fill-yellow-500' 
                                   : 'text-gray-200'
-                              } transition-colors`}
+                                } transition-colors`}
                             />
                           </button>
                         ))}
@@ -189,12 +231,49 @@ export const ContactFeedback: React.FC = () => {
                       </p>
                     </div>
 
-                    <form className="space-y-6">
+                    <form 
+                      className="space-y-6"
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        if (rating === 0) {
+                          alert('Please select a rating');
+                          return;
+                        }
+                        const formData = new FormData(e.currentTarget);
+                        const data = {
+                          type: 'feedback',
+                          rating,
+                          name: formData.get('name'),
+                          location: formData.get('location'),
+                          comments: formData.get('comments'),
+                        };
+
+                        try {
+                          const res = await fetch('/api/contact', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data),
+                          });
+                          const result = await res.json();
+                          if (result.success) {
+                            alert(t('feedback.success') || 'Feedback submitted successfully!');
+                            (e.target as HTMLFormElement).reset();
+                            setRating(0);
+                          } else {
+                            alert(result.error || 'Failed to submit feedback.');
+                          }
+                        } catch (err) {
+                          alert('Error submitting feedback. Please try again.');
+                        }
+                      }}
+                    >
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
                           <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('feedback.form.name')}</label>
                           <input 
+                            name="name"
                             type="text" 
+                            required
                             className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8B0000]/5 transition-all text-base"
                             placeholder={t('feedback.form.name.placeholder')}
                           />
@@ -202,7 +281,9 @@ export const ContactFeedback: React.FC = () => {
                         <div>
                           <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('feedback.form.location')}</label>
                           <input 
+                            name="location"
                             type="text" 
+                            required
                             className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8B0000]/5 transition-all text-base"
                             placeholder={t('feedback.form.location.placeholder')}
                           />
@@ -212,6 +293,8 @@ export const ContactFeedback: React.FC = () => {
                       <div>
                         <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('feedback.form.comments')}</label>
                         <textarea 
+                          name="comments"
+                          required
                           rows={5}
                           className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#8B0000]/5 transition-all resize-none text-base"
                           placeholder={t('feedback.form.comments.placeholder')}
@@ -225,7 +308,7 @@ export const ContactFeedback: React.FC = () => {
                         </p>
                       </div>
 
-                      <button className="w-full py-5 bg-[#8B0000] text-white rounded-2xl sm:rounded-full font-black hover:bg-[#6B0000] transition-all shadow-[0_20px_40px_rgba(139,0,0,0.2)] uppercase tracking-wide">
+                      <button type="submit" className="w-full py-5 bg-[#8B0000] text-white rounded-2xl sm:rounded-full font-black hover:bg-[#6B0000] transition-all shadow-[0_20px_40px_rgba(139,0,0,0.2)] uppercase tracking-wide">
                         {t('feedback.form.submit')}
                       </button>
                     </form>

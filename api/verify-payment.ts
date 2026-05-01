@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import crypto from 'crypto';
 import { supabase } from './_lib/supabase';
 import Razorpay from 'razorpay';
-import { sendDonationEmail, sendGodanaEmail, sendSevaEmail } from './_lib/email';
+import { sendDonationEmail, sendGodanaEmail, sendSevaEmail, sendAdminPaymentNotification } from './_lib/email';
 export default async function handler(
   req: VercelRequest,
   res: VercelResponse
@@ -63,6 +63,9 @@ export default async function handler(
           if (email) {
             sendGodanaEmail(name, email, Number(amount)).catch(err => console.error('[verify-payment] Email failed:', err));
           }
+          // Notify Admin
+          sendAdminPaymentNotification('godana', { name, phone, email, amount, payment_id: razorpay_payment_id })
+            .catch(err => console.error('[verify-payment] Admin notification failed:', err));
         } 
         else if (type === 'donation') {
           const { error } = await supabase!
@@ -81,6 +84,9 @@ export default async function handler(
           if (email) {
             sendDonationEmail(name, email, Number(amount)).catch(err => console.error('[verify-payment] Email failed:', err));
           }
+          // Notify Admin
+          sendAdminPaymentNotification('donation', { name, phone, email, amount, payment_id: razorpay_payment_id })
+            .catch(err => console.error('[verify-payment] Admin notification failed:', err));
         }
         else if (type === 'seva') {
           // Note: Seva bookings have complex fields. 
@@ -102,11 +108,16 @@ export default async function handler(
           if (error) {
             console.warn('[verify-payment] Seva record insert failed (expected if handled by bookings.ts):', error.message);
           } else {
-            // Send Success Email if we have enough info
-            if (email && req.body.poojaDetails) {
-              sendSevaEmail({ name, email, phone }, { name: req.body.seva_name || 'Seva' }, req.body.poojaDetails)
-                .catch(err => console.error('[verify-payment] Seva Email failed:', err));
-            }
+          // Notify Admin
+          sendAdminPaymentNotification('seva', { 
+            name, phone, email, amount, transaction_id: razorpay_payment_id,
+            seva_name: req.body.seva_name || 'Seva Booking',
+            date: req.body.poojaDetails?.date || 'N/A',
+            count: req.body.poojaDetails?.count || 1,
+            gothra: req.body.poojaDetails?.gothra || 'N/A',
+            nakshathra: req.body.poojaDetails?.nakshathra || 'N/A',
+            rashi: req.body.poojaDetails?.rashi || 'N/A'
+          }).catch(err => console.error('[verify-payment] Admin notification failed:', err));
           }
         }
 
@@ -152,10 +163,14 @@ export default async function handler(
             await supabase!.from('godana_payments').insert([{
               name, phone, email, amount: Number(amount), payment_id: razorpay_payment_id, status: "Confirmed"
             }]);
+            sendAdminPaymentNotification('godana', { name, phone, email, amount, payment_id: razorpay_payment_id })
+              .catch(err => console.error('[verify-payment] Admin notification failed:', err));
           } else if (type === 'donation') {
             await supabase!.from('donations').insert([{
               name, phone, email, amount: Number(amount), payment_id: razorpay_payment_id, status: "Confirmed"
             }]);
+            sendAdminPaymentNotification('donation', { name, phone, email, amount, payment_id: razorpay_payment_id })
+              .catch(err => console.error('[verify-payment] Admin notification failed:', err));
           }
           return res.status(200).json({ success: true, payment_id: razorpay_payment_id, amount: amount });
         } catch (dbErr: any) {

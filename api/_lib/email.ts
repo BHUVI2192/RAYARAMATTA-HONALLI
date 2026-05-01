@@ -211,3 +211,120 @@ export const sendFailureEmail = async (email: string, name: string, amount: numb
     return false;
   }
 };
+
+export const sendContactEmail = async (data: any): Promise<boolean> => {
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.warn('[email] SMTP not configured — skipping contact email.');
+    return false;
+  }
+
+  const isFeedback = data.type === 'feedback';
+  const subject = isFeedback 
+    ? `New Feedback from ${data.name}` 
+    : `New Contact Message: ${data.subject}`;
+
+  const mailOptions = {
+    from: `"Rayara Matta Website" <${process.env.SMTP_USER}>`,
+    to: process.env.SMTP_USER, // Send to themselves
+    replyTo: data.email || undefined,
+    subject: subject,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 30px; color: #333;">
+        <h2 style="color: #8B0000; border-bottom: 2px solid #8B0000; padding-bottom: 10px;">
+          ${isFeedback ? 'New Feedback Received' : 'New Message from Website'}
+        </h2>
+        
+        <div style="margin-top: 20px; line-height: 1.6;">
+          <p><strong>Name:</strong> ${data.name}</p>
+          ${data.email ? `<p><strong>Email:</strong> ${data.email}</p>` : ''}
+          ${data.location ? `<p><strong>Location:</strong> ${data.location}</p>` : ''}
+          ${isFeedback ? `<p><strong>Rating:</strong> ${data.rating} / 5 Stars</p>` : ''}
+          ${data.subject && !isFeedback ? `<p><strong>Subject:</strong> ${data.subject}</p>` : ''}
+          
+          <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #8B0000;">
+            <p style="margin-top: 0; font-weight: bold; color: #8B0000;">${isFeedback ? 'Comments:' : 'Message:'}</p>
+            <p style="white-space: pre-wrap; margin-bottom: 0;">${data.message || data.comments}</p>
+          </div>
+        </div>
+        
+        <p style="margin-top: 30px; font-size: 12px; color: #999; text-align: center; border-top: 1px solid #eee; pt-20">
+          This message was sent from the contact form on rayaramattahonalli.in
+        </p>
+      </div>
+    `,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('[email] Contact/Feedback email sent to admin:', info.messageId);
+    return true;
+  } catch (err) {
+    console.error('[email] Error sending contact email to admin:', err);
+    return false;
+  }
+};
+
+export const sendAdminPaymentNotification = async (type: string, data: any): Promise<boolean> => {
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.warn('[email] SMTP not configured — skipping admin payment notification.');
+    return false;
+  }
+
+  let detailsHtml = '';
+  const title = `New Payment: ${type.toUpperCase()}`;
+
+  if (type === 'seva') {
+    detailsHtml = `
+      <p><strong>Seva:</strong> ${data.seva_name}</p>
+      <p><strong>Date:</strong> ${data.date}</p>
+      <p><strong>Quantity:</strong> ${data.count}</p>
+      <p><strong>Total Amount:</strong> ₹${data.amount}</p>
+      <p><strong>Gothra:</strong> ${data.gothra || 'N/A'}</p>
+      <p><strong>Nakshathra:</strong> ${data.nakshathra || 'N/A'}</p>
+      <p><strong>Rashi:</strong> ${data.rashi || 'N/A'}</p>
+    `;
+  } else {
+    detailsHtml = `
+      <p><strong>Type:</strong> ${type === 'godana' ? 'Godana Seva' : 'General Donation'}</p>
+      <p><strong>Amount:</strong> ₹${data.amount}</p>
+    `;
+  }
+
+  const mailOptions = {
+    from: `"Rayara Matta Payments" <${process.env.SMTP_USER}>`,
+    to: process.env.SMTP_USER,
+    subject: `[Payment Alert] ${title} - ${data.name}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 30px; color: #333;">
+        <h2 style="color: #8B0000; border-bottom: 2px solid #8B0000; padding-bottom: 10px;">New Payment Received</h2>
+        
+        <div style="margin-top: 20px; line-height: 1.6;">
+          <p><strong>Donor Name:</strong> ${data.name}</p>
+          <p><strong>Phone:</strong> ${data.phone}</p>
+          <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
+          <p><strong>Transaction ID:</strong> ${data.payment_id || data.transaction_id}</p>
+          
+          <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #8B0000;">
+            <p style="margin-top: 0; font-weight: bold; color: #8B0000;">Payment Details:</p>
+            ${detailsHtml}
+          </div>
+        </div>
+        
+        <p style="margin-top: 30px; font-size: 12px; color: #999; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
+          This is an automated notification from rayaramattahonalli.in admin system.
+        </p>
+      </div>
+    `,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`[email] Admin notification sent for ${type}:`, info.messageId);
+    return true;
+  } catch (err) {
+    console.error(`[email] Error sending admin notification for ${type}:`, err);
+    return false;
+  }
+};
