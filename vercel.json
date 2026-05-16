@@ -11,6 +11,58 @@
   },
   "rewrites": [
     {
+      "source": "/api/admin/login",
+      "destination": "/api/admin_api.ts?route=login"
+    },
+    {
+      "source": "/api/admin/bookings",
+      "destination": "/api/admin_api.ts?route=bookings"
+    },
+    {
+      "source": "/api/admin/confirm-booking",
+      "destination": "/api/admin_api.ts?route=confirm-booking"
+    },
+    {
+      "source": "/api/admin/donations",
+      "destination": "/api/admin_api.ts?route=donations"
+    },
+    {
+      "source": "/api/admin/godana",
+      "destination": "/api/admin_api.ts?route=godana"
+    },
+    {
+      "source": "/api/admin/notifications",
+      "destination": "/api/admin_api.ts?route=notifications"
+    },
+    {
+      "source": "/api/admin/special-bookings",
+      "destination": "/api/admin_api.ts?route=special-bookings"
+    },
+    {
+      "source": "/api/notifications",
+      "destination": "/api/public_api.ts?route=notifications"
+    },
+    {
+      "source": "/api/bookings",
+      "destination": "/api/public_api.ts?route=bookings"
+    },
+    {
+      "source": "/api/donate",
+      "destination": "/api/public_api.ts?route=donate"
+    },
+    {
+      "source": "/api/godana",
+      "destination": "/api/public_api.ts?route=godana"
+    },
+    {
+      "source": "/api/contact",
+      "destination": "/api/public_api.ts?route=contact"
+    },
+    {
+      "source": "/api/notify-failure",
+      "destination": "/api/public_api.ts?route=notify-failure"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },

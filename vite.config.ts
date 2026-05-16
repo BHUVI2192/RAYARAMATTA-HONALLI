@@ -14,15 +14,28 @@ const vercelApiPlugin = () => ({
     app.all('/api/*', async (req, res) => {
       try {
         const relPath = req.path.replace('/api/', '');
-        let filePath = path.resolve(process.cwd(), 'api', relPath);
+        let filePath = '';
 
-        if (!fs.existsSync(filePath)) {
-          if (fs.existsSync(`${filePath}.ts`)) {
-            filePath = `${filePath}.ts`;
-          } else if (fs.existsSync(path.join(filePath, 'index.ts'))) {
-            filePath = path.join(filePath, 'index.ts');
+        if (relPath.startsWith('admin/')) {
+          const route = relPath.replace('admin/', '');
+          req.query.route = route;
+          filePath = path.resolve(process.cwd(), 'api', 'admin_api.ts');
+        } else {
+          const publicRoutes = ['notifications', 'bookings', 'donate', 'godana', 'contact', 'notify-failure', 'create-order', 'verify-payment'];
+          if (publicRoutes.includes(relPath)) {
+            req.query.route = relPath;
+            filePath = path.resolve(process.cwd(), 'api', 'public_api.ts');
           } else {
-            return res.status(404).json({ success: false, message: 'API Route Not Found' });
+            filePath = path.resolve(process.cwd(), 'api', relPath);
+            if (!fs.existsSync(filePath)) {
+              if (fs.existsSync(`${filePath}.ts`)) {
+                filePath = `${filePath}.ts`;
+              } else if (fs.existsSync(path.join(filePath, 'index.ts'))) {
+                filePath = path.join(filePath, 'index.ts');
+              } else {
+                return res.status(404).json({ success: false, message: 'API Route Not Found' });
+              }
+            }
           }
         }
 
