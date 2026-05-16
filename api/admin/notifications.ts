@@ -56,7 +56,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === 'DELETE') {
     try {
-      const { id } = req.body;
+      const id = req.query.id || req.body?.id;
+      if (!id) {
+        return res.status(400).json({ success: false, error: 'Notification ID is required' });
+      }
+
       const { error } = await supabase!
         .from('special_notifications')
         .delete()
@@ -65,7 +69,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (error) throw error;
       return res.status(200).json({ success: true });
     } catch (error: any) {
-      return res.status(500).json({ success: false, error: 'Failed to delete notification' });
+      console.error('Delete error:', error);
+      return res.status(500).json({ success: false, error: 'Failed to delete notification: ' + error.message });
     }
   }
 

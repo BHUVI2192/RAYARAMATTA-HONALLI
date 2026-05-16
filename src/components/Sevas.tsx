@@ -13,13 +13,6 @@ export const Sevas: React.FC<SevasProps> = ({ onSelectSeva }) => {
   
   const sevaActivities = [
     {
-      id: 1,
-      icon: <Heart className="text-emerald-600" size={32} />,
-      title: t('seva.1.title'),
-      desc: t('seva.1.desc'),
-      image: '/images/469465619_611496361215238_5830762216394880863_n.jpg'
-    },
-    {
       id: 2,
       icon: <Droplets className="text-red-600" size={32} />,
       title: t('seva.2.title'),

@@ -75,7 +75,7 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="pt-8 border-t border-white/5 text-center text-xs text-gray-500">
-          <p>© 2024 Shri Raghavendra Swamy Seva Trust, Honnali. All Rights Reserved.</p>
+          <p>© 2024 Shri Raghavendra Swamy Seva Trust, Honnalli. All Rights Reserved.</p>
         </div>
       </div>
     </footer>

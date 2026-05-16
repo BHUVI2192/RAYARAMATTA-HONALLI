@@ -76,6 +76,16 @@ export const NotificationBar: React.FC = () => {
       const orderData = await orderRes.json();
       if (!orderData.success) throw new Error(orderData.error || 'Order creation failed');
 
+      const callbackUrl = new URL(window.location.origin + '/api/verify-payment');
+      callbackUrl.searchParams.append('redirect', 'true');
+      callbackUrl.searchParams.append('redirect_url', window.location.pathname);
+      callbackUrl.searchParams.append('type', 'special_seva');
+      callbackUrl.searchParams.append('notification_id', activeNotification.id);
+      callbackUrl.searchParams.append('name', formData.name);
+      callbackUrl.searchParams.append('phone', formData.phone);
+      callbackUrl.searchParams.append('email', formData.email);
+      callbackUrl.searchParams.append('amount', activeNotification.amount.toString());
+
       const options = {
         key: orderData.keyId,
         amount: activeNotification.amount * 100,
@@ -89,35 +99,8 @@ export const NotificationBar: React.FC = () => {
           contact: formData.phone,
         },
         theme: { color: '#8B0000' },
-        handler: async function (response: any) {
-          try {
-            const verifyRes = await fetch('/api/verify-payment', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                ...response,
-                type: 'special_seva',
-                notification_id: activeNotification.id,
-                name: formData.name,
-                phone: formData.phone,
-                email: formData.email,
-                amount: activeNotification.amount
-              }),
-            });
-
-            const verifyData = await verifyRes.json();
-            if (verifyData.success) {
-              alert('Payment Successful! Thank you for your Seva.');
-              setIsModalOpen(false);
-              setFormData({ name: '', phone: '', email: '' });
-            } else {
-              alert('Payment verification failed.');
-            }
-          } catch (err) {
-            console.error('Verification error:', err);
-            alert('Payment was successful but verification failed. Please contact admin.');
-          }
-        },
+        callback_url: callbackUrl.toString(),
+        redirect: true,
       };
 
       const paymentObject = new (window as any).Razorpay(options);
@@ -129,30 +112,43 @@ export const NotificationBar: React.FC = () => {
     } catch (err: any) {
       setError(err.message || 'Payment initiation failed');
     } finally {
-      setLoading(false);
+      // Keep loading true while Razorpay handles the redirect
+      // setLoading(false);
     }
   };
 
   return (
     <>
-      <div className="bg-yellow-50 border-b border-yellow-200 w-full z-40 relative">
-        <div className="max-w-7xl mx-auto px-4 py-3">
+      <div className="bg-gradient-to-r from-[#6B0000] via-[#8B0000] to-[#6B0000] border-b border-red-900/20 w-full z-40 relative overflow-hidden shadow-2xl">
+        {/* Shimmer Effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_3s_infinite] pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto px-4 py-3 relative">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center text-[#8B0000] font-medium flex-1">
-              <Bell className="animate-bounce mr-3" size={24} />
+            <div className="flex items-center text-white flex-1">
+              <div className="relative">
+                <div className="absolute inset-0 bg-yellow-400 rounded-full animate-[aura_2s_infinite] blur-md opacity-50" />
+                <div className="bg-white/20 p-2.5 rounded-xl mr-4 backdrop-blur-sm relative border border-white/20">
+                  <Bell className="animate-bounce" size={24} />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full border-2 border-[#8B0000] shadow-sm" />
+                </div>
+              </div>
               <div className="flex flex-col">
-                <span className="font-bold text-lg">{notifications[0].title}</span>
-                <span className="text-sm opacity-90">{notifications[0].description}</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-black text-lg tracking-tight uppercase">{notifications[0].title}</span>
+                  <span className="bg-yellow-400 text-red-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter">Special Seva</span>
+                </div>
+                <span className="text-sm font-medium opacity-80 line-clamp-1">{notifications[0].description}</span>
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="font-bold text-[#8B0000] flex items-center bg-yellow-100 px-4 py-2 rounded-full">
+              <div className="font-black text-yellow-400 flex items-center bg-black/20 px-5 py-2.5 rounded-2xl backdrop-blur-md border border-white/10">
                 <IndianRupee size={18} className="mr-1" />
                 {notifications[0].amount}
               </div>
               <button
                 onClick={() => handleBookNow(notifications[0])}
-                className="bg-[#8B0000] text-white px-6 py-2 rounded-full font-bold hover:bg-red-800 transition-colors shadow-md whitespace-nowrap"
+                className="bg-yellow-500 text-red-900 px-8 py-2.5 rounded-xl font-black hover:bg-yellow-400 transition-all shadow-[0_4px_20px_rgba(234,179,8,0.3)] active:scale-95 whitespace-nowrap uppercase tracking-wider text-sm"
               >
                 Book Now
               </button>

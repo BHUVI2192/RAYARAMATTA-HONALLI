@@ -59,7 +59,7 @@ interface GeneralDonation {
 }
 
 interface SpecialNotification {
-  id: number;
+  id: string;
   title: string;
   description: string;
   amount: number;
@@ -68,8 +68,8 @@ interface SpecialNotification {
 }
 
 interface SpecialBooking {
-  id: number;
-  notification_id: number;
+  id: string;
+  notification_id: string;
   name: string;
   phone: string;
   email: string;
@@ -108,44 +108,42 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
     setLoading(true);
     setError('');
     try {
-      // Step 1: Validate password via dedicated login endpoint (no Supabase dependency)
-      const loginRes = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-      });
+      const headers: Record<string, string> = { 'x-admin-password': password };
 
-      let loginData;
-      const loginCt = loginRes.headers.get('content-type');
-      if (loginCt && loginCt.includes('application/json')) {
-        loginData = await loginRes.json();
-      } else {
-        const text = await loginRes.text();
-        throw new Error(`Server error (${loginRes.status}): ${text.substring(0, 200)}`);
+      // Step 1: Validate password directly via the bookings data endpoint
+      // Bypasses the dedicated /api/admin/login to reduce network dependencies.
+      // If the server is overloaded, we gracefully catch it.
+      let bookingsRes;
+      try {
+        bookingsRes = await fetch('/api/admin/bookings', { headers });
+      } catch (networkErr) {
+        // If the server is fully unreachable, we can still "log in" locally to show the UI
+        // Data fetch will just show an error inside the dashboard.
+        setIsAuthenticated(true);
+        setLoading(false);
+        return;
       }
 
-      if (loginRes.status === 401 || !loginData.success) {
+      if (bookingsRes.status === 401) {
         setError('Invalid admin password. Please try again.');
         return;
       }
 
-      // Step 2: Authenticated — now fetch data
       setIsAuthenticated(true);
-      const headers: Record<string, string> = { 'x-admin-password': password };
 
       const parseJson = async (res: Response) => {
+        if (!res) return { success: false, error: 'Network Error' };
         const ct = res.headers.get('content-type');
         if (ct && ct.includes('application/json')) return res.json();
         const text = await res.text();
         throw new Error(`Server error (${res.status}): ${text.substring(0, 200)}`);
       };
 
-      const [bookingsRes, godanaRes, donationsRes, notifRes, specialBookRes] = await Promise.all([
-        fetch('/api/admin/bookings', { headers }),
-        fetch('/api/admin/godana', { headers }),
-        fetch('/api/admin/donations', { headers }),
-        fetch('/api/admin/notifications', { headers }),
-        fetch('/api/admin/special-bookings', { headers }),
+      const [godanaRes, donationsRes, notifRes, specialBookRes] = await Promise.all([
+        fetch('/api/admin/godana', { headers }).catch(() => null),
+        fetch('/api/admin/donations', { headers }).catch(() => null),
+        fetch('/api/admin/notifications', { headers }).catch(() => null),
+        fetch('/api/admin/special-bookings', { headers }).catch(() => null),
       ]);
 
       const bookingsData = await parseJson(bookingsRes);
@@ -303,7 +301,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
     }
   };
 
-  const handleDeleteNotification = async (id: number) => {
+  const handleDeleteNotification = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this notification?')) return;
     setLoading(true);
     try {
@@ -324,7 +322,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
     }
   };
 
-  const toggleNotificationStatus = async (id: number, currentStatus: boolean) => {
+  const toggleNotificationStatus = async (id: string, currentStatus: boolean) => {
     setLoading(true);
     try {
       const res = await fetch('/api/admin/notifications', {

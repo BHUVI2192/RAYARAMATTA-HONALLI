@@ -41,11 +41,25 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const paymentId = urlParams.get('razorpay_payment_id');
+    const paymentId = urlParams.get('razorpay_payment_id') || urlParams.get('payment_id');
     const orderId = urlParams.get('razorpay_order_id');
     const signature = urlParams.get('razorpay_signature');
+    const paymentStatus = urlParams.get('payment_status');
 
-    if (paymentId) {
+    if (paymentStatus === 'success' && paymentId) {
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+      
+      const savedForm = localStorage.getItem('sevaBookingForm');
+      if (savedForm) {
+        const parsedForm = JSON.parse(savedForm);
+        setFormData(parsedForm);
+        setStep(4);
+        setTransactionId(paymentId);
+        setShowSuccess(true);
+        localStorage.removeItem('sevaBookingForm');
+      }
+    } else if (paymentId && !paymentStatus) {
+      // Fallback for native Razorpay redirect without our backend callback intercepting
       window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
       
       const savedForm = localStorage.getItem('sevaBookingForm');
@@ -401,6 +415,8 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
       const orderData = await orderResponse.json();
       if (!orderData.success) throw new Error(orderData.error || 'Order creation failed');
 
+      const callbackUrl = `${window.location.origin}/api/verify-payment?type=seva&redirect=true&redirect_url=${encodeURIComponent(window.location.pathname)}&name=${encodeURIComponent(formData.userDetails?.name || '')}&email=${encodeURIComponent(formData.userDetails?.email || '')}&phone=${encodeURIComponent(formData.userDetails?.phone || '')}&amount=${totalAmount}&seva_name=${encodeURIComponent(formData.seva?.name || '')}&date=${encodeURIComponent(formData.poojaDetails?.date || '')}&count=${formData.poojaDetails?.count || 1}&gothra=${encodeURIComponent(formData.poojaDetails?.gothra || '')}&nakshathra=${encodeURIComponent(formData.poojaDetails?.nakshathra || '')}&rashi=${encodeURIComponent(formData.poojaDetails?.rashi || '')}&vedha=${encodeURIComponent(formData.poojaDetails?.vedha || '')}&message=${encodeURIComponent(formData.poojaDetails?.message || '')}`;
+
       const options = {
         key: orderData.keyId,
         amount: totalAmount * 100,
@@ -408,9 +424,8 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
         name: 'Trust Donation',
         description: `${formData.seva?.name} Booking`,
         order_id: orderData.order_id,
-        handler: async (response: any) => {
-          verifyAndSaveBooking(response, formData);
-        },
+        callback_url: callbackUrl,
+        redirect: true,
         prefill: {
           name: formData.userDetails?.name,
           email: formData.userDetails?.email,
