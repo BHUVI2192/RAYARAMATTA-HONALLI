@@ -108,7 +108,7 @@ export const Donate: React.FC = () => {
         key: orderData.keyId,
         amount: amount * 100,
         currency: 'INR',
-        name: "Rayara Matta Honalli",
+        name: "Rayara Matta Honnali",
         description: "General Donation",
         order_id: orderData.order_id,
         handler: async (response: any) => {

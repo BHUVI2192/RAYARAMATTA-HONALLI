@@ -74,7 +74,7 @@ export const VideoSection: React.FC = () => {
             </h2>
             <div className="w-16 h-1 bg-yellow-500 rounded-full mb-6 mx-auto lg:mx-0" />
             <p className="text-gray-700 text-lg leading-relaxed mb-4">
-              Witness the divine Panchamruta Abhisheka of Sri Raghavendra Swamy at Rayara Matta, Honalli.
+              Witness the divine Panchamruta Abhisheka of Sri Raghavendra Swamy at Rayara Matta, Honnali.
               This sacred ritual is performed with five holy substances —
               milk, curd, ghee, honey, and sugar.
             </p>

@@ -86,6 +86,23 @@ export default async function handler(
           }
           // Notify Admin
           sendAdminPaymentNotification('donation', { name, phone, email, amount, payment_id: razorpay_payment_id })
+        }
+        else if (type === 'special_seva') {
+          const { error } = await supabase!
+            .from('special_seva_bookings')
+            .insert([{
+              notification_id: req.body.notification_id,
+              name: name,
+              phone: phone,
+              email: email || null,
+              amount: Number(amount),
+              payment_id: razorpay_payment_id,
+              status: "Confirmed"
+            }]);
+          if (error) throw error;
+
+          // Notify Admin
+          sendAdminPaymentNotification('donation', { name, phone, email, amount, payment_id: razorpay_payment_id })
             .catch(err => console.error('[verify-payment] Admin notification failed:', err));
         }
         else if (type === 'seva') {
@@ -167,6 +184,13 @@ export default async function handler(
               .catch(err => console.error('[verify-payment] Admin notification failed:', err));
           } else if (type === 'donation') {
             await supabase!.from('donations').insert([{
+              name, phone, email, amount: Number(amount), payment_id: razorpay_payment_id, status: "Confirmed"
+            }]);
+            sendAdminPaymentNotification('donation', { name, phone, email, amount, payment_id: razorpay_payment_id })
+              .catch(err => console.error('[verify-payment] Admin notification failed:', err));
+          } else if (type === 'special_seva') {
+            await supabase!.from('special_seva_bookings').insert([{
+              notification_id: req.body.notification_id,
               name, phone, email, amount: Number(amount), payment_id: razorpay_payment_id, status: "Confirmed"
             }]);
             sendAdminPaymentNotification('donation', { name, phone, email, amount, payment_id: razorpay_payment_id })

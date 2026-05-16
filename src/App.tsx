@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
+import { NotificationBar } from './components/NotificationBar';
 import { VideoSection } from './components/VideoSection';
 import { About } from './components/About';
 import { Activities } from './components/Activities';
@@ -122,6 +123,7 @@ function AppContent() {
             exit={{ opacity: 0 }}
           >
             <Hero />
+            <NotificationBar />
             <VideoSection />
             <WelcomeSection onNavigate={setCurrentPage} />
           </motion.div>

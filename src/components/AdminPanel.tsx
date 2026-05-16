@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  BarChart3, 
-  Users, 
-  Calendar, 
-  CreditCard, 
-  Search, 
-  Filter, 
-  Download, 
+import {
+  BarChart3,
+  Users,
+  Calendar,
+  CreditCard,
+  Search,
+  Filter,
+  Download,
   MoreVertical,
   ChevronRight,
   ShieldCheck,
@@ -58,6 +58,30 @@ interface GeneralDonation {
   created_at: string;
 }
 
+interface SpecialNotification {
+  id: number;
+  title: string;
+  description: string;
+  amount: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+interface SpecialBooking {
+  id: number;
+  notification_id: number;
+  name: string;
+  phone: string;
+  email: string;
+  amount: number;
+  payment_id: string;
+  status: string;
+  created_at: string;
+  special_notifications?: {
+    title: string;
+  };
+}
+
 interface AdminPanelProps {
   onLogout?: () => void;
 }
@@ -65,10 +89,13 @@ interface AdminPanelProps {
 export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
-  const [activeTab, setActiveTab] = useState<'sevas' | 'godana' | 'donations'>('sevas');
+  const [activeTab, setActiveTab] = useState<'sevas' | 'godana' | 'donations' | 'notifications' | 'special_bookings'>('sevas');
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [godanaPayments, setGodanaPayments] = useState<GodanaPayment[]>([]);
   const [donations, setDonations] = useState<GeneralDonation[]>([]);
+  const [notifications, setNotifications] = useState<SpecialNotification[]>([]);
+  const [specialBookings, setSpecialBookings] = useState<SpecialBooking[]>([]);
+  const [newNotification, setNewNotification] = useState({ title: '', description: '', amount: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -113,21 +140,27 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
         throw new Error(`Server error (${res.status}): ${text.substring(0, 200)}`);
       };
 
-      const [bookingsRes, godanaRes, donationsRes] = await Promise.all([
+      const [bookingsRes, godanaRes, donationsRes, notifRes, specialBookRes] = await Promise.all([
         fetch('/api/admin/bookings', { headers }),
         fetch('/api/admin/godana', { headers }),
         fetch('/api/admin/donations', { headers }),
+        fetch('/api/admin/notifications', { headers }),
+        fetch('/api/admin/special-bookings', { headers }),
       ]);
 
       const bookingsData = await parseJson(bookingsRes);
       const godanaData = await parseJson(godanaRes);
       const donationsData = await parseJson(donationsRes);
+      const notifData = await parseJson(notifRes);
+      const specialBookData = await parseJson(specialBookRes);
 
       if (bookingsData.success) setBookings(bookingsData.bookings || []);
       else setError(bookingsData.error || 'Failed to load seva bookings');
 
       if (godanaData.success) setGodanaPayments(godanaData.godana || []);
       if (donationsData.success) setDonations(donationsData.donations || []);
+      if (notifData.success) setNotifications(notifData.notifications || []);
+      if (specialBookData.success) setSpecialBookings(specialBookData.bookings || []);
       // Godana failure is non-fatal (bookings may still load)
 
     } catch (err: any) {
@@ -144,10 +177,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
     setError('');
     try {
       const headers = { 'x-admin-password': password };
-      const [bookingsRes, godanaRes, donationsRes] = await Promise.all([
+      const [bookingsRes, godanaRes, donationsRes, notifRes, specialBookRes] = await Promise.all([
         fetch('/api/admin/bookings', { headers }),
         fetch('/api/admin/godana', { headers }),
-        fetch('/api/admin/donations', { headers })
+        fetch('/api/admin/donations', { headers }),
+        fetch('/api/admin/notifications', { headers }),
+        fetch('/api/admin/special-bookings', { headers })
       ]);
 
       if (bookingsRes.status === 401) {
@@ -165,8 +200,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 
       const bookingsData = await getJson(bookingsRes);
       const godanaData = await getJson(godanaRes);
-
       const donationsData = await getJson(donationsRes);
+      const notifData = await getJson(notifRes);
+      const specialBookData = await getJson(specialBookRes);
 
       if (bookingsData.success) {
         setBookings(bookingsData.bookings);
@@ -174,14 +210,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
         setError(bookingsData.error || 'Failed to sync bookings');
       }
 
-      if (godanaData.success) {
-        setGodanaPayments(godanaData.godana);
-      }
-      
-      if (donationsData.success) {
-        setDonations(donationsData.donations);
-      }
-      
+      if (godanaData.success) setGodanaPayments(godanaData.godana);
+      if (donationsData.success) setDonations(donationsData.donations);
+      if (notifData.success) setNotifications(notifData.notifications);
+      if (specialBookData.success) setSpecialBookings(specialBookData.bookings);
+
     } catch (err: any) {
       console.error('Sync Error:', err);
       setError('Data sync failed: ' + (err.message || 'Check connection'));
@@ -206,26 +239,114 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
     return true;
   };
 
-  const filteredBookings = bookings.filter(b => 
+  const filteredBookings = bookings.filter(b =>
     (b.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    b.seva_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    b.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      b.seva_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      b.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
     isWithinDateRange(b.created_at)
   );
 
   const filteredGodana = godanaPayments.filter(p =>
     (p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.phone.includes(searchTerm)) &&
+      p.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.phone.includes(searchTerm)) &&
     isWithinDateRange(p.created_at)
   );
 
   const filteredDonations = donations.filter(d =>
     (d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.phone.includes(searchTerm)) &&
+      d.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      d.phone.includes(searchTerm)) &&
     isWithinDateRange(d.created_at)
   );
+
+  const filteredNotifications = notifications.filter(n =>
+    n.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    isWithinDateRange(n.created_at)
+  );
+
+  const filteredSpecialBookings = specialBookings.filter(b =>
+    (b.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      b.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      b.phone.includes(searchTerm)) &&
+    isWithinDateRange(b.created_at)
+  );
+
+  const handleCreateNotification = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-password': password
+        },
+        body: JSON.stringify({
+          title: newNotification.title,
+          description: newNotification.description,
+          amount: parseFloat(newNotification.amount),
+          is_active: true
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setNotifications([data.notification, ...notifications]);
+        setNewNotification({ title: '', description: '', amount: '' });
+      } else {
+        alert(data.error || 'Failed to create notification');
+      }
+    } catch (err) {
+      alert('Error creating notification');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteNotification = async (id: number) => {
+    if (!window.confirm('Are you sure you want to delete this notification?')) return;
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/notifications?id=' + id, {
+        method: 'DELETE',
+        headers: { 'x-admin-password': password }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setNotifications(notifications.filter(n => n.id !== id));
+      } else {
+        alert(data.error || 'Failed to delete notification');
+      }
+    } catch (err) {
+      alert('Error deleting notification');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleNotificationStatus = async (id: number, currentStatus: boolean) => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/notifications', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-password': password
+        },
+        body: JSON.stringify({ id, is_active: !currentStatus })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setNotifications(notifications.map(n => n.id === id ? { ...n, is_active: !currentStatus } : n));
+      } else {
+        alert(data.error || 'Failed to update status');
+      }
+    } catch (err) {
+      alert('Error updating status');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDownloadCSV = () => {
     const dataToExport = activeTab === 'sevas' ? filteredBookings : activeTab === 'godana' ? filteredGodana : filteredDonations;
@@ -293,19 +414,19 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 
   const confirmBooking = async (id: number) => {
     if (!window.confirm('Are you sure you want to mark this booking as Confirmed?')) return;
-    
+
     setLoading(true);
     try {
-      const headers = { 
+      const headers = {
         'Content-Type': 'application/json',
-        'x-admin-password': password 
+        'x-admin-password': password
       };
       const res = await fetch('/api/admin/confirm-booking', {
         method: 'POST',
         headers,
         body: JSON.stringify({ bookingId: id, status: 'Confirmed' })
       });
-      
+
       const data = await res.json();
       if (data.success) {
         setBookings(prev => prev.map(b => b.id === id ? { ...b, payment_status: 'Confirmed' } : b));
@@ -325,12 +446,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
   const sevaRevenue = filteredBookings.reduce((acc, b) => acc + (b.seva_price * b.count), 0);
   const godanaRevenue = filteredGodana.reduce((acc, p) => acc + p.amount, 0);
   const generalDonationRevenue = filteredDonations.reduce((acc, d) => acc + d.amount, 0);
-  const totalRevenue = sevaRevenue + godanaRevenue + generalDonationRevenue;
+  const specialSevaRevenue = filteredSpecialBookings.reduce((acc, b) => acc + b.amount, 0);
+  const totalRevenue = sevaRevenue + godanaRevenue + generalDonationRevenue + specialSevaRevenue;
 
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-stone-100 flex items-center justify-center px-4">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="max-w-md w-full bg-white rounded-[32px] sm:rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.1)] p-6 sm:p-10 border border-stone-100"
@@ -341,7 +463,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
             </div>
             <h2 className="text-2xl font-bold text-gray-800">Admin Portal</h2>
             <p className="text-gray-400 text-sm">Honnali Rayara Matta Management</p>
-            <button 
+            <button
               onClick={onLogout}
               className="mt-4 text-stone-400 hover:text-[#8B0000] text-xs font-bold uppercase tracking-widest transition-colors"
             >
@@ -352,7 +474,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label className="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Access Key</label>
-              <input 
+              <input
                 type="password"
                 required
                 value={password}
@@ -362,7 +484,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
               />
             </div>
             {error && <p className="text-red-500 text-xs font-bold bg-red-50 p-3 rounded-xl border border-red-100">{error}</p>}
-            <button 
+            <button
               disabled={loading}
               className="w-full bg-[#8B0000] text-white py-4 rounded-full font-bold shadow-xl hover:bg-[#6B0000] transition-all transform active:scale-95 disabled:opacity-50"
             >
@@ -384,13 +506,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
             <p className="text-gray-400 text-sm font-medium mt-1">Monitoring Seva Bookings & Payments</p>
           </div>
           <div className="flex items-center justify-center gap-3">
-            <button 
+            <button
               onClick={fetchData}
               className="p-3.5 bg-white text-[#8B0000] rounded-2xl shadow-sm border border-gray-100 hover:bg-gray-50 transition-all active:scale-95"
             >
               <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
             </button>
-            <button 
+            <button
               onClick={() => {
                 setIsAuthenticated(false);
                 if (onLogout) onLogout();
@@ -406,33 +528,48 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
         <div className="flex gap-1.5 p-1.5 bg-stone-200/50 w-full sm:w-fit rounded-2xl mb-8 backdrop-blur-sm overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTab('sevas')}
-            className={`flex-1 sm:flex-none whitespace-nowrap px-6 sm:px-8 py-3.5 rounded-xl font-black text-sm transition-all ${
-              activeTab === 'sevas' 
-                ? 'bg-[#8B0000] text-white shadow-lg' 
-                : 'text-stone-500 hover:bg-stone-200'
-            }`}
+            className={`flex-1 sm:flex-none whitespace-nowrap px-6 sm:px-8 py-3.5 rounded-xl font-black text-sm transition-all ${activeTab === 'sevas'
+              ? 'bg-[#8B0000] text-white shadow-lg'
+              : 'text-stone-500 hover:bg-stone-200'
+              }`}
           >
             Sevas
           </button>
           <button
             onClick={() => setActiveTab('godana')}
-            className={`flex-1 sm:flex-none whitespace-nowrap px-6 sm:px-8 py-3.5 rounded-xl font-black text-sm transition-all ${
-              activeTab === 'godana' 
-                ? 'bg-[#8B0000] text-white shadow-lg' 
-                : 'text-stone-500 hover:bg-stone-200'
-            }`}
+            className={`flex-1 sm:flex-none whitespace-nowrap px-6 sm:px-8 py-3.5 rounded-xl font-black text-sm transition-all ${activeTab === 'godana'
+              ? 'bg-[#8B0000] text-white shadow-lg'
+              : 'text-stone-500 hover:bg-stone-200'
+              }`}
           >
             Godana
           </button>
           <button
             onClick={() => setActiveTab('donations')}
-            className={`flex-1 sm:flex-none whitespace-nowrap px-6 sm:px-8 py-3.5 rounded-xl font-black text-sm transition-all ${
-              activeTab === 'donations' 
-                ? 'bg-[#8B0000] text-white shadow-lg' 
-                : 'text-stone-500 hover:bg-stone-200'
-            }`}
+            className={`flex-1 sm:flex-none whitespace-nowrap px-6 sm:px-8 py-3.5 rounded-xl font-black text-sm transition-all ${activeTab === 'donations'
+              ? 'bg-[#8B0000] text-white shadow-lg'
+              : 'text-stone-500 hover:bg-stone-200'
+              }`}
           >
             Donations
+          </button>
+          <button
+            onClick={() => setActiveTab('notifications')}
+            className={`flex-1 sm:flex-none whitespace-nowrap px-6 sm:px-8 py-3.5 rounded-xl font-black text-sm transition-all ${activeTab === 'notifications'
+              ? 'bg-[#8B0000] text-white shadow-lg'
+              : 'text-stone-500 hover:bg-stone-200'
+              }`}
+          >
+            Special Notifications
+          </button>
+          <button
+            onClick={() => setActiveTab('special_bookings')}
+            className={`flex-1 sm:flex-none whitespace-nowrap px-6 sm:px-8 py-3.5 rounded-xl font-black text-sm transition-all ${activeTab === 'special_bookings'
+              ? 'bg-[#8B0000] text-white shadow-lg'
+              : 'text-stone-500 hover:bg-stone-200'
+              }`}
+          >
+            Special Bookings
           </button>
         </div>
 
@@ -461,8 +598,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
           <div className="p-6 sm:p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="relative w-full md:w-96">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="Search by name, email or seva..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -472,23 +609,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
             <div className="flex flex-wrap gap-4 w-full md:w-auto items-center">
               <div className="flex items-center gap-2 bg-gray-50 border border-gray-100 px-4 py-2 rounded-full">
                 <Calendar size={14} className="text-gray-400" />
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   className="bg-transparent border-none text-xs focus:outline-none"
                   placeholder="Start Date"
                 />
                 <span className="text-gray-300">to</span>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   className="bg-transparent border-none text-xs focus:outline-none"
                   placeholder="End Date"
                 />
                 {(startDate || endDate) && (
-                  <button 
+                  <button
                     onClick={() => { setStartDate(''); setEndDate(''); }}
                     className="ml-2 text-xs text-red-500 hover:text-red-700 font-bold"
                   >
@@ -496,13 +633,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
                   </button>
                 )}
               </div>
-              <button 
+              <button
                 onClick={handleDownloadCSV}
                 className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-[#8B0000] text-white rounded-full font-bold shadow-md hover:bg-[#6B0000] transition-all text-sm"
               >
                 <Download size={16} /> Export CSV
               </button>
-              <button 
+              <button
                 onClick={fetchData}
                 className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-gray-50 text-gray-600 rounded-full font-bold border border-gray-100 hover:bg-gray-100 transition-all text-sm"
               >
@@ -516,14 +653,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
               <thead>
                 <tr className="bg-gray-50/50">
                   <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">
-                    {activeTab === 'sevas' ? 'Booking Info' : 'Donor Info'}
+                    {activeTab === 'notifications' ? 'Notification Title' : (activeTab === 'sevas' ? 'Booking Info' : 'Donor Info')}
                   </th>
                   <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">
-                    {activeTab === 'sevas' ? 'Seva Details' : 'Contact Details'}
+                    {activeTab === 'notifications' ? 'Description' : (activeTab === 'special_bookings' ? 'Seva Details' : (activeTab === 'sevas' ? 'Seva Details' : 'Contact Details'))}
                   </th>
                   <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Amount</th>
                   <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">
-                    {activeTab === 'sevas' ? 'Transaction / Status' : 'Transaction ID'}
+                    {activeTab === 'notifications' ? 'Status' : (activeTab === 'sevas' || activeTab === 'special_bookings' ? 'Transaction / Status' : 'Transaction ID')}
                   </th>
                   <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Actions</th>
                 </tr>
@@ -554,20 +691,19 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
                           <span className="text-[10px] font-mono text-stone-400 bg-stone-100 px-2 py-1 rounded truncate w-32" title={booking.transaction_id}>
                             UTR: {booking.transaction_id || 'N/A'}
                           </span>
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold w-fit shadow-sm border ${
-                            booking.payment_status === 'Confirmed' 
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
-                              : booking.payment_status === 'Failed'
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold w-fit shadow-sm border ${booking.payment_status === 'Confirmed'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                            : booking.payment_status === 'Failed'
                               ? 'bg-red-50 text-red-700 border-red-100'
                               : 'bg-amber-50 text-amber-700 border-amber-100'
-                          }`}>
+                            }`}>
                             {booking.payment_status === 'Confirmed' ? <CheckCircle2 size={12} /> : <Clock size={12} />}
                             {booking.payment_status || 'Pending Verification'}
                           </span>
                         </div>
                       </td>
                       <td className="px-8 py-6 text-right">
-                        <button 
+                        <button
                           onClick={() => setSelectedBooking(booking)}
                           className="p-2 hover:bg-[#8B0000]/10 rounded-lg text-[#8B0000] transition-colors"
                         >
@@ -585,96 +721,181 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
                       </td>
                     </tr>
                   )
-                  ) : activeTab === 'godana' ? (
-                    filteredGodana.length > 0 ? filteredGodana.map((payment) => (
-                      <tr key={payment.id} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="px-8 py-6">
-                          <div className="flex flex-col">
-                            <span className="font-bold text-gray-800">{payment.name}</span>
-                            <span className="text-xs text-gray-400 flex items-center gap-1 mt-1">
-                              <Clock size={12} /> {new Date(payment.created_at).toLocaleDateString()}
-                            </span>
+                ) : activeTab === 'godana' ? (
+                  filteredGodana.length > 0 ? filteredGodana.map((payment) => (
+                    <tr key={payment.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="px-8 py-6">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-gray-800">{payment.name}</span>
+                          <span className="text-xs text-gray-400 flex items-center gap-1 mt-1">
+                            <Clock size={12} /> {new Date(payment.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-semibold text-gray-700">{payment.email}</span>
+                          <span className="text-xs text-gray-400 font-bold">{payment.phone}</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 text-sm font-bold text-[#8B0000]">
+                        ₹{payment.amount.toLocaleString()}
+                      </td>
+                      <td className="px-8 py-6">
+                        <span className="text-xs font-mono text-stone-400 bg-stone-100 px-2 py-1 rounded">
+                          {payment.payment_id}
+                        </span>
+                      </td>
+                      <td className="px-8 py-6 text-right">
+                        <button className="p-2 text-stone-300 cursor-not-allowed">
+                          <ChevronRight size={20} />
+                        </button>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={5} className="px-8 py-20 text-center text-gray-400">
+                        <div className="flex flex-col items-center">
+                          <Heart size={48} className="opacity-10 mb-4" />
+                          <p className="font-medium">No Godana Seva contributions found</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                ) : activeTab === 'donations' ? (
+                  filteredDonations.length > 0 ? filteredDonations.map((donation) => (
+                    <tr key={donation.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="px-8 py-6">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-gray-800">{donation.name}</span>
+                          <span className="text-xs text-gray-400 flex items-center gap-1 mt-1">
+                            <Clock size={12} /> {new Date(donation.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-semibold text-gray-700">{donation.email || 'N/A'}</span>
+                          <span className="text-xs text-gray-400 font-bold">{donation.phone}</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 text-sm font-bold text-[#8B0000]">
+                        ₹{donation.amount.toLocaleString()}
+                      </td>
+                      <td className="px-8 py-6">
+                        <span className="text-xs font-mono text-stone-400 bg-stone-100 px-2 py-1 rounded">
+                          {donation.payment_id}
+                        </span>
+                      </td>
+                      <td className="px-8 py-6 text-right">
+                        <button className="p-2 text-stone-300 cursor-not-allowed">
+                          <ChevronRight size={20} />
+                        </button>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={5} className="px-8 py-20 text-center text-gray-400">
+                        <div className="flex flex-col items-center">
+                          <CreditCard size={48} className="opacity-10 mb-4" />
+                          <p className="font-medium">No general donations found</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                ) : activeTab === 'notifications' ? (
+                  <>
+                    <tr className="bg-stone-50 border-b border-gray-100">
+                      <td colSpan={5} className="px-8 py-6">
+                        <form onSubmit={handleCreateNotification} className="flex flex-wrap gap-4 items-end">
+                          <div className="flex-1 min-w-[200px]">
+                            <label className="block text-xs font-bold text-gray-500 mb-1">Title</label>
+                            <input required type="text" value={newNotification.title} onChange={e => setNewNotification({ ...newNotification, title: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200" placeholder="e.g., Special Seva" />
                           </div>
-                        </td>
-                        <td className="px-8 py-6">
-                          <div className="flex flex-col">
-                            <span className="text-sm font-semibold text-gray-700">{payment.email}</span>
-                            <span className="text-xs text-gray-400 font-bold">{payment.phone}</span>
+                          <div className="flex-[2] min-w-[300px]">
+                            <label className="block text-xs font-bold text-gray-500 mb-1">Description</label>
+                            <input required type="text" value={newNotification.description} onChange={e => setNewNotification({ ...newNotification, description: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200" placeholder="Description..." />
                           </div>
-                        </td>
-                        <td className="px-8 py-6 text-sm font-bold text-[#8B0000]">
-                          ₹{payment.amount.toLocaleString()}
-                        </td>
+                          <div className="w-32">
+                            <label className="block text-xs font-bold text-gray-500 mb-1">Amount (₹)</label>
+                            <input required type="number" min="1" value={newNotification.amount} onChange={e => setNewNotification({ ...newNotification, amount: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200" placeholder="500" />
+                          </div>
+                          <button disabled={loading} type="submit" className="bg-[#8B0000] text-white px-6 py-2 rounded-lg font-bold disabled:opacity-50 h-[42px] shrink-0">
+                            Add
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                    {filteredNotifications.length > 0 ? filteredNotifications.map(notif => (
+                      <tr key={notif.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-8 py-6 font-bold text-gray-800">{notif.title}</td>
+                        <td className="px-8 py-6 text-sm text-gray-600 truncate max-w-xs">{notif.description}</td>
+                        <td className="px-8 py-6 text-sm font-bold text-[#8B0000]">₹{notif.amount}</td>
                         <td className="px-8 py-6">
-                          <span className="text-xs font-mono text-stone-400 bg-stone-100 px-2 py-1 rounded">
-                            {payment.payment_id}
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${notif.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+                            {notif.is_active ? 'Active' : 'Inactive'}
                           </span>
                         </td>
-                        <td className="px-8 py-6 text-right">
-                          <button className="p-2 text-stone-300 cursor-not-allowed">
-                            <ChevronRight size={20} />
+                        <td className="px-8 py-6 text-right space-x-3">
+                          <button onClick={() => toggleNotificationStatus(notif.id, notif.is_active)} className="text-sm font-bold text-blue-600 hover:underline">
+                            {notif.is_active ? 'Deactivate' : 'Activate'}
+                          </button>
+                          <button onClick={() => handleDeleteNotification(notif.id)} className="text-sm font-bold text-red-600 hover:underline">
+                            Delete
                           </button>
                         </td>
                       </tr>
                     )) : (
-                      <tr>
-                        <td colSpan={5} className="px-8 py-20 text-center text-gray-400">
-                          <div className="flex flex-col items-center">
-                            <Heart size={48} className="opacity-10 mb-4" />
-                            <p className="font-medium">No Godana Seva contributions found</p>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  ) : (
-                    filteredDonations.length > 0 ? filteredDonations.map((donation) => (
-                      <tr key={donation.id} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="px-8 py-6">
-                          <div className="flex flex-col">
-                            <span className="font-bold text-gray-800">{donation.name}</span>
-                            <span className="text-xs text-gray-400 flex items-center gap-1 mt-1">
-                              <Clock size={12} /> {new Date(donation.created_at).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-8 py-6">
-                          <div className="flex flex-col">
-                            <span className="text-sm font-semibold text-gray-700">{donation.email || 'N/A'}</span>
-                            <span className="text-xs text-gray-400 font-bold">{donation.phone}</span>
-                          </div>
-                        </td>
-                        <td className="px-8 py-6 text-sm font-bold text-[#8B0000]">
-                          ₹{donation.amount.toLocaleString()}
-                        </td>
-                        <td className="px-8 py-6">
-                          <span className="text-xs font-mono text-stone-400 bg-stone-100 px-2 py-1 rounded">
-                            {donation.payment_id}
+                      <tr><td colSpan={5} className="px-8 py-20 text-center text-gray-400">No special notifications found. Create one above!</td></tr>
+                    )}
+                  </>
+                ) : (
+                  filteredSpecialBookings.length > 0 ? filteredSpecialBookings.map(booking => (
+                    <tr key={booking.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="px-8 py-6">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-gray-800">{booking.name}</span>
+                          <span className="text-xs text-gray-400 flex items-center gap-1 mt-1">
+                            <Clock size={12} /> {new Date(booking.created_at).toLocaleDateString()}
                           </span>
-                        </td>
-                        <td className="px-8 py-6 text-right">
-                          <button className="p-2 text-stone-300 cursor-not-allowed">
-                            <ChevronRight size={20} />
-                          </button>
-                        </td>
-                      </tr>
-                    )) : (
-                      <tr>
-                        <td colSpan={5} className="px-8 py-20 text-center text-gray-400">
-                          <div className="flex flex-col items-center">
-                            <CreditCard size={48} className="opacity-10 mb-4" />
-                            <p className="font-medium">No general donations found</p>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  )}
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-semibold text-gray-700">{booking.special_notifications?.title || 'Deleted Notification'}</span>
+                          <span className="text-xs text-gray-400 font-bold">{booking.phone} | {booking.email}</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 text-sm font-bold text-[#8B0000]">₹{booking.amount}</td>
+                      <td className="px-8 py-6">
+                        <div className="flex flex-col gap-2">
+                          <span className="text-[10px] font-mono text-stone-400 bg-stone-100 px-2 py-1 rounded truncate w-32" title={booking.payment_id}>
+                            UTR: {booking.payment_id}
+                          </span>
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold w-fit shadow-sm border ${booking.status === 'Confirmed' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'
+                            }`}>
+                            {booking.status === 'Confirmed' ? <CheckCircle2 size={12} /> : <Clock size={12} />}
+                            {booking.status || 'Pending Verification'}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 text-right">
+                        <button className="p-2 hover:bg-[#8B0000]/10 rounded-lg text-[#8B0000] transition-colors">
+                          <ChevronRight size={20} />
+                        </button>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr><td colSpan={5} className="px-8 py-20 text-center text-gray-400">No special bookings found.</td></tr>
+                  )
+                )}
               </tbody>
             </table>
           </div>
-          
+
           <div className="p-8 bg-gray-50/30 border-t border-gray-50 text-center">
             <p className="text-xs text-gray-400 font-medium">
-              Showing {activeTab === 'sevas' ? filteredBookings.length : activeTab === 'godana' ? filteredGodana.length : filteredDonations.length} total entries
+              Showing {activeTab === 'sevas' ? filteredBookings.length : activeTab === 'godana' ? filteredGodana.length : activeTab === 'donations' ? filteredDonations.length : activeTab === 'notifications' ? filteredNotifications.length : filteredSpecialBookings.length} total entries
             </p>
           </div>
         </div>
@@ -694,14 +915,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
                     <h3 className="text-xl sm:text-2xl font-black tracking-tight">Booking Details</h3>
                     <p className="opacity-70 text-[10px] sm:text-xs font-bold uppercase tracking-widest mt-1">UTR: {selectedBooking.transaction_id || 'N/A'}</p>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setSelectedBooking(null)}
                     className="p-2 sm:p-3 hover:bg-white/10 rounded-2xl transition-colors font-bold text-2xl"
                   >
                     ×
                   </button>
                 </div>
-                
+
                 <div className="p-6 sm:p-8 grid md:grid-cols-2 gap-8 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto custom-scrollbar">
                   <div className="space-y-6">
                     <div>
@@ -749,9 +970,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
                       <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 text-center">Payment Status</h4>
                       <div className="text-center">
                         <p className="text-3xl font-black text-[#8B0000] mb-2">₹{(selectedBooking.seva_price * selectedBooking.count).toLocaleString()}</p>
-                        <span className={`px-4 py-2 rounded-full text-xs font-bold ${
-                          selectedBooking.payment_status === 'Confirmed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                        }`}>
+                        <span className={`px-4 py-2 rounded-full text-xs font-bold ${selectedBooking.payment_status === 'Confirmed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                          }`}>
                           {selectedBooking.payment_status || 'Pending Verification'}
                         </span>
                       </div>
@@ -764,14 +984,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="p-8 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-4">
                   <div className="text-xs text-gray-400">
                     ID: {selectedBooking.id} • Registered: {new Date(selectedBooking.created_at).toLocaleString()}
                   </div>
                   <div className="flex gap-3 w-full sm:w-auto">
                     {selectedBooking.payment_status !== 'Confirmed' && (
-                      <button 
+                      <button
                         onClick={() => confirmBooking(selectedBooking.id)}
                         disabled={loading}
                         className="flex-1 sm:flex-none bg-emerald-600 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-emerald-700 transition-all transform active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
@@ -779,7 +999,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
                         <ShieldCheck size={18} /> Confirm Payment
                       </button>
                     )}
-                    <button 
+                    <button
                       onClick={() => setSelectedBooking(null)}
                       className="flex-1 sm:flex-none border border-gray-200 text-gray-600 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition-all"
                     >
