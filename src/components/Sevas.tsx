@@ -17,7 +17,7 @@ export const Sevas: React.FC<SevasProps> = ({ onSelectSeva }) => {
       icon: <Droplets className="text-red-600" size={32} />,
       title: t('seva.2.title'),
       desc: t('seva.2.desc'),
-      image: '/images/469072055_609756388055902_7005467819425736701_n.jpg'
+      image: '/images/blood-donation-camp.jpg'
     },
     {
       id: 3,
