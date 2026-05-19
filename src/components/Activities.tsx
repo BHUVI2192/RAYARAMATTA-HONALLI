@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Heart, Info, BookOpen, Globe, CreditCard, User, Phone, Mail, IndianRupee, CheckCircle, Loader2, X } from 'lucide-react';
+import React from 'react';
+import { motion } from 'motion/react';
+import { Heart, Info, BookOpen, Globe, Droplets } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-const goshalaImage = '/images/469864323_611496421215232_6826778829493628708_n.jpg';
+const bloodDonationImage = '/images/blood-donation-camp.jpg';
 
 export const Activities: React.FC = () => {
   const { t } = useLanguage();
@@ -18,7 +18,7 @@ export const Activities: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 mb-24">
+        <div className="grid md:grid-cols-3 gap-8 mb-16">
           {[
             {
               icon: <Globe className="text-blue-600" size={32} />,
@@ -48,6 +48,52 @@ export const Activities: React.FC = () => {
           ))}
         </div>
 
+        {/* Blood Donation Camp Section */}
+        <motion.div
+          initial={{ y: 50, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true }}
+          className="grid lg:grid-cols-2 gap-12 items-center mb-20 bg-red-50 rounded-3xl p-8 md:p-12 border border-red-100"
+        >
+          <div className="relative rounded-2xl overflow-hidden shadow-2xl aspect-video lg:aspect-auto lg:h-80">
+            <img
+              src={bloodDonationImage}
+              alt="Blood Donation Camp at Rayara Matta Honalli"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute bottom-4 left-4 bg-red-700/90 backdrop-blur-sm text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-2">
+              <Droplets size={14} />
+              Blood Donation Camp
+            </div>
+          </div>
+
+          <div>
+            <div className="inline-flex items-center gap-2 text-red-600 font-bold uppercase tracking-widest text-xs mb-4 bg-red-100 px-3 py-1.5 rounded-full">
+              <Heart size={14} fill="currentColor" />
+              <span>Community Service</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#8B0000] mb-4">
+              Blood Donation Camp
+            </h2>
+            <p className="text-gray-600 leading-relaxed mb-8 text-sm sm:text-base">
+              Rayara Matta Honalli regularly organises blood donation camps as a noble act of community service. 
+              Devotees and volunteers come together to donate blood, saving countless lives and embodying the 
+              Mutt's commitment to humanitarian values and social welfare rooted in the teachings of 
+              Sri Raghavendra Swamiji.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white rounded-2xl p-4 border border-red-100 shadow-sm text-center">
+                <p className="text-2xl font-black text-red-700 mb-1">100+</p>
+                <p className="text-xs text-red-500 font-bold uppercase tracking-wide">Units Donated</p>
+              </div>
+              <div className="bg-white rounded-2xl p-4 border border-red-100 shadow-sm text-center">
+                <p className="text-2xl font-black text-red-700 mb-1">Annual</p>
+                <p className="text-xs text-red-500 font-bold uppercase tracking-wide">Camps Organised</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Festivals Section */}
         <motion.section
           initial={{ y: 50, opacity: 0 }}
@@ -71,3 +117,4 @@ export const Activities: React.FC = () => {
     </div>
   );
 };
+
