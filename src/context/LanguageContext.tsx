@@ -74,7 +74,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'welcome.book': 'Book Now',
 
     'about.legacy': 'Our Legacy',
-    'about.title': 'The History of Honnalli Rayara Mutt',
+    'about.title': 'Dwithiya Mantralaya Honnalli',
     'about.p1': 'Honnalli is a sacred place situated at the confluence of the Tunga and Bhadra rivers. It is special because Sri Raghavendra Swamy himself came and settled here just two years after entering Brindavana in Mantralaya. Thus, Honnalli is famously known as "Dwitiya Mantralaya" (The Second Mantralaya). Every year, thousands of devotees visit the Mutt to receive the grace of Rayaru.',
     'about.years': 'Years of Devotion',
     'about.excellence': 'Spiritual Excellence',
@@ -324,7 +324,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // About
     'about.legacy': 'ನಮ್ಮ ಪರಂಪರೆ',
-    'about.title': 'ಹೊನ್ನಾಳಿ ರಾಯರ ಮಠದ ಇತಿಹಾಸ',
+    'about.title': 'ದ್ವಿತೀಯ ಮಂತ್ರಾಲಯ ಹೊನ್ನಾಳಿ',
     'about.p1': 'ತುಂಗಾ ಮತ್ತು ಭದ್ರಾ ನದಿಗಳು ಸಂಗಮವಾದ ಬಳಿಕ ಸಿಗುವ ಪುಣ್ಯ ಕ್ಷೇತ್ರವೇ ಹೊನ್ನಾಳಿ. ಶ್ರೀ ರಾಘವೇಂದ್ರ ಸ್ವಾಮಿಗಳು ಮಂತ್ರಾಲಯದಲ್ಲಿ ಬೃಂದಾವನ ಪ್ರವೇಶಿಸಿದ ಕೇವಲ 2 ವರ್ಷದಲ್ಲಿ ಹೊನ್ನಾಳಿಯಲ್ಲಿ ಸ್ವತಃ ರಾಯರೇ ಬಂದು ಇಲ್ಲಿ ನೆಲೆಸಿದ್ದಾರೆಂಬುದೇ ವಿಶೇಷ. ಹೀಗಾಗಿ ಹೊನ್ನಾಳಿ ದ್ವಿತೀಯ ಮಂತ್ರಾಲಯ ಎಂದೇ ಖ್ಯಾತಿಯಾಗಿದೆ. ಪ್ರತಿ ವರ್ಷ ಸಾವಿರಾರು ಭಕ್ತರು ಶ್ರೀಮಠಕ್ಕೆ ಆಗಮಿಸಿ ರಾಯರ ಅನುಗೆಹಕ್ಕೆ ಪಾತ್ರರಾಗಿದ್ದಾರೆ.',
     'about.years': 'ವರ್ಷಗಳ ಭಕ್ತಿ',
     'about.excellence': 'ಆಧ್ಯಾತ್ಮಿಕ ಶ್ರೇಷ್ಠತೆ',
