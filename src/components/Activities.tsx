@@ -362,21 +362,36 @@ export const Activities: React.FC = () => {
                                   { key: 'seva.godana.uttama', val: '10000' },
                                   { key: 'seva.godana.salankruta', val: '20000' },
                                   { key: 'seva.godana.hidihullu', val: '100' }
-                                ].map((item) => (
-                                  <button
-                                    key={item.val}
-                                    type="button"
-                                    onClick={() => setGodanaForm({...godanaForm, amount: item.val})}
-                                    className={`px-6 py-4 rounded-xl text-sm font-bold border transition-all flex justify-between items-center ${
-                                      godanaForm.amount === item.val 
-                                        ? 'bg-[#8B0000] text-white border-[#8B0000] shadow-lg' 
-                                        : 'bg-white text-gray-600 border-gray-100 hover:border-[#8B0000]/20'
-                                    }`}
-                                  >
-                                    <span>{t(item.key)}</span>
-                                    <span className="font-black">Γé╣{item.val}</span>
-                                  </button>
-                                ))}
+                                ].map((item) => {
+                                  const isSelected = godanaForm.amount === item.val;
+                                  const isMonthly = item.val === '100';
+                                  return (
+                                    <button
+                                      key={item.val}
+                                      type="button"
+                                      onClick={() => setGodanaForm({...godanaForm, amount: item.val})}
+                                      className={`px-6 py-4 rounded-xl text-sm font-bold border-2 transition-all flex justify-between items-center relative ${
+                                        isSelected
+                                          ? 'bg-[#8B0000] text-white border-[#8B0000] shadow-lg'
+                                          : isMonthly
+                                          ? 'bg-amber-50 text-amber-900 border-amber-400 hover:border-amber-500 shadow-md'
+                                          : 'bg-white text-gray-600 border-gray-100 hover:border-[#8B0000]/20'
+                                      }`}
+                                    >
+                                      <span className="flex items-center gap-2">
+                                        {isMonthly && !isSelected && (
+                                          <span className="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full font-black uppercase tracking-wide">
+                                            ⭐ Start Here
+                                          </span>
+                                        )}
+                                        {t(item.key)}
+                                      </span>
+                                      <span className="font-black flex items-center gap-0.5">
+                                        <IndianRupee size={13} strokeWidth={2.5} />{item.val}
+                                      </span>
+                                    </button>
+                                  );
+                                })}
                               </div>
                             </div>
 
@@ -385,7 +400,12 @@ export const Activities: React.FC = () => {
                               className="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black shadow-[0_20px_40px_rgba(139,0,0,0.2)] hover:bg-[#6B0000] transition-all flex items-center justify-center gap-3 disabled:opacity-50 mt-6 text-lg uppercase tracking-wide"
                             >
                               {isSubmitting ? <Loader2 className="animate-spin" /> : <CreditCard size={20} />}
-                              {isSubmitting ? t('act.goshala.form.processing') : `${t('act.goshala.form.submit')} Γé╣${godanaForm.amount}`}
+                              {isSubmitting ? t('act.goshala.form.processing') : (
+                                <span className="flex items-center gap-1">
+                                  {t('act.goshala.form.submit')}
+                                  <IndianRupee size={16} strokeWidth={2.5} />{godanaForm.amount}
+                                </span>
+                              )}
                             </button>
                           </form>
                         </motion.div>
