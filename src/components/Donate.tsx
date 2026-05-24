@@ -78,7 +78,7 @@ export const Donate: React.FC = () => {
         key: orderData.keyId,
         amount: amount * 100,
         currency: 'INR',
-        name: "Rayara Matta Honnali",
+        name: "Rayara Mutt Honnali",
         description: "General Donation",
         order_id: orderData.order_id,
         callback_url: callbackUrl.toString(),

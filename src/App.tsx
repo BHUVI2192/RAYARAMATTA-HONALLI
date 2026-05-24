@@ -131,7 +131,6 @@ function AppContent() {
       case 'about': return <About />;
       case 'activities': return <Activities />;
       case 'seva-vivara': return <SevaVivara onSelectSeva={handleSelectSeva} />;
-      case 'sevas': return <Sevas onSelectSeva={handleSelectSeva} />;
       case 'gallery': return <Gallery />;
       case 'slokas': return <Slokas />;
       case 'contact': return <ContactFeedback />;

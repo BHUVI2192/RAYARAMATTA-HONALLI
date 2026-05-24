@@ -25,14 +25,14 @@ export const sendSevaEmail = async (userDetails: any, seva: any, poojaDetails: a
   }
 
   const mailOptions = {
-    from: `"Rayara Matta Honalli" <${process.env.SMTP_USER}>`,
+    from: `"Rayara Mutt Honnali" <${process.env.SMTP_USER}>`,
     to: userDetails.email,
-    subject: 'Seva Booking Confirmation - Rayara Matta Honalli',
+    subject: 'Seva Booking Confirmation - Rayara Mutt Honnali',
     html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #f0f0f0; padding: 40px; color: #333; text-align: left;">
         <div style="text-align: center; margin-bottom: 30px;">
           <h1 style="color: #8B0000; margin: 0; font-size: 24px;">Seva Booking Confirmed</h1>
-          <p style="color: #666;">Rayara Matta Honalli, Honali</p>
+          <p style="color: #666;">Rayara Mutt Honnali, Honali</p>
         </div>
         
         <p>नमस्ते <strong>${userDetails.name}</strong>,</p>
@@ -52,7 +52,7 @@ export const sendSevaEmail = async (userDetails: any, seva: any, poojaDetails: a
         <p style="line-height: 1.6;">Your seva will be performed with all rituals. May the blessings of Guru Raghavendra Swamy be with you always.</p>
         
         <div style="margin-top: 40px; border-top: 1px solid #eee; font-size: 12px; color: #999; text-align: center;">
-          <p>Rayara Matta Honalli, Venkateswara Nagar (West), Honali, Karnataka - 577217</p>
+          <p>Rayara Mutt Honnali, Venkateswara Nagar (West), Honali, Karnataka - 577217</p>
           <p>Contact: +91 91102 38478</p>
         </div>
       </div>
@@ -77,14 +77,14 @@ export const sendGodanaEmail = async (name: string, email: string, amount: numbe
   }
 
   const mailOptions = {
-    from: `"Rayara Matta Honalli" <${process.env.SMTP_USER}>`,
+    from: `"Rayara Mutt Honnali" <${process.env.SMTP_USER}>`,
     to: email,
-    subject: 'Godana Seva Confirmation - Rayara Matta Honalli',
+    subject: 'Godana Seva Confirmation - Rayara Mutt Honnali',
     html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #f0f0f0; padding: 40px; color: #333; text-align: left;">
         <div style="text-align: center; margin-bottom: 30px;">
           <h1 style="color: #8B0000; margin: 0; font-size: 24px;">Godana Seva Received</h1>
-          <p style="color: #666;">Rayara Matta Honalli, Honali</p>
+          <p style="color: #666;">Rayara Mutt Honnali, Honali</p>
         </div>
         
         <p>नमस्ते <strong>${name}</strong>,</p>
@@ -101,7 +101,7 @@ export const sendGodanaEmail = async (name: string, email: string, amount: numbe
         <p style="line-height: 1.6;">Donating to Gomata is one of the most auspicious acts. May all your desires be fulfilled by the grace of Lord Krishna and Guru Raghavendra.</p>
         
         <div style="margin-top: 40px; border-top: 1px solid #eee; font-size: 12px; color: #999; text-align: center;">
-          <p>Rayara Matta Honalli, Venkateswara Nagar (West), Honali, Karnataka - 577217</p>
+          <p>Rayara Mutt Honnali, Venkateswara Nagar (West), Honali, Karnataka - 577217</p>
           <p>Contact: +91 91102 38478</p>
         </div>
       </div>
@@ -126,18 +126,18 @@ export const sendDonationEmail = async (name: string, email: string, amount: num
   }
 
   const mailOptions = {
-    from: `"Rayara Matta Honalli" <${process.env.SMTP_USER}>`,
+    from: `"Rayara Mutt Honnali" <${process.env.SMTP_USER}>`,
     to: email,
-    subject: 'Donation Receipt - Rayara Matta Honalli',
+    subject: 'Donation Receipt - Rayara Mutt Honnali',
     html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #f0f0f0; padding: 40px; color: #333; text-align: left;">
         <div style="text-align: center; margin-bottom: 30px;">
           <h1 style="color: #8B0000; margin: 0; font-size: 24px;">Donation Received</h1>
-          <p style="color: #666;">Rayara Matta Honalli, Honali</p>
+          <p style="color: #666;">Rayara Mutt Honnali, Honali</p>
         </div>
         
         <p>नमस्ते <strong>${name}</strong>,</p>
-        <p>Thank you for your generous donation to <strong>Rayara Matta Honalli</strong>. Your support helps us continue our spiritual and social activities.</p>
+        <p>Thank you for your generous donation to <strong>Rayara Mutt Honnali</strong>. Your support helps us continue our spiritual and social activities.</p>
         
         <div style="background: #f8f8ff; padding: 25px; border-radius: 12px; margin: 30px 0; border: 1px solid #ebebff;">
           <p style="color: #00008B; font-weight: bold; margin-top: 0; border-bottom: 1px solid #ebebff; padding-bottom: 10px;">Donation Summary</p>
@@ -150,7 +150,7 @@ export const sendDonationEmail = async (name: string, email: string, amount: num
         <p style="line-height: 1.6;">May the blessings of Guru Raghavendra Swamy be with you and your family.</p>
         
         <div style="margin-top: 40px; border-top: 1px solid #eee; font-size: 12px; color: #999; text-align: center;">
-          <p>Rayara Matta Honalli, Venkateswara Nagar (West), Honali, Karnataka - 577217</p>
+          <p>Rayara Mutt Honnali, Venkateswara Nagar (West), Honali, Karnataka - 577217</p>
           <p>Contact: +91 91102 38478</p>
         </div>
       </div>
@@ -175,14 +175,14 @@ export const sendFailureEmail = async (email: string, name: string, amount: numb
   }
 
   const mailOptions = {
-    from: `"Rayara Matta Honalli" <${process.env.SMTP_USER}>`,
+    from: `"Rayara Mutt Honnali" <${process.env.SMTP_USER}>`,
     to: email,
-    subject: 'Payment Transaction Failed - Rayara Matta Honalli',
+    subject: 'Payment Transaction Failed - Rayara Mutt Honnali',
     html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #f0f0f0; padding: 40px; color: #333; text-align: left;">
         <div style="text-align: center; margin-bottom: 30px;">
           <h1 style="color: #d32f2f; margin: 0; font-size: 24px;">Payment Failed</h1>
-          <p style="color: #666;">Rayara Matta Honalli, Honali</p>
+          <p style="color: #666;">Rayara Mutt Honnali, Honali</p>
         </div>
         
         <p>नमस्ते <strong>${name}</strong>,</p>
@@ -196,7 +196,7 @@ export const sendFailureEmail = async (email: string, name: string, amount: numb
         <p style="line-height: 1.6;">If money was deducted, it will be automatically refunded by your bank. You can try performing the seva booking again.</p>
         
         <div style="margin-top: 40px; border-top: 1px solid #eee; font-size: 12px; color: #999; text-align: center;">
-          <p>Rayara Matta Honalli, Venkateswara Nagar (West), Honali, Karnataka - 577217</p>
+          <p>Rayara Mutt Honnali, Venkateswara Nagar (West), Honali, Karnataka - 577217</p>
         </div>
       </div>
     `,
@@ -225,7 +225,7 @@ export const sendContactEmail = async (data: any): Promise<boolean> => {
     : `New Contact Message: ${data.subject}`;
 
   const mailOptions = {
-    from: `"Rayara Matta Website" <${process.env.SMTP_USER}>`,
+    from: `"Rayara Mutt Website" <${process.env.SMTP_USER}>`,
     to: process.env.SMTP_USER, // Send to themselves
     replyTo: data.email || undefined,
     subject: subject,
@@ -293,7 +293,7 @@ export const sendAdminPaymentNotification = async (type: string, data: any): Pro
   }
 
   const mailOptions = {
-    from: `"Rayara Matta Payments" <${process.env.SMTP_USER}>`,
+    from: `"Rayara Mutt Payments" <${process.env.SMTP_USER}>`,
     to: process.env.SMTP_USER,
     subject: `[Payment Alert] ${title} - ${data.name}`,
     html: `

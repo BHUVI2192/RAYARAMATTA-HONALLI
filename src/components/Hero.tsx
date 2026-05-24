@@ -5,6 +5,10 @@ import { useLanguage } from '../context/LanguageContext';
 
 const slides = [
   {
+    src: '/images/PHOTO 7.jpeg',
+    caption: 'ಶ್ರೀ ಮಠದ ಸುಂದರ ದರ್ಶನ',
+  },
+  {
     src: '/images/529710803_18093477652639429_5830789645073796337_n.webp',
     caption: 'ಶ್ರೀ ರಾಘವೇಂದ್ರ ಸ್ವಾಮಿ ಮಠ, ಹೊನ್ನಾಳಿ',
   },

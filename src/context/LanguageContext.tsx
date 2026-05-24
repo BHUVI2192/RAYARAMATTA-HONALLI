@@ -52,17 +52,17 @@ export const translations: Record<Language, Record<string, string>> = {
     'nav.slokas': 'Slokas',
     'nav.contact': 'Contact & Feedback',
     'nav.donate': 'Donate',
-    'nav.title': 'Shri Raghavendra Seva Trust Honnalli',
-    'nav.subtitle': 'Rayara Matta Honnalli',
+    'nav.title': 'Shri Raghavendra Seva Trust Honnali',
+    'nav.subtitle': 'Rayara Mutt Honnali',
     'nav.menu': 'Menu',
 
     // Hero
-    'hero.title': 'Rayara Matta Honnalli',
+    'hero.title': 'Rayara Mutt Honnali',
     'hero.mantra': '"Om Sri Raghavendraya Namaha"',
 
     // Welcome
-    'welcome.title': 'Welcome to Honnalli Rayara Mutt',
-    'welcome.desc': 'Shri Raghavendra Swamy Seva Trust, Honnalli is a spiritual oasis dedicated to the teachings and grace of Guru Raghavendra. Located in the serene town of Honnalli, our Mutt serves as a center for devotion, Vedic learning, and social service.',
+    'welcome.title': 'Welcome to Honnali Rayara Mutt',
+    'welcome.desc': 'Shri Raghavendra Swamy Seva Trust, Honnali is a spiritual oasis dedicated to the teachings and grace of Guru Raghavendra. Located in the serene town of Honnali, our Mutt serves as a center for devotion, Vedic learning, and social service.',
     'welcome.seva-vivara.title': 'Seva Vivara',
     'welcome.seva-vivara.desc': 'Experience the divine presence through our meticulously performed daily rituals.',
     'welcome.goshala.title': 'Goshala',
@@ -74,8 +74,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'welcome.book': 'Book Now',
 
     'about.legacy': 'Our Legacy',
-    'about.title': 'Dwithiya Mantralaya Honnalli',
-    'about.p1': 'Honnalli is a sacred place situated at the confluence of the Tunga and Bhadra rivers. It is special because Sri Raghavendra Swamy himself came and settled here just two years after entering Brindavana in Mantralaya. Thus, Honnalli is famously known as "Dwitiya Mantralaya" (The Second Mantralaya). Every year, thousands of devotees visit the Mutt to receive the grace of Rayaru.',
+    'about.title': 'Dwithiya Mantralaya Honnali',
+    'about.p1': 'Honnali is a sacred place situated at the confluence of the Tunga and Bhadra rivers. It is special because Sri Raghavendra Swamy himself came and settled here just two years after entering Brindavana in Mantralaya. Thus, Honnali is famously known as "Dwitiya Mantralaya" (The Second Mantralaya). Every year, thousands of devotees visit the Mutt to receive the grace of Rayaru.',
     'about.years': 'Years of Devotion',
     'about.excellence': 'Spiritual Excellence',
     'about.excellence.desc': 'Maintaining the highest standards of Vedic rituals and traditions.',
@@ -281,9 +281,9 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Footer
     'footer.about.title': 'About the Trust',
-    'footer.about.desc': 'Shri Raghavendra Swamy Seva Trust, Honnalli is dedicated to the service of Guru Raghavendra and the welfare of the community through spiritual and social activities.',
+    'footer.about.desc': 'Shri Raghavendra Swamy Seva Trust, Honnali is dedicated to the service of Guru Raghavendra and the welfare of the community through spiritual and social activities.',
     'footer.contact.title': 'Contact Us',
-    'footer.contact.address': 'Sri Raghavendra Seva Trust, c/o Sri Raghavendra Swamy Mutt, Agrahara Honnalli, Davanagere (Karnataka) - 577217',
+    'footer.contact.address': 'Sri Raghavendra Seva Trust, c/o Sri Raghavendra Swamy Mutt, Agrahara Honnali, Davanagere (Karnataka) - 577217',
     'footer.timings.title': 'Darshana Timings',
     'footer.timings.morning': 'Morning',
     'footer.timings.evening': 'Evening',

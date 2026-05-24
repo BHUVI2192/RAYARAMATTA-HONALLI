@@ -40,12 +40,8 @@ const photos = [
 
 const videos = [
   '/videos/VIDEO%201%20.mp4',
-  '/videos/VID-20260302-WA0026.mp4',
   '/videos/WhatsApp%20Video%202026-03-07%20at%206.14.38%20PM.mp4',
-  '/videos/WhatsApp%20Video%202026-03-07%20at%206.14.39%20PM.mp4',
   '/videos/WhatsApp%20Video%202026-03-07%20at%206.14.59%20PM.mp4',
-  '/videos/WhatsApp%20Video%202026-03-07%20at%206.19.02%20PM.mp4',
-  '/videos/WhatsApp%20Video%202026-03-07%20at%206.19.03%20PM.mp4',
 ];
 
 const getMediaTitle = (src: string) => {
@@ -55,7 +51,7 @@ const getMediaTitle = (src: string) => {
   if (filename.toUpperCase().includes('WA0026') || filename.toUpperCase().includes('WA0029') || filename.toUpperCase().includes('WA0030')) return 'Aarti & Daily Puja';
   if (filename.toUpperCase().includes('VIDEO 1')) return 'Panchamruta Abhisheka Recital';
   if (filename.toUpperCase().includes('6.14.59')) return 'Panchamruta Abhisheka';
-  return 'Rayara Matta Darshan & Seva';
+  return 'Rayara Mutt Darshan & Seva';
 };
 
 export const Gallery: React.FC = () => {

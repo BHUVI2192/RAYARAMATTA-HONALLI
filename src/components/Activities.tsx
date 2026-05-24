@@ -457,7 +457,7 @@ export const Activities: React.FC = () => {
           <div className="relative rounded-2xl overflow-hidden shadow-2xl aspect-video lg:aspect-auto lg:h-80">
             <img
               src="/images/blood-donation-camp.jpg"
-              alt="Blood Donation Camp at Rayara Matta Honalli"
+              alt="Blood Donation Camp at Rayara Mutt Honnali"
               className="w-full h-full object-cover"
             />
             <div className="absolute bottom-4 left-4 bg-red-700/90 backdrop-blur-sm text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-2">
@@ -472,7 +472,7 @@ export const Activities: React.FC = () => {
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-[#8B0000] mb-4">Blood Donation Camp</h2>
             <p className="text-gray-600 leading-relaxed mb-8 text-sm sm:text-base">
-              Rayara Matta Honalli regularly organises blood donation camps as a noble act of community service.
+              Rayara Mutt Honnali regularly organises blood donation camps as a noble act of community service.
               Devotees and volunteers come together to donate blood, saving countless lives and embodying the
               Mutt's commitment to humanitarian values and social welfare rooted in the teachings of Sri Raghavendra Swamiji.
             </p>

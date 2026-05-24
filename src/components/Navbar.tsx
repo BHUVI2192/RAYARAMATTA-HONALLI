@@ -17,7 +17,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
     { id: 'about', label: t('nav.about') },
     { id: 'activities', label: t('nav.activities') },
     { id: 'seva-vivara', label: t('nav.seva-vivara') },
-    { id: 'sevas', label: t('nav.sevas') },
     { id: 'gallery', label: t('nav.gallery') },
     { id: 'slokas', label: t('nav.slokas') },
     { id: 'contact', label: t('nav.contact') },

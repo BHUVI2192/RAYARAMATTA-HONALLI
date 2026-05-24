@@ -460,7 +460,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
               <ShieldCheck size={32} />
             </div>
             <h2 className="text-2xl font-bold text-gray-800">Admin Portal</h2>
-            <p className="text-gray-400 text-sm">Honnali Rayara Matta Management</p>
+            <p className="text-gray-400 text-sm">Honnali Rayara Mutt Management</p>
             <button
               onClick={onLogout}
               className="mt-4 text-stone-400 hover:text-[#8B0000] text-xs font-bold uppercase tracking-widest transition-colors"
