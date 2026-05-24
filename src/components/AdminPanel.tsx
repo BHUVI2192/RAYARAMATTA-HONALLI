@@ -102,73 +102,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      const headers: Record<string, string> = { 'x-admin-password': password };
-
-      // Step 1: Validate password directly via the bookings data endpoint
-      // Bypasses the dedicated /api/admin/login to reduce network dependencies.
-      // If the server is overloaded, we gracefully catch it.
-      let bookingsRes;
-      try {
-        bookingsRes = await fetch('/api/admin/bookings', { headers });
-      } catch (networkErr) {
-        // If the server is fully unreachable, we can still "log in" locally to show the UI
-        // Data fetch will just show an error inside the dashboard.
-        setIsAuthenticated(true);
-        setLoading(false);
-        return;
-      }
-
-      if (bookingsRes.status === 401) {
-        setError('Invalid admin password. Please try again.');
-        return;
-      }
-
-      setIsAuthenticated(true);
-
-      const parseJson = async (res: Response) => {
-        if (!res) return { success: false, error: 'Network Error' };
-        const ct = res.headers.get('content-type');
-        if (ct && ct.includes('application/json')) return res.json();
-        const text = await res.text();
-        throw new Error(`Server error (${res.status}): ${text.substring(0, 200)}`);
-      };
-
-      const [godanaRes, donationsRes, notifRes, specialBookRes] = await Promise.all([
-        fetch('/api/admin/godana', { headers }).catch(() => null),
-        fetch('/api/admin/donations', { headers }).catch(() => null),
-        fetch('/api/admin/notifications', { headers }).catch(() => null),
-        fetch('/api/admin/special-bookings', { headers }).catch(() => null),
-      ]);
-
-      const bookingsData = await parseJson(bookingsRes);
-      const godanaData = await parseJson(godanaRes);
-      const donationsData = await parseJson(donationsRes);
-      const notifData = await parseJson(notifRes);
-      const specialBookData = await parseJson(specialBookRes);
-
-      if (bookingsData.success) setBookings(bookingsData.bookings || []);
-      else setError(bookingsData.error || 'Failed to load seva bookings');
-
-      if (godanaData.success) setGodanaPayments(godanaData.godana || []);
-      if (donationsData.success) setDonations(donationsData.donations || []);
-      if (notifData.success) setNotifications(notifData.notifications || []);
-      if (specialBookData.success) setSpecialBookings(specialBookData.special_bookings || []);
-      // Godana failure is non-fatal (bookings may still load)
-
-    } catch (err: any) {
-      console.error('Login Error:', err);
-      if (!isAuthenticated) setIsAuthenticated(false);
-      setError(`Login failed: ${err.message || 'Connection error. Please check your network.'}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -213,6 +147,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
       if (notifData.success) setNotifications(notifData.notifications);
       if (specialBookData.success) setSpecialBookings(specialBookData.special_bookings);
 
+      setLastUpdated(new Date());
+
     } catch (err: any) {
       console.error('Sync Error:', err);
       setError('Data sync failed: ' + (err.message || 'Check connection'));
@@ -220,6 +156,64 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
       setLoading(false);
     }
   };
+
+  // Auto-fetch data when authenticated state becomes true
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchData();
+    }
+  }, [isAuthenticated]);
+
+  // Auto-refresh when browser tab becomes visible again (e.g. returning from Razorpay redirect)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && isAuthenticated) {
+        fetchData();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isAuthenticated]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      const headers: Record<string, string> = { 'x-admin-password': password };
+
+      // Step 1: Validate password directly via the bookings data endpoint
+      // Bypasses the dedicated /api/admin/login to reduce network dependencies.
+      // If the server is overloaded, we gracefully catch it.
+      let bookingsRes;
+      try {
+        bookingsRes = await fetch('/api/admin/bookings', { headers });
+      } catch (networkErr) {
+        // If the server is fully unreachable, we can still "log in" locally to show the UI
+        // Data fetch will just show an error inside the dashboard.
+        setIsAuthenticated(true);
+        setLoading(false);
+        return;
+      }
+
+      if (bookingsRes.status === 401) {
+        setError('Invalid admin password. Please try again.');
+        return;
+      }
+
+      setIsAuthenticated(true);
+      // Data will be fetched automatically by the useEffect watching isAuthenticated
+
+    } catch (err: any) {
+      console.error('Login Error:', err);
+      if (!isAuthenticated) setIsAuthenticated(false);
+      setError(`Login failed: ${err.message || 'Connection error. Please check your network.'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
 
   const isWithinDateRange = (dateStr: string) => {
     if (!startDate && !endDate) return true;
@@ -893,10 +887,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
             </table>
           </div>
 
-          <div className="p-8 bg-gray-50/30 border-t border-gray-50 text-center">
+          <div className="p-8 bg-gray-50/30 border-t border-gray-50 text-center flex flex-col sm:flex-row justify-between items-center gap-2">
             <p className="text-xs text-gray-400 font-medium">
               Showing {activeTab === 'sevas' ? filteredBookings.length : activeTab === 'godana' ? filteredGodana.length : activeTab === 'donations' ? filteredDonations.length : activeTab === 'notifications' ? filteredNotifications.length : filteredSpecialBookings.length} total entries
             </p>
+            {lastUpdated && (
+              <p className="text-xs text-gray-300 font-medium">
+                Last updated: {lastUpdated.toLocaleTimeString()}
+              </p>
+            )}
           </div>
         </div>
 
