@@ -96,6 +96,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
   const [notifications, setNotifications] = useState<SpecialNotification[]>([]);
   const [specialBookings, setSpecialBookings] = useState<SpecialBooking[]>([]);
   const [newNotification, setNewNotification] = useState({ title: '', description: '', amount: '' });
+  const [newNotification2, setNewNotification2] = useState({ title: '', description: '', amount: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -268,26 +269,39 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/notifications', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-admin-password': password
-        },
-        body: JSON.stringify({
-          title: newNotification.title,
-          description: newNotification.description,
-          amount: parseFloat(newNotification.amount),
-          is_active: true
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setNotifications([data.notification, ...notifications]);
-        setNewNotification({ title: '', description: '', amount: '' });
-      } else {
-        alert(data.error || 'Failed to create notification');
+      // Build array of notifications to create (always include first, optionally second)
+      const toCreate = [newNotification];
+      const hasSecond = newNotification2.title.trim() && newNotification2.amount;
+      if (hasSecond) toCreate.push(newNotification2);
+
+      const results = await Promise.all(
+        toCreate.map((notif) =>
+          fetch('/api/admin/notifications', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-admin-password': password
+            },
+            body: JSON.stringify({
+              title: notif.title,
+              description: notif.description,
+              amount: parseFloat(notif.amount),
+              is_active: true
+            })
+          }).then(r => r.json())
+        )
+      );
+
+      const added: typeof notifications = [];
+      for (const data of results) {
+        if (data.success) added.push(data.notification);
+        else alert(data.error || 'Failed to create notification');
       }
+      if (added.length > 0) {
+        setNotifications([...added, ...notifications]);
+      }
+      setNewNotification({ title: '', description: '', amount: '' });
+      setNewNotification2({ title: '', description: '', amount: '' });
     } catch (err) {
       alert('Error creating notification');
     } finally {
@@ -801,22 +815,52 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
                   <>
                     <tr className="bg-stone-50 border-b border-gray-100">
                       <td colSpan={5} className="px-8 py-6">
-                        <form onSubmit={handleCreateNotification} className="flex flex-wrap gap-4 items-end">
-                          <div className="flex-1 min-w-[200px]">
-                            <label className="block text-xs font-bold text-gray-500 mb-1">Title</label>
-                            <input required type="text" value={newNotification.title} onChange={e => setNewNotification({ ...newNotification, title: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200" placeholder="e.g., Special Seva" />
+                        <form onSubmit={handleCreateNotification} className="space-y-4">
+                          <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Add Special Seva Notifications</p>
+
+                          {/* Notification 1 */}
+                          <div className="p-4 bg-white border border-gray-200 rounded-2xl">
+                            <p className="text-xs font-bold text-[#8B0000] mb-3 uppercase tracking-wider">Notification 1 *</p>
+                            <div className="flex flex-wrap gap-3 items-end">
+                              <div className="flex-1 min-w-[180px]">
+                                <label className="block text-xs font-bold text-gray-500 mb-1">Title *</label>
+                                <input required type="text" value={newNotification.title} onChange={e => setNewNotification({ ...newNotification, title: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm" placeholder="e.g., Raghavendra Aradhana Mahotsava" />
+                              </div>
+                              <div className="flex-[2] min-w-[260px]">
+                                <label className="block text-xs font-bold text-gray-500 mb-1">Description *</label>
+                                <input required type="text" value={newNotification.description} onChange={e => setNewNotification({ ...newNotification, description: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm" placeholder="Short description of the seva..." />
+                              </div>
+                              <div className="w-28">
+                                <label className="block text-xs font-bold text-gray-500 mb-1">Amount (₹) *</label>
+                                <input required type="number" min="1" value={newNotification.amount} onChange={e => setNewNotification({ ...newNotification, amount: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm" placeholder="501" />
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex-[2] min-w-[300px]">
-                            <label className="block text-xs font-bold text-gray-500 mb-1">Description</label>
-                            <input required type="text" value={newNotification.description} onChange={e => setNewNotification({ ...newNotification, description: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200" placeholder="Description..." />
+
+                          {/* Notification 2 (optional) */}
+                          <div className="p-4 bg-white border border-dashed border-gray-300 rounded-2xl">
+                            <p className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">Notification 2 (Optional)</p>
+                            <div className="flex flex-wrap gap-3 items-end">
+                              <div className="flex-1 min-w-[180px]">
+                                <label className="block text-xs font-bold text-gray-500 mb-1">Title</label>
+                                <input type="text" value={newNotification2.title} onChange={e => setNewNotification2({ ...newNotification2, title: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm" placeholder="e.g., Vishnu Sahasranama Seva" />
+                              </div>
+                              <div className="flex-[2] min-w-[260px]">
+                                <label className="block text-xs font-bold text-gray-500 mb-1">Description</label>
+                                <input type="text" value={newNotification2.description} onChange={e => setNewNotification2({ ...newNotification2, description: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm" placeholder="Short description..." />
+                              </div>
+                              <div className="w-28">
+                                <label className="block text-xs font-bold text-gray-500 mb-1">Amount (₹)</label>
+                                <input type="number" min="1" value={newNotification2.amount} onChange={e => setNewNotification2({ ...newNotification2, amount: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm" placeholder="251" />
+                              </div>
+                            </div>
                           </div>
-                          <div className="w-32">
-                            <label className="block text-xs font-bold text-gray-500 mb-1">Amount (₹)</label>
-                            <input required type="number" min="1" value={newNotification.amount} onChange={e => setNewNotification({ ...newNotification, amount: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200" placeholder="500" />
+
+                          <div className="flex justify-end">
+                            <button disabled={loading} type="submit" className="bg-[#8B0000] text-white px-8 py-2.5 rounded-xl font-bold disabled:opacity-50 text-sm flex items-center gap-2">
+                              {loading ? 'Adding...' : newNotification2.title ? 'Add Both Notifications' : 'Add Notification'}
+                            </button>
                           </div>
-                          <button disabled={loading} type="submit" className="bg-[#8B0000] text-white px-6 py-2 rounded-lg font-bold disabled:opacity-50 h-[42px] shrink-0">
-                            Add
-                          </button>
                         </form>
                       </td>
                     </tr>

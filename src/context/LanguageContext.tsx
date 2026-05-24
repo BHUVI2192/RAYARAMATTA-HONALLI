@@ -305,6 +305,18 @@ export const translations: Record<Language, Record<string, string>> = {
     'footer.timings.evening': 'Evening',
     'footer.timings.thursday': '(Open till 08:30 PM on Thursdays)',
     'footer.location.title': 'Location',
+
+    // Special Seva Notification
+    'special.seva.badge': 'Special Seva',
+    'special.seva.modal.title': 'Book Special Seva',
+    'special.seva.form.name': 'Full Name',
+    'special.seva.form.name.placeholder': 'Enter your name',
+    'special.seva.form.phone': 'Phone Number',
+    'special.seva.form.phone.placeholder': '10-digit mobile number',
+    'special.seva.form.email': 'Email Address (Optional)',
+    'special.seva.form.email.placeholder': 'For payment receipt',
+    'special.seva.btn.pay': 'Pay',
+    'special.seva.btn.processing': 'Processing...',
   },
   kn: {
     // Navbar
@@ -571,5 +583,17 @@ export const translations: Record<Language, Record<string, string>> = {
     'footer.timings.evening': 'ಸಂಜೆ',
     'footer.timings.thursday': '(ಗುರುವಾರ ರಾತ್ರಿ 08:30 ರವರೆಗೆ ತೆರೆದಿರುತ್ತದೆ)',
     'footer.location.title': 'ಸ್ಥಳ',
+
+    // Special Seva Notification
+    'special.seva.badge': 'ವಿಶೇಷ ಸೇವೆ',
+    'special.seva.modal.title': 'ವಿಶೇಷ ಸೇವೆ ಬುಕ್ ಮಾಡಿ',
+    'special.seva.form.name': 'ಪೂರ್ಣ ಹೆಸರು',
+    'special.seva.form.name.placeholder': 'ನಿಮ್ಮ ಹೆಸರನ್ನು ನಮೂದಿಸಿ',
+    'special.seva.form.phone': 'ದೂರವಾಣಿ ಸಂಖ್ಯೆ',
+    'special.seva.form.phone.placeholder': '10 ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ',
+    'special.seva.form.email': 'ಇಮೇಲ್ ವಿಳಾಸ (ಐಚ್ಛಿಕ)',
+    'special.seva.form.email.placeholder': 'ರಶೀದಿಗಾಗಿ',
+    'special.seva.btn.pay': 'ಪಾವತಿಸಿ',
+    'special.seva.btn.processing': 'ಪ್ರಕ್ರಿಯೆಯಲ್ಲಿದೆ...',
   }
 };

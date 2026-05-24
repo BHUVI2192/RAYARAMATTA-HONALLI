@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bell, X, CreditCard, IndianRupee } from 'lucide-react';
+import { Bell, X, CreditCard, IndianRupee, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 interface Notification {
@@ -13,6 +13,7 @@ interface Notification {
 export const NotificationBar: React.FC = () => {
   const { t } = useLanguage();
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [activeNotification, setActiveNotification] = useState<Notification | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', phone: '', email: '' });
@@ -34,10 +35,31 @@ export const NotificationBar: React.FC = () => {
     fetchNotifications();
   }, []);
 
+  // Auto-rotate through multiple notifications every 5 seconds
+  useEffect(() => {
+    if (notifications.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % notifications.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [notifications.length]);
+
   if (notifications.length === 0) return null;
+
+  const currentNotification = notifications[currentIndex];
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + notifications.length) % notifications.length);
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % notifications.length);
+  };
 
   const handleBookNow = (notification: Notification) => {
     setActiveNotification(notification);
+    setFormData({ name: '', phone: '', email: '' });
+    setError('');
     setIsModalOpen(true);
   };
 
@@ -113,7 +135,6 @@ export const NotificationBar: React.FC = () => {
       setError(err.message || 'Payment initiation failed');
     } finally {
       // Keep loading true while Razorpay handles the redirect
-      // setLoading(false);
     }
   };
 
@@ -122,38 +143,107 @@ export const NotificationBar: React.FC = () => {
       <div className="bg-gradient-to-r from-[#6B0000] via-[#8B0000] to-[#6B0000] border-b border-red-900/20 w-full z-40 relative overflow-hidden shadow-2xl">
         {/* Shimmer Effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_3s_infinite] pointer-events-none" />
-        
+
         <div className="max-w-7xl mx-auto px-4 py-3 relative">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center text-white flex-1">
-              <div className="relative">
+            {/* Left: Bell + Title + Description */}
+            <div className="flex items-center text-white flex-1 min-w-0">
+              <div className="relative flex-shrink-0">
                 <div className="absolute inset-0 bg-yellow-400 rounded-full animate-[aura_2s_infinite] blur-md opacity-50" />
                 <div className="bg-white/20 p-2.5 rounded-xl mr-4 backdrop-blur-sm relative border border-white/20">
                   <Bell className="animate-bounce" size={24} />
                   <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full border-2 border-[#8B0000] shadow-sm" />
                 </div>
               </div>
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  <span className="font-black text-lg tracking-tight uppercase">{notifications[0].title}</span>
-                  <span className="bg-yellow-400 text-red-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter">Special Seva</span>
-                </div>
-                <span className="text-sm font-medium opacity-80 line-clamp-1">{notifications[0].description}</span>
+
+              {/* Animated notification content */}
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentIndex}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex flex-col"
+                  >
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-black text-lg tracking-tight uppercase leading-tight">{currentNotification.title}</span>
+                      <span className="bg-yellow-400 text-red-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter flex-shrink-0">
+                        {t('special.seva.badge')}
+                      </span>
+                      {/* Notification counter if multiple */}
+                      {notifications.length > 1 && (
+                        <span className="text-white/60 text-xs font-bold flex-shrink-0">
+                          {currentIndex + 1}/{notifications.length}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-sm font-medium opacity-80 line-clamp-1">{currentNotification.description}</span>
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="font-black text-yellow-400 flex items-center bg-black/20 px-5 py-2.5 rounded-2xl backdrop-blur-md border border-white/10">
-                <IndianRupee size={18} className="mr-1" />
-                {notifications[0].amount}
-              </div>
+
+            {/* Right: Nav arrows + Amount + Book Now */}
+            <div className="flex items-center gap-3 flex-shrink-0">
+              {/* Prev/Next arrows for multiple notifications */}
+              {notifications.length > 1 && (
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={handlePrev}
+                    className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all active:scale-95"
+                    aria-label="Previous notification"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all active:scale-95"
+                    aria-label="Next notification"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              )}
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentIndex}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="font-black text-yellow-400 flex items-center bg-black/20 px-5 py-2.5 rounded-2xl backdrop-blur-md border border-white/10"
+                >
+                  <IndianRupee size={18} className="mr-1" />
+                  {currentNotification.amount}
+                </motion.div>
+              </AnimatePresence>
+
               <button
-                onClick={() => handleBookNow(notifications[0])}
+                onClick={() => handleBookNow(currentNotification)}
                 className="bg-yellow-500 text-red-900 px-8 py-2.5 rounded-xl font-black hover:bg-yellow-400 transition-all shadow-[0_4px_20px_rgba(234,179,8,0.3)] active:scale-95 whitespace-nowrap uppercase tracking-wider text-sm"
               >
-                Book Now
+                {t('welcome.book')}
               </button>
             </div>
           </div>
+
+          {/* Dot indicators for multiple notifications */}
+          {notifications.length > 1 && (
+            <div className="flex justify-center gap-1.5 mt-2">
+              {notifications.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentIndex(i)}
+                  className={`w-1.5 h-1.5 rounded-full transition-all ${
+                    i === currentIndex ? 'bg-yellow-400 w-4' : 'bg-white/30'
+                  }`}
+                  aria-label={`Go to notification ${i + 1}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -173,7 +263,7 @@ export const NotificationBar: React.FC = () => {
               className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl"
             >
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold text-[#8B0000]">Book Special Seva</h3>
+                <h3 className="text-2xl font-bold text-[#8B0000]">{t('special.seva.modal.title')}</h3>
                 <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">
                   <X size={20} />
                 </button>
@@ -181,6 +271,7 @@ export const NotificationBar: React.FC = () => {
 
               <div className="bg-orange-50 p-4 rounded-xl border border-orange-100 mb-6">
                 <h4 className="font-bold text-gray-800">{activeNotification.title}</h4>
+                <p className="text-sm text-gray-600 mt-1">{activeNotification.description}</p>
                 <div className="text-xl font-bold text-[#8B0000] mt-2 flex items-center">
                   <IndianRupee size={20} className="mr-1" />
                   {activeNotification.amount}
@@ -195,18 +286,22 @@ export const NotificationBar: React.FC = () => {
 
               <form onSubmit={handlePayment} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t('special.seva.form.name')} *
+                  </label>
                   <input
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#8B0000] focus:border-transparent transition-all outline-none"
-                    placeholder="Enter your name"
+                    placeholder={t('special.seva.form.name.placeholder')}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t('special.seva.form.phone')} *
+                  </label>
                   <input
                     type="tel"
                     required
@@ -214,17 +309,19 @@ export const NotificationBar: React.FC = () => {
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#8B0000] focus:border-transparent transition-all outline-none"
-                    placeholder="10-digit mobile number"
+                    placeholder={t('special.seva.form.phone.placeholder')}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email Address (Optional)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t('special.seva.form.email')}
+                  </label>
                   <input
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#8B0000] focus:border-transparent transition-all outline-none"
-                    placeholder="For payment receipt"
+                    placeholder={t('special.seva.form.email.placeholder')}
                   />
                 </div>
 
@@ -239,12 +336,12 @@ export const NotificationBar: React.FC = () => {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Processing...
+                      {t('special.seva.btn.processing')}
                     </span>
                   ) : (
                     <span className="flex items-center">
                       <CreditCard className="mr-2" />
-                      Pay ₹{activeNotification.amount}
+                      {t('special.seva.btn.pay')} ₹{activeNotification.amount}
                     </span>
                   )}
                 </button>
