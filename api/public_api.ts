@@ -80,7 +80,7 @@ async function handleBookings(req: VercelRequest, res: VercelResponse) {
 
   const { error } = await supabase.from('bookings').insert([{
     name: userDetails.name, phone: userDetails.phone, email: userDetails.email, address: userDetails.address,
-    seva_name: seva.name, seva_price: seva.price, date: poojaDetails.date,
+    seva_name: seva.name, seva_price: seva.price, total_price: Number(seva.price) * (Number(poojaDetails.count) || 1), date: poojaDetails.date,
     gothra: poojaDetails.gothra || null, nakshathra: poojaDetails.nakshathra || null,
     rashi: poojaDetails.rashi || null, vedha: poojaDetails.vedha || null, count: poojaDetails.count || 1,
     payment_status: req.body.payment_status || poojaDetails.payment_status || 'Pending Verification',
