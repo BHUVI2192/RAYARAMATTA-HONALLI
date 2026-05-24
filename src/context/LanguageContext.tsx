@@ -156,7 +156,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Activities - Festivals
     'act.festivals.title': 'Festivals at the Mutt',
-    'act.festivals.1': 'Aradhana Mahotsava of Sri Raghavendra Swamy',
+    'act.festivals.1': 'Aradhana Mahotsava of Sri Raghavendra Swamygalu',
     'act.festivals.2': 'Aradhanas of Sri Jayateertharu, Sri Vyasarajaru, and Sri Vadirajaru',
     'act.festivals.3': 'Religious discourses, Dhatri Homa, and various Yajnas',
     'act.festivals.4': 'Laksha Deepotsava on the last Thursday of Kartika month',
