@@ -40,6 +40,7 @@ const photos = [
 
 const videos = [
   '/videos/VIDEO%201%20.mp4',
+  '/videos/VIDEO%202%20.mp4',
   '/videos/WhatsApp%20Video%202026-03-07%20at%206.14.38%20PM.mp4',
   '/videos/WhatsApp%20Video%202026-03-07%20at%206.14.59%20PM.mp4',
 ];
@@ -50,6 +51,7 @@ const getMediaTitle = (src: string) => {
   if (filename.toUpperCase().includes('PHOTO')) return 'Mutt Devotional Event';
   if (filename.toUpperCase().includes('WA0026') || filename.toUpperCase().includes('WA0029') || filename.toUpperCase().includes('WA0030')) return 'Aarti & Daily Puja';
   if (filename.toUpperCase().includes('VIDEO 1')) return 'Panchamruta Abhisheka Recital';
+  if (filename.toUpperCase().includes('VIDEO 2')) return 'Mutt Devotional Celebration';
   if (filename.toUpperCase().includes('6.14.59')) return 'Panchamruta Abhisheka';
   return 'Rayara Mutt Darshan & Seva';
 };
