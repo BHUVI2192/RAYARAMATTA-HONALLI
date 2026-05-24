@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Instagram } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export const Footer: React.FC = () => {
@@ -36,9 +36,22 @@ export const Footer: React.FC = () => {
                   <span>9986511855</span>
                 </div>
               </li>
-              <li className="flex gap-3">
-                <Mail size={18} className="text-yellow-500 shrink-0" />
-                <span>honnalirayaramata@gmail.com</span>
+              <li className="flex gap-3 text-white">
+                <Mail size={18} className="text-yellow-500 shrink-0 mt-0.5" />
+                <a href="mailto:honnalirayaramata@gmail.com" className="hover:text-yellow-500 transition-colors">
+                  honnalirayaramata@gmail.com
+                </a>
+              </li>
+              <li className="flex gap-3 text-white">
+                <Instagram size={18} className="text-yellow-500 shrink-0 mt-0.5" />
+                <a 
+                  href="https://www.instagram.com/srs_matha_honnali/?__pwa=1" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-yellow-500 transition-colors font-medium"
+                >
+                  @srs_matha_honnali
+                </a>
               </li>
             </ul>
           </div>
