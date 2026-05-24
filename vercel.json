@@ -63,6 +63,14 @@
       "destination": "/api/public_api.ts?route=notify-failure"
     },
     {
+      "source": "/api/create-order",
+      "destination": "/api/public_api.ts?route=create-order"
+    },
+    {
+      "source": "/api/verify-payment",
+      "destination": "/api/public_api.ts?route=verify-payment"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },

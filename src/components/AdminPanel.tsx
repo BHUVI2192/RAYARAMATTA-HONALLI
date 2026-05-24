@@ -158,7 +158,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
       if (godanaData.success) setGodanaPayments(godanaData.godana || []);
       if (donationsData.success) setDonations(donationsData.donations || []);
       if (notifData.success) setNotifications(notifData.notifications || []);
-      if (specialBookData.success) setSpecialBookings(specialBookData.bookings || []);
+      if (specialBookData.success) setSpecialBookings(specialBookData.special_bookings || []);
       // Godana failure is non-fatal (bookings may still load)
 
     } catch (err: any) {
@@ -211,7 +211,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
       if (godanaData.success) setGodanaPayments(godanaData.godana);
       if (donationsData.success) setDonations(donationsData.donations);
       if (notifData.success) setNotifications(notifData.notifications);
-      if (specialBookData.success) setSpecialBookings(specialBookData.bookings);
+      if (specialBookData.success) setSpecialBookings(specialBookData.special_bookings);
 
     } catch (err: any) {
       console.error('Sync Error:', err);
