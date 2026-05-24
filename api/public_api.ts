@@ -220,20 +220,37 @@ async function handleVerifyPayment(req: VercelRequest, res: VercelResponse) {
       else if (type === 'donation') await supabase!.from('donations').insert([{ name, phone, email, amount: Number(amount), payment_id: razorpay_payment_id, status: "Confirmed" }]);
       else if (type === 'special_seva') await supabase!.from('special_seva_bookings').insert([{ notification_id, name, phone, email, amount: Number(amount), payment_id: razorpay_payment_id, status: "Confirmed" }]);
       else if (type === 'seva') {
+        const address = req.body.address || req.query.address || null;
+        const message = req.body.message || req.query.message || null;
+        const vedha = req.body.vedha || req.query.vedha || null;
+        const countNum = Number(req.body.count || req.query.count || 1);
+        const sevaPriceNum = Number(req.body.seva_price || req.query.seva_price || (Number(amount) / countNum));
+        const totalPriceNum = Number(amount) || (sevaPriceNum * countNum);
+
         await supabase!.from('bookings').insert([{
-          name, phone, email: email || null, amount: Number(amount), transaction_id: razorpay_payment_id, payment_status: 'Confirmed', 
+          name, 
+          phone, 
+          email: email || null, 
+          address: address || null,
+          transaction_id: razorpay_payment_id, 
+          payment_status: 'Confirmed', 
           seva_name: req.body.seva_name || req.query.seva_name || 'Seva Booking',
+          seva_price: sevaPriceNum,
+          total_price: totalPriceNum,
           date: req.body.date || req.query.date || req.body.poojaDetails?.date || null,
-          count: req.body.count || req.query.count || req.body.poojaDetails?.count || 1,
+          count: countNum,
           gothra: req.body.gothra || req.query.gothra || req.body.poojaDetails?.gothra || null,
           nakshathra: req.body.nakshathra || req.query.nakshathra || req.body.poojaDetails?.nakshathra || null,
-          rashi: req.body.rashi || req.query.rashi || req.body.poojaDetails?.rashi || null
+          rashi: req.body.rashi || req.query.rashi || req.body.poojaDetails?.rashi || null,
+          vedha: vedha,
+          message: message
         }]);
       }
       sendAdminPaymentNotification(type, { name, phone, email, amount, payment_id: razorpay_payment_id, transaction_id: razorpay_payment_id }).catch(console.error);
       return sendRes(true, { payment_id: razorpay_payment_id, amount });
-    } catch (e) {
-      return sendRes(true, { payment_id: razorpay_payment_id, warning: 'DB record failed' });
+    } catch (e: any) {
+      console.error('[verify-payment] Database insertion failed:', e);
+      return sendRes(true, { payment_id: razorpay_payment_id, warning: 'DB record failed', error: e.message || e });
     }
   }
   return sendRes(false, { message: 'Verification failed' });

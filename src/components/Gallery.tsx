@@ -1,9 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Image as ImageIcon, Video, FileText, X, Maximize2 } from 'lucide-react';
+import { Image as ImageIcon, Video, X, Maximize2, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 const photos = [
+  '/images/blood donation.jpeg',
+  '/images/blood-donation-camp.jpg',
+  '/images/BLOOD DONATION 2.jpeg',
+  '/images/BLOOD DONATION 3.jpeg',
+  '/images/BLOOD DONATION 4.jpeg',
+  '/images/BLOOD DONATION 5.jpeg',
+  '/images/PHOTO 1.jpeg',
+  '/images/PHOTO 2.jpeg',
+  '/images/PHOTO 3.jpeg',
+  '/images/PHOTO 4.jpeg',
   '/images/469068261_609127548118786_3086100465586628981_n.jpg',
   '/images/469072055_609756388055902_7005467819425736701_n.jpg',
   '/images/469138810_609126958118845_8650880760494388940_n.jpg',
@@ -30,10 +40,108 @@ const photos = [
   '/images/IMG-20260302-WA0030.jpg',
 ];
 
+const videos = [
+  '/videos/VIDEO%201%20.mp4',
+  '/videos/VID-20260302-WA0026.mp4',
+  '/videos/WhatsApp%20Video%202026-03-07%20at%206.14.38%20PM.mp4',
+  '/videos/WhatsApp%20Video%202026-03-07%20at%206.14.39%20PM.mp4',
+  '/videos/WhatsApp%20Video%202026-03-07%20at%206.14.59%20PM.mp4',
+  '/videos/WhatsApp%20Video%202026-03-07%20at%206.19.02%20PM.mp4',
+  '/videos/WhatsApp%20Video%202026-03-07%20at%206.19.03%20PM.mp4',
+];
+
+const getMediaTitle = (src: string) => {
+  const filename = decodeURIComponent(src.split('/').pop() || '');
+  if (filename.toUpperCase().includes('BLOOD')) return 'Blood Donation Camp';
+  if (filename.toUpperCase().includes('PHOTO')) return 'Mutt Devotional Event';
+  if (filename.toUpperCase().includes('WA0026') || filename.toUpperCase().includes('WA0029') || filename.toUpperCase().includes('WA0030')) return 'Aarti & Daily Puja';
+  if (filename.toUpperCase().includes('VIDEO 1')) return 'Panchamruta Abhisheka Recital';
+  if (filename.toUpperCase().includes('6.14.59')) return 'Panchamruta Abhisheka';
+  return 'Rayara Matta Darshan & Seva';
+};
+
 export const Gallery: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'photos' | 'videos'>('photos');
-  const [selectedImg, setSelectedImg] = useState<string | null>(null);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
+  const [selectedVideoIndex, setSelectedVideoIndex] = useState<number | null>(null);
   const { t } = useLanguage();
+
+  // Swiping Touch Gestures State
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = (onSwipeLeft: () => void, onSwipeRight: () => void) => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isSwipe = Math.abs(distance) > 50; // Threshold of 50px
+    if (isSwipe) {
+      if (distance > 0) {
+        onSwipeLeft(); // Swipe Left -> Next Item
+      } else {
+        onSwipeRight(); // Swipe Right -> Prev Item
+      }
+    }
+    setTouchStart(null);
+    setTouchEnd(null);
+  };
+
+  // Keyboard navigation listeners
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (activeTab === 'photos' && selectedPhotoIndex !== null) {
+        if (e.key === 'ArrowRight') {
+          setSelectedPhotoIndex((selectedPhotoIndex + 1) % photos.length);
+        } else if (e.key === 'ArrowLeft') {
+          setSelectedPhotoIndex((selectedPhotoIndex - 1 + photos.length) % photos.length);
+        } else if (e.key === 'Escape') {
+          setSelectedPhotoIndex(null);
+        }
+      } else if (activeTab === 'videos' && selectedVideoIndex !== null) {
+        if (e.key === 'ArrowRight') {
+          setSelectedVideoIndex((selectedVideoIndex + 1) % videos.length);
+        } else if (e.key === 'ArrowLeft') {
+          setSelectedVideoIndex((selectedVideoIndex - 1 + videos.length) % videos.length);
+        } else if (e.key === 'Escape') {
+          setSelectedVideoIndex(null);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeTab, selectedPhotoIndex, selectedVideoIndex]);
+
+  const handleNextPhoto = () => {
+    if (selectedPhotoIndex !== null) {
+      setSelectedPhotoIndex((selectedPhotoIndex + 1) % photos.length);
+    }
+  };
+
+  const handlePrevPhoto = () => {
+    if (selectedPhotoIndex !== null) {
+      setSelectedPhotoIndex((selectedPhotoIndex - 1 + photos.length) % photos.length);
+    }
+  };
+
+  const handleNextVideo = () => {
+    if (selectedVideoIndex !== null) {
+      setSelectedVideoIndex((selectedVideoIndex + 1) % videos.length);
+    }
+  };
+
+  const handlePrevVideo = () => {
+    if (selectedVideoIndex !== null) {
+      setSelectedVideoIndex((selectedVideoIndex - 1 + videos.length) % videos.length);
+    }
+  };
 
   return (
     <div className="pt-24 pb-16 bg-white min-h-screen">
@@ -47,7 +155,11 @@ export const Gallery: React.FC = () => {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => {
+                  setActiveTab(tab.id as any);
+                  setSelectedPhotoIndex(null);
+                  setSelectedVideoIndex(null);
+                }}
                 className={`flex items-center gap-2 px-5 sm:px-8 py-2.5 sm:py-3 rounded-full font-black text-sm transition-all ${
                   activeTab === tab.id 
                     ? 'bg-[#8B0000] text-white shadow-[0_10px_20px_rgba(139,0,0,0.2)]' 
@@ -74,12 +186,15 @@ export const Gallery: React.FC = () => {
                 <motion.div
                   key={i}
                   whileHover={{ scale: 1.02 }}
-                  onClick={() => setSelectedImg(src)}
-                  className="relative aspect-square rounded-2xl overflow-hidden cursor-pointer group"
+                  onClick={() => setSelectedPhotoIndex(i)}
+                  className="relative aspect-square rounded-2xl overflow-hidden cursor-pointer group shadow-sm"
                 >
-                  <img src={src} className="w-full h-full object-cover" />
+                  <img src={src} className="w-full h-full object-cover" alt={getMediaTitle(src)} loading="lazy" />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <Maximize2 className="text-white" size={32} />
+                  </div>
+                  <div className="absolute bottom-3 left-3 right-3 text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    <p className="text-[10px] font-black uppercase tracking-wider drop-shadow">{getMediaTitle(src)}</p>
                   </div>
                 </motion.div>
               ))}
@@ -92,51 +207,172 @@ export const Gallery: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="grid md:grid-cols-2 gap-8"
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
-              {[
-                '/videos/VID-20260302-WA0026.mp4',
-                '/videos/WhatsApp%20Video%202026-03-07%20at%206.14.38%20PM.mp4',
-                '/videos/WhatsApp%20Video%202026-03-07%20at%206.14.39%20PM.mp4',
-                '/videos/WhatsApp%20Video%202026-03-07%20at%206.14.59%20PM.mp4',
-                '/videos/WhatsApp%20Video%202026-03-07%20at%206.19.02%20PM.mp4',
-                '/videos/WhatsApp%20Video%202026-03-07%20at%206.19.03%20PM.mp4',
-              ].map((src, i) => (
-                <div key={i} className="aspect-video rounded-3xl overflow-hidden bg-gray-900 shadow-xl">
-                  <video
-                    className="w-full h-full object-cover"
-                    controls
-                    playsInline
-                    preload="metadata"
-                  >
+              {videos.map((src, i) => (
+                <motion.div
+                  key={i}
+                  whileHover={{ scale: 1.02 }}
+                  onClick={() => setSelectedVideoIndex(i)}
+                  className="relative aspect-video rounded-2xl overflow-hidden cursor-pointer bg-gray-900 group shadow-lg"
+                >
+                  <video className="w-full h-full object-cover pointer-events-none" preload="metadata">
                     <source src={src} type="video/mp4" />
-                    Your browser does not support the video tag.
                   </video>
-                </div>
+                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex items-center justify-center">
+                    <div className="w-14 h-14 bg-yellow-500 text-[#8B0000] rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                      <Play fill="currentColor" size={24} className="ml-1" />
+                    </div>
+                  </div>
+                  <div className="absolute bottom-4 left-4 right-4 text-white">
+                    <p className="text-sm font-black drop-shadow-md truncate">{getMediaTitle(src)}</p>
+                  </div>
+                </motion.div>
               ))}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
+      {/* Unified Media Lightbox Modals */}
       <AnimatePresence>
-        {selectedImg && (
+        {/* Photo Lightbox */}
+        {selectedPhotoIndex !== null && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-xl flex items-center justify-center p-4"
-            onClick={() => setSelectedImg(null)}
+            className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center select-none"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={() => handleTouchEnd(handleNextPhoto, handlePrevPhoto)}
+            onClick={() => setSelectedPhotoIndex(null)}
           >
-            <button className="absolute top-8 right-8 text-white hover:text-yellow-500 transition-colors">
-              <X size={48} />
+            {/* Close */}
+            <button 
+              onClick={() => setSelectedPhotoIndex(null)}
+              className="absolute top-6 right-6 text-white hover:text-yellow-500 transition-colors z-[110]"
+            >
+              <X size={36} />
             </button>
-            <motion.img
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              src={selectedImg}
-              className="max-w-full max-h-full rounded-lg shadow-2xl"
-            />
+
+            {/* Left Control */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePrevPhoto();
+              }}
+              className="absolute left-4 sm:left-8 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 p-4 rounded-full transition-all z-[110]"
+            >
+              <ChevronLeft size={32} />
+            </button>
+
+            {/* Lightbox Center Content */}
+            <div 
+              className="relative max-w-5xl max-h-[80vh] px-4 flex flex-col items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <motion.img
+                key={selectedPhotoIndex}
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                src={photos[selectedPhotoIndex]}
+                className="max-w-full max-h-[75vh] rounded-2xl shadow-2xl object-contain border border-white/10"
+              />
+              <div className="text-center mt-6 text-white max-w-xl">
+                <h4 className="text-base sm:text-lg font-black tracking-tight">{getMediaTitle(photos[selectedPhotoIndex])}</h4>
+                <p className="text-xs text-gray-400 font-bold uppercase mt-1 tracking-widest">
+                  Photo {selectedPhotoIndex + 1} of {photos.length}
+                </p>
+              </div>
+            </div>
+
+            {/* Right Control */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNextPhoto();
+              }}
+              className="absolute right-4 sm:right-8 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 p-4 rounded-full transition-all z-[110]"
+            >
+              <ChevronRight size={32} />
+            </button>
+          </motion.div>
+        )}
+
+        {/* Video Lightbox */}
+        {selectedVideoIndex !== null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center select-none"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={() => handleTouchEnd(handleNextVideo, handlePrevVideo)}
+            onClick={() => setSelectedVideoIndex(null)}
+          >
+            {/* Close */}
+            <button 
+              onClick={() => setSelectedVideoIndex(null)}
+              className="absolute top-6 right-6 text-white hover:text-yellow-500 transition-colors z-[110]"
+            >
+              <X size={36} />
+            </button>
+
+            {/* Left Control */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePrevVideo();
+              }}
+              className="absolute left-4 sm:left-8 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 p-4 rounded-full transition-all z-[110]"
+            >
+              <ChevronLeft size={32} />
+            </button>
+
+            {/* Video Lightbox Center Content */}
+            <div 
+              className="relative max-w-5xl max-h-[80vh] px-4 flex flex-col items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <motion.div
+                key={selectedVideoIndex}
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                className="aspect-video max-w-full max-h-[70vh] rounded-3xl overflow-hidden bg-gray-900 shadow-2xl border border-white/10"
+              >
+                <video
+                  key={selectedVideoIndex}
+                  className="w-full h-full object-contain"
+                  controls
+                  autoPlay
+                  playsInline
+                >
+                  <source src={videos[selectedVideoIndex]} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </motion.div>
+              <div className="text-center mt-6 text-white max-w-xl">
+                <h4 className="text-base sm:text-lg font-black tracking-tight">{getMediaTitle(videos[selectedVideoIndex])}</h4>
+                <p className="text-xs text-gray-400 font-bold uppercase mt-1 tracking-widest">
+                  Video {selectedVideoIndex + 1} of {videos.length}
+                </p>
+              </div>
+            </div>
+
+            {/* Right Control */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNextVideo();
+              }}
+              className="absolute right-4 sm:right-8 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 p-4 rounded-full transition-all z-[110]"
+            >
+              <ChevronRight size={32} />
+            </button>
           </motion.div>
         )}
       </AnimatePresence>

@@ -79,7 +79,7 @@ function AppContent() {
 
     // Check for Razorpay redirect signatures
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('razorpay_payment_id') || urlParams.has('razorpay_payment_link_id')) {
+    if (urlParams.has('razorpay_payment_id') || urlParams.has('razorpay_payment_link_id') || urlParams.has('payment_id')) {
         const savedPage = localStorage.getItem('currentPage');
         
         // Restore the specific page the user was on
