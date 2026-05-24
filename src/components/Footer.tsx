@@ -9,11 +9,17 @@ export const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           <div>
-            <h3 className="text-xl font-bold mb-6 text-yellow-500">{t('footer.about.title')}</h3>
+            <div className="flex items-center gap-3 mb-6">
+              <img 
+                src="/images/LOGO.jpeg" 
+                alt="Sri Raghavendra Swamy Mutt Logo" 
+                className="w-12 h-12 rounded-full object-cover border border-white/10"
+              />
+              <h3 className="text-xl font-bold text-yellow-500">{t('footer.about.title')}</h3>
+            </div>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
               {t('footer.about.desc')}
             </p>
-
           </div>
 
           <div>

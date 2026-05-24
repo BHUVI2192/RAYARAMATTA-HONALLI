@@ -456,9 +456,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
           className="max-w-md w-full bg-white rounded-[32px] sm:rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.1)] p-6 sm:p-10 border border-stone-100"
         >
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-[#8B0000] rounded-2xl flex items-center justify-center text-white mx-auto mb-4 shadow-lg">
-              <ShieldCheck size={32} />
-            </div>
+            <img 
+              src="/images/LOGO.jpeg" 
+              alt="Mutt Logo" 
+              className="w-20 h-20 rounded-full object-cover mx-auto mb-4 shadow-lg border border-stone-200"
+            />
             <h2 className="text-2xl font-bold text-gray-800">Admin Portal</h2>
             <p className="text-gray-400 text-sm">Honnali Rayara Mutt Management</p>
             <button

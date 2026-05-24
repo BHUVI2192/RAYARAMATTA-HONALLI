@@ -38,6 +38,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
+          <img 
+            src="/images/LOGO.jpeg" 
+            alt="Sri Raghavendra Swamy Mutt Logo" 
+            className="w-10 h-10 rounded-full object-cover border border-white/20 shadow-md shrink-0"
+          />
           <div className="flex flex-col">
             <h1 className="text-lg md:text-xl font-bold leading-tight">{t('nav.title')}</h1>
             <p className="text-[10px] md:text-xs opacity-80 uppercase tracking-wider">{t('nav.subtitle')}</p>
