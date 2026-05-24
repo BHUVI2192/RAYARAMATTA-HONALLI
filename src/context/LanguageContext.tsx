@@ -134,10 +134,25 @@ export const translations: Record<Language, Record<string, string>> = {
     'act.goshala.success': 'Thank you for your noble contribution to Godana Seva! May Guru Raghavendra Swamy and Gomatha bless you.',
     'act.virtual.title': 'Virtual Seva',
     'act.virtual.desc': 'Participate in poojas and rituals from anywhere in the world through our live streaming services.',
-    'act.veda.title': 'Veda Patashala',
+    'act.veda.title': 'Spiritual Camps',
     'act.veda.desc': 'Traditional education for young students to preserve and propagate our ancient Vedic knowledge.',
     'act.social.title': 'Social Welfare',
     'act.social.desc': 'Free medical camps, educational support for the needy, and community feeding programs.',
+
+    // Blood Donation Camp Card
+    'act.blood.badge': 'Community Service',
+    'act.blood.title': 'Blood Donation Camp',
+    'act.blood.desc': 'Rayara Mutt Honnali regularly organises blood donation camps as a noble act of community service. Devotees and volunteers come together to donate blood, saving countless lives and embodying the Mutt\'s commitment to humanitarian values and social welfare rooted in the teachings of Sri Raghavendra Swamiji.',
+    'act.blood.stat1.val': '100+',
+    'act.blood.stat1.lbl': 'Units Donated',
+    'act.blood.stat2.val': 'Annual',
+    'act.blood.stat2.lbl': 'Camps Organised',
+
+    // Home Page video section (Panchamruta Abhisheka)
+    'video.ritual': 'Sacred Ritual',
+    'video.title': 'Panchamruta Abhisheka',
+    'video.desc': 'Witness the divine Panchamruta Abhisheka of Sri Raghavendra Swamy at Rayara Mutt, Honnali. This sacred ritual is performed with five holy substances — milk, curd, ghee, honey, and sugar.',
+    'video.sub': '"Gurubhyo Namaha" — May the blessings of Sri Guru flow eternally.',
 
     // Activities - Festivals
     'act.festivals.title': 'Festivals at the Mutt',
@@ -384,11 +399,26 @@ export const translations: Record<Language, Record<string, string>> = {
     'act.goshala.form.processing': 'ಪ್ರಕ್ರಿಯೆಯಲ್ಲಿದೆ...',
     'act.goshala.success': 'ಗೋದಾನ ಸೇವೆಯಲ್ಲಿ ನಿಮ್ಮ ಉದಾತ್ತ ಕೊಡುಗೆಗಾಗಿ ಧನ್ಯವಾದಗಳು! ಗುರು ರಾಘವೇಂದ್ರ ಸ್ವಾಮಿಗಳು ಮತ್ತು ಗೋಮಾತೆಯ ಆಶೀರ್ವಾದ ನಿಮ್ಮ ಮೇಲಿರಲಿ.',
     'act.virtual.title': 'ವರ್ಚುವಲ್ ಸೇವೆ',
-    'act.virtual.desc': 'ನಮ್ಮ ಲೈವ್ ಸ್ಟ್ರೀಮಿಂಗ್ ಸೇವೆಗಳ ಮೂಲಕ ವಿಶ್ವದ ಎಲ್ಲಿಂದಲಾದರೂ ಪೂಜೆಗಳು ಮತ್ತು ವಿಧಿವಿಧಾನಗಳಲ್ಲಿ ಭಾಗವಹಿಸಿ.',
-    'act.veda.title': 'ವೇದ ಪಾಠಶಾಲೆ',
+    'act.virtual.desc': 'ನಮ್ಮ ಲೈವ್ ಸ್ಟ್ರೀಮಿಂಗ್ ಸೇವೆಗಳ ಮೂಲಕ ವಿಶ್ವದ ಎಲ್ಲಿಂದಲಾದರೂ ಪೂಜೆಗಳು ಮತ್ತು ವಿಧಿವಿಧಾನಗಳಲ್ಲಿ भागವಹಿಸಿ.',
+    'act.veda.title': 'ಧಾರ್ಮಿಕ ಶಿಬಿರ',
     'act.veda.desc': 'ನಮ್ಮ ಪ್ರಾಚೀನ ವೈದಿಕ ಜ್ಞಾನವನ್ನು ಸಂರಕ್ಷಿಸಲು ಮತ್ತು ಪ್ರಚಾರ ಮಾಡಲು ಯುವ ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಸಾಂಪ್ರದಾಯಿಕ ಶಿಕ್ಷಣ.',
     'act.social.title': 'ಸಾಮಾಜಿಕ ಕಲ್ಯಾಣ',
     'act.social.desc': 'ಉಚಿತ ವೈದ್ಯಕೀಯ ಶಿಬಿರಗಳು, ಅಗತ್ಯವಿರುವವರಿಗೆ ಶೈಕ್ಷಣಿಕ ಬೆಂಬಲ ಮತ್ತು ಸಮುದಾಯ ಆಹಾರ ಕಾರ್ಯಕ್ರಮಗಳು.',
+
+    // Blood Donation Camp Card
+    'act.blood.badge': 'ಸಾಮಾಜಿಕ ಸೇವೆ',
+    'act.blood.title': 'ರಕ್ತದಾನ ಶಿಬಿರ',
+    'act.blood.desc': 'ಹೊನ್ನಾಳಿ ರಾಯರ ಮಠವು ಸಾಮಾಜಿಕ ಸೇವೆಯ ಉದಾತ್ತ ಕಾರ್ಯವಾಗಿ ನಿಯಮಿತವಾಗಿ ರಕ್ತದಾನ ಶಿಬಿರಗಳನ್ನು ಆಯೋಜಿಸುತ್ತದೆ. ಭಕ್ತರು ಮತ್ತು ಸ್ವಯಂಸೇವಕರು ರಕ್ತದಾನ ಮಾಡಲು ಒಟ್ಟಾಗಿ ಬರುತ್ತಾರೆ, ಅಸಂಖ್ಯಾತ ಜೀವಗಳನ್ನು ಉಳಿಸುತ್ತಾರೆ ಮತ್ತು ಶ್ರೀ ರಾಘವೇಂದ್ರ ಸ್ವಾಮೀಜಿಯವರ ಬೋಧನೆಗಳಲ್ಲಿ ಬೇರೂರಿರುವ ಮಾನವೀಯ ಮೌಲ್ಯಗಳು ಮತ್ತು ಸಾಮಾಜಿಕ ಕಲ್ಯಾಣಕ್ಕೆ ಮಠದ ಬದ್ಧತೆಯನ್ನು ಸಾಕಾರಗೊಳಿಸುತ್ತಾರೆ.',
+    'act.blood.stat1.val': '100+',
+    'act.blood.stat1.lbl': 'ರಕ್ತದ ಯೂನಿಟ್ ಸಂಗ್ರಹ',
+    'act.blood.stat2.val': 'ವಾರ್ಷಿಕ',
+    'act.blood.stat2.lbl': 'ಶಿಬಿರಗಳ ಆಯೋಜನೆ',
+
+    // Home Page video section (Panchamruta Abhisheka)
+    'video.ritual': 'ಪವಿತ್ರ ವಿಧಿವಿಧಾನ',
+    'video.title': 'ಪಂಚಾಮೃತ ಅಭಿಷೇಕ',
+    'video.desc': 'ಹೊನ್ನಾಳಿಯ ರಾಯರ ಮಠದಲ್ಲಿ ಜರಗುವ ಶ್ರೀ ರಾಘವೇಂದ್ರ ಸ್ವಾಮಿಗಳ ದಿವ್ಯ ಪಂಚಾಮೃತ ಅಭಿಷೇಕವನ್ನು ಕಣ್ತುಂಬಿಕೊಳ್ಳಿ. ಈ ಪವಿತ್ರ ಆಚರಣೆಯನ್ನು ಐದು ಪವಿತ್ರ ದ್ರವ್ಯಗಳಾದ ಹಾಲು, ಮೊಸರು, ತುಪ್ಪ, ಜೇನುತುಪ್ಪ ಮತ್ತು ಸಕ್ಕರೆಯೊಂದಿಗೆ ನೆರವೇರಿಸಲಾಗುತ್ತದೆ.',
+    'video.sub': '"ಗುರುಭ್ಯೋ ನಮಃ" — ಶ್ರೀ ಗುರುಗಳ ಅನುಗ್ರಹ ಸದಾ ಕಾಲ ಹರಿಯಲಿ.',
 
     // Activities - Festivals
     'act.festivals.title': 'ಶ್ರೀಮಠದಲ್ಲಿ ನಡೆಯುವ ಉತ್ಸವಗಳು',

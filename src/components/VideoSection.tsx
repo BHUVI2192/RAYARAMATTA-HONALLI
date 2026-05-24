@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Play, Pause, X, Volume2, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useLanguage } from '../context/LanguageContext';
 
 const VIDEO_SRC = '/videos/WhatsApp%20Video%202026-03-07%20at%206.14.59%20PM.mp4';
 
@@ -68,18 +69,16 @@ export const VideoSection: React.FC = () => {
             transition={{ duration: 0.7 }}
             className="lg:w-1/2 text-center lg:text-left"
           >
-            <p className="text-yellow-600 font-semibold uppercase tracking-widest text-sm mb-3">Sacred Ritual</p>
+            <p className="text-yellow-600 font-semibold uppercase tracking-widest text-sm mb-3">{t('video.ritual')}</p>
             <h2 className="text-4xl font-bold text-[#8B0000] mb-6 leading-tight">
-              Panchamruta<br />Abhisheka
+              {t('video.title')}
             </h2>
             <div className="w-16 h-1 bg-yellow-500 rounded-full mb-6 mx-auto lg:mx-0" />
             <p className="text-gray-700 text-lg leading-relaxed mb-4">
-              Witness the divine Panchamruta Abhisheka of Sri Raghavendra Swamy at Rayara Mutt, Honnali.
-              This sacred ritual is performed with five holy substances —
-              milk, curd, ghee, honey, and sugar.
+              {t('video.desc')}
             </p>
             <p className="text-gray-500 italic text-sm">
-              "Gurubhyo Namaha" — May the blessings of Sri Guru flow eternally.
+              {t('video.sub')}
             </p>
           </motion.div>
 

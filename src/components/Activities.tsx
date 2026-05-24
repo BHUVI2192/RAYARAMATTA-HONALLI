@@ -462,28 +462,26 @@ export const Activities: React.FC = () => {
             />
             <div className="absolute bottom-4 left-4 bg-red-700/90 backdrop-blur-sm text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-2">
               <Droplets size={14} />
-              Blood Donation Camp
+              {t('act.blood.title')}
             </div>
           </div>
           <div>
             <div className="inline-flex items-center gap-2 text-red-600 font-bold uppercase tracking-widest text-xs mb-4 bg-red-100 px-3 py-1.5 rounded-full">
               <Heart size={14} fill="currentColor" />
-              <span>Community Service</span>
+              <span>{t('act.blood.badge')}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#8B0000] mb-4">Blood Donation Camp</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#8B0000] mb-4">{t('act.blood.title')}</h2>
             <p className="text-gray-600 leading-relaxed mb-8 text-sm sm:text-base">
-              Rayara Mutt Honnali regularly organises blood donation camps as a noble act of community service.
-              Devotees and volunteers come together to donate blood, saving countless lives and embodying the
-              Mutt's commitment to humanitarian values and social welfare rooted in the teachings of Sri Raghavendra Swamiji.
+              {t('act.blood.desc')}
             </p>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white rounded-2xl p-4 border border-red-100 shadow-sm text-center">
-                <p className="text-2xl font-black text-red-700 mb-1">100+</p>
-                <p className="text-xs text-red-500 font-bold uppercase tracking-wide">Units Donated</p>
+                <p className="text-2xl font-black text-red-700 mb-1">{t('act.blood.stat1.val')}</p>
+                <p className="text-xs text-red-500 font-bold uppercase tracking-wide">{t('act.blood.stat1.lbl')}</p>
               </div>
               <div className="bg-white rounded-2xl p-4 border border-red-100 shadow-sm text-center">
-                <p className="text-2xl font-black text-red-700 mb-1">Annual</p>
-                <p className="text-xs text-red-500 font-bold uppercase tracking-wide">Camps Organised</p>
+                <p className="text-2xl font-black text-red-700 mb-1">{t('act.blood.stat2.val')}</p>
+                <p className="text-xs text-red-500 font-bold uppercase tracking-wide">{t('act.blood.stat2.lbl')}</p>
               </div>
             </div>
           </div>
