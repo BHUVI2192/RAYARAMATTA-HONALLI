@@ -294,6 +294,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
       translationTimeoutRef.current.forEach((timeout) => clearTimeout(timeout));
     };
   }, []);
+
+  const isWithinDateRange = (dateStr: string) => {
     if (!startDate && !endDate) return true;
     const date = new Date(dateStr);
     if (startDate) {
