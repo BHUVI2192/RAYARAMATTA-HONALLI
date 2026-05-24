@@ -5,12 +5,12 @@ import { Seva } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 
 const dailyPoojas = [
-  { time: "06:30 AM", name: "Nirmalya Visarjana" },
-  { time: "07:30 AM", name: "Panchamruta Abhisheka" },
-  { time: "09:30 AM", name: "Mahamangalarathi" },
+  { time: "07:30 AM", name: "Nirmalya Visarjana" },
+  { time: "09:00 AM", name: "Panchamruta Abhisheka" },
+  { time: "12:00 PM", name: "Mahamangalarathi" },
   { time: "12:30 PM", name: "Hasthodaka" },
   { time: "06:30 PM", name: "Evening Mangalarathi" },
-  { time: "07:30 PM", name: "Rathothsava (Thursdays)" },
+  { time: "06:30 PM", name: "Pallakki Utsava (Thursday's only)" },
 ];
 
 const sevas: { id: string; key: string; price: number }[] = [
