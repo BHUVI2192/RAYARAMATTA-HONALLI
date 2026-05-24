@@ -6,6 +6,7 @@ import { useLanguage } from '../context/LanguageContext';
 const VIDEO_SRC = '/videos/WhatsApp%20Video%202026-03-07%20at%206.14.59%20PM.mp4';
 
 export const VideoSection: React.FC = () => {
+  const { t } = useLanguage();
   const modalVideoRef = useRef<HTMLVideoElement>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
