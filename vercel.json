@@ -71,6 +71,10 @@
       "destination": "/api/public_api.ts?route=verify-payment"
     },
     {
+      "source": "/api/translate",
+      "destination": "/api/translate_api.ts?route=translate"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },

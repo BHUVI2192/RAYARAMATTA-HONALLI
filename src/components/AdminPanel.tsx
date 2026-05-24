@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   BarChart3,
@@ -15,8 +15,10 @@ import {
   RefreshCw,
   CheckCircle2,
   Clock,
-  Heart
+  Heart,
+  Loader
 } from 'lucide-react';
+import { translateToKannada } from '../utils/translator';
 
 interface Booking {
   id: number;
@@ -95,8 +97,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
   const [donations, setDonations] = useState<GeneralDonation[]>([]);
   const [notifications, setNotifications] = useState<SpecialNotification[]>([]);
   const [specialBookings, setSpecialBookings] = useState<SpecialBooking[]>([]);
-  const [newNotification, setNewNotification] = useState({ title: '', description: '', amount: '' });
-  const [newNotification2, setNewNotification2] = useState({ title: '', description: '', amount: '' });
+  const [newNotification, setNewNotification] = useState({ title: '', titleKn: '', description: '', descKn: '', amount: '' });
+  const [newNotification2, setNewNotification2] = useState({ title: '', titleKn: '', description: '', descKn: '', amount: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -104,6 +106,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
   const [endDate, setEndDate] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [translatingNotif1Title, setTranslatingNotif1Title] = useState(false);
+  const [translatingNotif1Desc, setTranslatingNotif1Desc] = useState(false);
+  const [translatingNotif2Title, setTranslatingNotif2Title] = useState(false);
+  const [translatingNotif2Desc, setTranslatingNotif2Desc] = useState(false);
+  const translationTimeoutRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   const fetchData = async () => {
     setLoading(true);
@@ -214,9 +221,79 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
     }
   };
 
+  // Auto-translation handlers with debouncing
+  const handleTitleChange = (newTitle: string, isNotif2 = false) => {
+    if (isNotif2) {
+      setNewNotification2({ ...newNotification2, title: newTitle });
+    } else {
+      setNewNotification({ ...newNotification, title: newTitle });
+    }
 
+    // Clear existing timeout
+    const timeoutKey = isNotif2 ? 'notif2-title' : 'notif1-title';
+    const existingTimeout = translationTimeoutRef.current.get(timeoutKey);
+    if (existingTimeout) clearTimeout(existingTimeout);
 
-  const isWithinDateRange = (dateStr: string) => {
+    // Set loading state
+    if (isNotif2) setTranslatingNotif2Title(true);
+    else setTranslatingNotif1Title(true);
+
+    // Debounce translation call
+    const timeout = setTimeout(async () => {
+      if (newTitle.trim()) {
+        const translated = await translateToKannada(newTitle);
+        if (translated && isNotif2) {
+          setNewNotification2((prev) => ({ ...prev, titleKn: translated }));
+        } else if (translated) {
+          setNewNotification((prev) => ({ ...prev, titleKn: translated }));
+        }
+      }
+      if (isNotif2) setTranslatingNotif2Title(false);
+      else setTranslatingNotif1Title(false);
+    }, 800); // 800ms debounce
+
+    translationTimeoutRef.current.set(timeoutKey, timeout);
+  };
+
+  const handleDescriptionChange = (newDesc: string, isNotif2 = false) => {
+    if (isNotif2) {
+      setNewNotification2({ ...newNotification2, description: newDesc });
+    } else {
+      setNewNotification({ ...newNotification, description: newDesc });
+    }
+
+    // Clear existing timeout
+    const timeoutKey = isNotif2 ? 'notif2-desc' : 'notif1-desc';
+    const existingTimeout = translationTimeoutRef.current.get(timeoutKey);
+    if (existingTimeout) clearTimeout(existingTimeout);
+
+    // Set loading state
+    if (isNotif2) setTranslatingNotif2Desc(true);
+    else setTranslatingNotif1Desc(true);
+
+    // Debounce translation call
+    const timeout = setTimeout(async () => {
+      if (newDesc.trim()) {
+        const translated = await translateToKannada(newDesc);
+        if (translated && isNotif2) {
+          setNewNotification2((prev) => ({ ...prev, descKn: translated }));
+        } else if (translated) {
+          setNewNotification((prev) => ({ ...prev, descKn: translated }));
+        }
+      }
+      if (isNotif2) setTranslatingNotif2Desc(false);
+      else setTranslatingNotif1Desc(false);
+    }, 800); // 800ms debounce
+
+    translationTimeoutRef.current.set(timeoutKey, timeout);
+  };
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      translationTimeoutRef.current.forEach((timeout) => clearTimeout(timeout));
+    };
+  }, []);
     if (!startDate && !endDate) return true;
     const date = new Date(dateStr);
     if (startDate) {
@@ -269,10 +346,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
     e.preventDefault();
     setLoading(true);
     try {
+      // Encode bilingual content: "English value||ಕನ್ನಡ ಮೌಲ್ಯ"
+      // If no Kannada provided, just store the English value as-is.
+      const encodeField = (en: string, kn: string) =>
+        kn.trim() ? `${en}||${kn.trim()}` : en;
+
       // Build array of notifications to create (always include first, optionally second)
-      const toCreate = [newNotification];
+      const toCreate = [{
+        title: encodeField(newNotification.title, newNotification.titleKn),
+        description: encodeField(newNotification.description, newNotification.descKn),
+        amount: newNotification.amount,
+      }];
       const hasSecond = newNotification2.title.trim() && newNotification2.amount;
-      if (hasSecond) toCreate.push(newNotification2);
+      if (hasSecond) toCreate.push({
+        title: encodeField(newNotification2.title, newNotification2.titleKn),
+        description: encodeField(newNotification2.description, newNotification2.descKn),
+        amount: newNotification2.amount,
+      });
 
       const results = await Promise.all(
         toCreate.map((notif) =>
@@ -300,8 +390,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
       if (added.length > 0) {
         setNotifications([...added, ...notifications]);
       }
-      setNewNotification({ title: '', description: '', amount: '' });
-      setNewNotification2({ title: '', description: '', amount: '' });
+      setNewNotification({ title: '', titleKn: '', description: '', descKn: '', amount: '' });
+      setNewNotification2({ title: '', titleKn: '', description: '', descKn: '', amount: '' });
     } catch (err) {
       alert('Error creating notification');
     } finally {
@@ -819,39 +909,129 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
                           <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Add Special Seva Notifications</p>
 
                           {/* Notification 1 */}
-                          <div className="p-4 bg-white border border-gray-200 rounded-2xl">
-                            <p className="text-xs font-bold text-[#8B0000] mb-3 uppercase tracking-wider">Notification 1 *</p>
+                          <div className="p-4 bg-white border border-gray-200 rounded-2xl space-y-3">
+                            <p className="text-xs font-bold text-[#8B0000] uppercase tracking-wider">Notification 1 *</p>
+                            {/* English row */}
                             <div className="flex flex-wrap gap-3 items-end">
                               <div className="flex-1 min-w-[180px]">
-                                <label className="block text-xs font-bold text-gray-500 mb-1">Title *</label>
-                                <input required type="text" value={newNotification.title} onChange={e => setNewNotification({ ...newNotification, title: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm" placeholder="e.g., Raghavendra Aradhana Mahotsava" />
+                                <label className="block text-xs font-bold text-gray-500 mb-1">Title (English) *</label>
+                                <input required type="text" value={newNotification.title} onChange={e => handleTitleChange(e.target.value, false)} className="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm" placeholder="e.g., Raghavendra Aradhana" />
                               </div>
                               <div className="flex-[2] min-w-[260px]">
-                                <label className="block text-xs font-bold text-gray-500 mb-1">Description *</label>
-                                <input required type="text" value={newNotification.description} onChange={e => setNewNotification({ ...newNotification, description: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm" placeholder="Short description of the seva..." />
+                                <label className="block text-xs font-bold text-gray-500 mb-1">Description (English) *</label>
+                                <input required type="text" value={newNotification.description} onChange={e => handleDescriptionChange(e.target.value, false)} className="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm" placeholder="Short description..." />
                               </div>
                               <div className="w-28">
                                 <label className="block text-xs font-bold text-gray-500 mb-1">Amount (₹) *</label>
                                 <input required type="number" min="1" value={newNotification.amount} onChange={e => setNewNotification({ ...newNotification, amount: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm" placeholder="501" />
                               </div>
                             </div>
+                            {/* Kannada row */}
+                            <div className="flex flex-wrap gap-3 items-end border-t border-dashed border-orange-100 pt-3">
+                              <div className="flex items-center gap-1.5 w-full mb-1">
+                                <span className="text-[10px] bg-orange-100 text-orange-700 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">ಕನ್ನಡ Translation</span>
+                                <span className="text-[10px] text-gray-400">(Auto-translated from English)</span>
+                                {(translatingNotif1Title || translatingNotif1Desc) && (
+                                  <span className="ml-auto text-[10px] text-orange-600 flex items-center gap-1">
+                                    <Loader size={12} className="animate-spin" /> Translating...
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-[180px]">
+                                <label className="block text-xs font-bold text-gray-500 mb-1">ಶೀರ್ಷಿಕೆ (Title in Kannada)</label>
+                                <div className="relative">
+                                  <input 
+                                    type="text" 
+                                    value={newNotification.titleKn} 
+                                    onChange={e => setNewNotification({ ...newNotification, titleKn: e.target.value })} 
+                                    disabled={translatingNotif1Title}
+                                    className="w-full px-4 py-2 rounded-lg border border-orange-200 text-sm disabled:bg-orange-50" 
+                                    placeholder="ಉದಾ: ರಾಘವೇಂದ್ರ ಆರಾಧನೆ" 
+                                  />
+                                  {translatingNotif1Title && (
+                                    <Loader size={14} className="animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-orange-500" />
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex-[2] min-w-[260px]">
+                                <label className="block text-xs font-bold text-gray-500 mb-1">ವಿವರಣೆ (Description in Kannada)</label>
+                                <div className="relative">
+                                  <input 
+                                    type="text" 
+                                    value={newNotification.descKn} 
+                                    onChange={e => setNewNotification({ ...newNotification, descKn: e.target.value })} 
+                                    disabled={translatingNotif1Desc}
+                                    className="w-full px-4 py-2 rounded-lg border border-orange-200 text-sm disabled:bg-orange-50" 
+                                    placeholder="ಸಣ್ಣ ವಿವರಣೆ..." 
+                                  />
+                                  {translatingNotif1Desc && (
+                                    <Loader size={14} className="animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-orange-500" />
+                                  )}
+                                </div>
+                              </div>
+                            </div>
                           </div>
 
                           {/* Notification 2 (optional) */}
-                          <div className="p-4 bg-white border border-dashed border-gray-300 rounded-2xl">
-                            <p className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">Notification 2 (Optional)</p>
+                          <div className="p-4 bg-white border border-dashed border-gray-300 rounded-2xl space-y-3">
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Notification 2 (Optional)</p>
+                            {/* English row */}
                             <div className="flex flex-wrap gap-3 items-end">
                               <div className="flex-1 min-w-[180px]">
-                                <label className="block text-xs font-bold text-gray-500 mb-1">Title</label>
-                                <input type="text" value={newNotification2.title} onChange={e => setNewNotification2({ ...newNotification2, title: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm" placeholder="e.g., Vishnu Sahasranama Seva" />
+                                <label className="block text-xs font-bold text-gray-500 mb-1">Title (English)</label>
+                                <input type="text" value={newNotification2.title} onChange={e => handleTitleChange(e.target.value, true)} className="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm" placeholder="e.g., Vishnu Sahasranama Seva" />
                               </div>
                               <div className="flex-[2] min-w-[260px]">
-                                <label className="block text-xs font-bold text-gray-500 mb-1">Description</label>
-                                <input type="text" value={newNotification2.description} onChange={e => setNewNotification2({ ...newNotification2, description: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm" placeholder="Short description..." />
+                                <label className="block text-xs font-bold text-gray-500 mb-1">Description (English)</label>
+                                <input type="text" value={newNotification2.description} onChange={e => handleDescriptionChange(e.target.value, true)} className="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm" placeholder="Short description..." />
                               </div>
                               <div className="w-28">
                                 <label className="block text-xs font-bold text-gray-500 mb-1">Amount (₹)</label>
                                 <input type="number" min="1" value={newNotification2.amount} onChange={e => setNewNotification2({ ...newNotification2, amount: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm" placeholder="251" />
+                              </div>
+                            </div>
+                            {/* Kannada row */}
+                            <div className="flex flex-wrap gap-3 items-end border-t border-dashed border-orange-100 pt-3">
+                              <div className="flex items-center gap-1.5 w-full mb-1">
+                                <span className="text-[10px] bg-orange-100 text-orange-700 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">ಕನ್ನಡ Translation</span>
+                                <span className="text-[10px] text-gray-400">(Auto-translated from English)</span>
+                                {(translatingNotif2Title || translatingNotif2Desc) && (
+                                  <span className="ml-auto text-[10px] text-orange-600 flex items-center gap-1">
+                                    <Loader size={12} className="animate-spin" /> Translating...
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-[180px]">
+                                <label className="block text-xs font-bold text-gray-500 mb-1">ಶೀರ್ಷಿಕೆ (Title in Kannada)</label>
+                                <div className="relative">
+                                  <input 
+                                    type="text" 
+                                    value={newNotification2.titleKn} 
+                                    onChange={e => setNewNotification2({ ...newNotification2, titleKn: e.target.value })} 
+                                    disabled={translatingNotif2Title}
+                                    className="w-full px-4 py-2 rounded-lg border border-orange-200 text-sm disabled:bg-orange-50" 
+                                    placeholder="ಉದಾ: ವಿಷ್ಣು ಸಹಸ್ರನಾಮ ಸೇವೆ" 
+                                  />
+                                  {translatingNotif2Title && (
+                                    <Loader size={14} className="animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-orange-500" />
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex-[2] min-w-[260px]">
+                                <label className="block text-xs font-bold text-gray-500 mb-1">ವಿವರಣೆ (Description in Kannada)</label>
+                                <div className="relative">
+                                  <input 
+                                    type="text" 
+                                    value={newNotification2.descKn} 
+                                    onChange={e => setNewNotification2({ ...newNotification2, descKn: e.target.value })} 
+                                    disabled={translatingNotif2Desc}
+                                    className="w-full px-4 py-2 rounded-lg border border-orange-200 text-sm disabled:bg-orange-50" 
+                                    placeholder="ಸಣ್ಣ ವಿವರಣೆ..." 
+                                  />
+                                  {translatingNotif2Desc && (
+                                    <Loader size={14} className="animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-orange-500" />
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -866,8 +1046,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
                     </tr>
                     {filteredNotifications.length > 0 ? filteredNotifications.map(notif => (
                       <tr key={notif.id} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="px-8 py-6 font-bold text-gray-800">{notif.title}</td>
-                        <td className="px-8 py-6 text-sm text-gray-600 truncate max-w-xs">{notif.description}</td>
+                        <td className="px-8 py-6 font-bold text-gray-800">
+                          {/* Show English part (before ||) in admin table */}
+                          {notif.title.split('||')[0]}
+                          {notif.title.includes('||') && (
+                            <span className="ml-2 text-[10px] bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded font-bold">KN ✓</span>
+                          )}
+                        </td>
+                        <td className="px-8 py-6 text-sm text-gray-600 truncate max-w-xs">{notif.description.split('||')[0]}</td>
                         <td className="px-8 py-6 text-sm font-bold text-[#8B0000]">₹{notif.amount}</td>
                         <td className="px-8 py-6">
                           <span className={`px-3 py-1 rounded-full text-xs font-bold ${notif.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>

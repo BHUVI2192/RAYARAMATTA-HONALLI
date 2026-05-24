@@ -10,8 +10,16 @@ interface Notification {
   amount: number;
 }
 
+// Parse bilingual field stored as "English text||ಕನ್ನಡ ಪಠ್ಯ"
+// Returns the Kannada part if language is 'kn' and Kannada exists, else English.
+const getField = (raw: string, lang: string): string => {
+  const parts = raw.split('||');
+  if (lang === 'kn' && parts.length > 1 && parts[1].trim()) return parts[1].trim();
+  return parts[0].trim();
+};
+
 export const NotificationBar: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeNotification, setActiveNotification] = useState<Notification | null>(null);
