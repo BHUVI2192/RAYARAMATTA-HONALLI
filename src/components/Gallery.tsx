@@ -4,7 +4,6 @@ import { Image as ImageIcon, Video, X, Maximize2, ChevronLeft, ChevronRight, Pla
 import { useLanguage } from '../context/LanguageContext';
 
 const photos = [
-  '/images/blood donation.jpeg',
   '/images/blood-donation-camp.jpg',
   '/images/BLOOD DONATION 2.jpeg',
   '/images/BLOOD DONATION 3.jpeg',
@@ -18,7 +17,6 @@ const photos = [
   '/images/469072055_609756388055902_7005467819425736701_n.jpg',
   '/images/469138810_609126958118845_8650880760494388940_n.jpg',
   '/images/469583847_611496104548597_30826172631232671_n.jpg',
-  '/images/469620894_611496427881898_1884497419873373850_n.jpg',
   '/images/469639136_611496407881900_8611187158501325730_n.jpg',
   '/images/469864323_611496421215232_6826778829493628708_n.jpg',
   '/images/486973907_693895086354728_5870470351651792592_n.jpg',
