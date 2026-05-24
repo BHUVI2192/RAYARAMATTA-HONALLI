@@ -116,7 +116,7 @@ export const About: React.FC = () => {
               {t('about.trustees.desc')}
             </p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-8">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((num) => (
                 <div key={num} className="flex items-center gap-3 py-2 border-b border-white/10">
                   <div className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
                   <span className="text-sm font-medium">{t(`about.trustee.${num}`)}</span>
