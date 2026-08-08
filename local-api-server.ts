@@ -10,6 +10,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Helper to handle Vercel functions
 const handleVercelFunction = async (filePath: string, req: any, res: any) => {

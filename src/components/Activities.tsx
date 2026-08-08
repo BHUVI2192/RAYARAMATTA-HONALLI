@@ -75,16 +75,17 @@ export const Activities: React.FC = () => {
       }
       console.log("Verify response JSON:", data);
 
-      if (data.success === true) {
-        // Γ£à DB saved ΓÇö show success
+      if (data.success === true && !data.warning) {
+        // ✅ DB saved — show success
         setSuccessPaymentId(paymentId);
         setSuccessAmount(amountValue);
         setShowSuccess(true);
         setGodanaForm({ name: '', phone: '', email: '', amount: '5000' });
       } else {
-        // Γ¥î DB failed ΓÇö payment went through but record wasn't saved
+        // ❌ DB failed — payment went through but record wasn't saved
+        const errorMsg = data.error || data.warning || 'Server error';
         alert(
-          `Your payment of Γé╣${amountValue} was received by Razorpay (ID: ${paymentId}), but we couldn't save your details due to a server error.\n\nPlease contact the Mutt at +91-XXXXX-XXXXX and share this Payment ID. Your donation is confirmed.`
+          `Your payment of ₹${amountValue} was received by Razorpay (ID: ${paymentId}), but we couldn't save your details due to a database server error: ${errorMsg}.\n\nPlease contact the Mutt at +91-XXXXX-XXXXX and share this Payment ID. Your donation is confirmed.`
         );
       }
     } catch (err: any) {

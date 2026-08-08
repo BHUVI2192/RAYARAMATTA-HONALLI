@@ -58,12 +58,20 @@ async function handleBookings(req: VercelRequest, res: VercelResponse) {
 async function handleConfirmBooking(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'Method Not Allowed' });
   if (!supabase) return res.status(503).json({ success: false, error: 'Database not configured' });
-  const { bookingId, status } = req.body || {};
+  const { bookingId, status, bookingType } = req.body || {};
   if (!bookingId) return res.status(400).json({ success: false, message: 'Booking ID is required' });
-  const { data, error } = await supabase.from('bookings').update({ payment_status: status || 'Confirmed' }).eq('id', bookingId).select();
-  if (error) throw error;
-  if (!data || data.length === 0) return res.status(404).json({ success: false, message: 'Booking not found' });
-  return res.status(200).json({ success: true, message: 'Booking status updated', booking: data[0] });
+  
+  if (bookingType === 'special_seva') {
+    const { data, error } = await supabase.from('special_seva_bookings').update({ status: status || 'Confirmed' }).eq('id', bookingId).select();
+    if (error) throw error;
+    if (!data || data.length === 0) return res.status(404).json({ success: false, message: 'Booking not found' });
+    return res.status(200).json({ success: true, message: 'Booking status updated', booking: data[0] });
+  } else {
+    const { data, error } = await supabase.from('bookings').update({ payment_status: status || 'Confirmed' }).eq('id', bookingId).select();
+    if (error) throw error;
+    if (!data || data.length === 0) return res.status(404).json({ success: false, message: 'Booking not found' });
+    return res.status(200).json({ success: true, message: 'Booking status updated', booking: data[0] });
+  }
 }
 
 async function handleDonations(req: VercelRequest, res: VercelResponse) {

@@ -58,6 +58,18 @@ export const SevaBooking: React.FC<SevaBookingProps> = ({ selectedSeva, onComple
         setShowSuccess(true);
         localStorage.removeItem('sevaBookingForm');
       }
+    } else if (paymentStatus === 'warning' && paymentId) {
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+      const savedForm = localStorage.getItem('sevaBookingForm');
+      if (savedForm) {
+        const parsedForm = JSON.parse(savedForm);
+        setFormData(parsedForm);
+        setStep(4);
+      }
+      setTransactionId(paymentId);
+      const errorMsg = urlParams.get('error') || 'Database error';
+      alert(`Your payment was successful (Payment ID: ${paymentId}), but we could not save your booking details in our database: ${errorMsg}.\n\nPlease contact the Mutt immediately to confirm your booking manually.`);
+      localStorage.removeItem('sevaBookingForm');
     } else if (paymentId && !paymentStatus) {
       // Fallback for native Razorpay redirect without our backend callback intercepting
       window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);

@@ -10,6 +10,7 @@ const vercelApiPlugin = () => ({
   configureServer(server: any) {
     const app = express();
     app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
 
     app.all('/api/*', async (req, res) => {
       try {

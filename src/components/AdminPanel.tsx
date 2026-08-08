@@ -36,6 +36,7 @@ interface Booking {
   vedha: string;
   message: string;
   transaction_id: string;
+  payment_id?: string;
   payment_status: string;
   created_at: string;
 }
@@ -105,6 +106,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [selectedGodana, setSelectedGodana] = useState<GodanaPayment | null>(null);
+  const [selectedDonation, setSelectedDonation] = useState<GeneralDonation | null>(null);
+  const [selectedSpecialBooking, setSelectedSpecialBooking] = useState<SpecialBooking | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [translatingNotif1Title, setTranslatingNotif1Title] = useState(false);
   const [translatingNotif1Desc, setTranslatingNotif1Desc] = useState(false);
@@ -447,7 +451,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
   };
 
   const handleDownloadCSV = () => {
-    const dataToExport = activeTab === 'sevas' ? filteredBookings : activeTab === 'godana' ? filteredGodana : filteredDonations;
+    let dataToExport: any[] = [];
+    if (activeTab === 'sevas') dataToExport = filteredBookings;
+    else if (activeTab === 'godana') dataToExport = filteredGodana;
+    else if (activeTab === 'donations') dataToExport = filteredDonations;
+    else if (activeTab === 'special_bookings') dataToExport = filteredSpecialBookings;
+    else return; // notifications tab doesn't have CSV export
+
     if (dataToExport.length === 0) {
       alert('No data available to export with current filters');
       return;
@@ -474,14 +484,33 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
             `"${booking.gothra}"`,
             `"${booking.nakshathra}"`,
             `"${booking.rashi}"`,
-            `"${booking.transaction_id}"`,
+            `"${booking.transaction_id || booking.payment_id || ''}"`,
             `"${booking.payment_status}"`,
             `"${new Date(booking.created_at).toLocaleString()}"`
           ].join(",");
         })
       ].join("\n");
+    } else if (activeTab === 'special_bookings') {
+      const headers = ["ID", "Name", "Special Seva", "Amount", "Phone", "Email", "Transaction ID / UTR", "Status", "Booking Date"];
+      csvContent = [
+        headers.join(","),
+        ...dataToExport.map(b => {
+          const booking = b as SpecialBooking;
+          return [
+            `"${booking.id}"`,
+            `"${booking.name}"`,
+            `"${booking.special_notifications?.title ? booking.special_notifications.title.split('||')[0] : 'Special Seva'}"`,
+            booking.amount,
+            `"${booking.phone}"`,
+            `"${booking.email}"`,
+            `"${booking.payment_id}"`,
+            `"${booking.status || 'Pending Verification'}"`,
+            `"${new Date(booking.created_at).toLocaleString()}"`
+          ].join(",");
+        })
+      ].join("\n");
     } else {
-      const headers = ["ID", "Name", "Amount", "Phone", "Email", "Transaction ID", "Date"];
+      const headers = ["ID", "Name", "Amount", "Phone", "Email", "Transaction ID", "Status", "Date"];
       csvContent = [
         headers.join(","),
         ...dataToExport.map(p => {
@@ -493,6 +522,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
             `"${item.phone}"`,
             `"${item.email}"`,
             `"${item.payment_id}"`,
+            `"${(item as any).status || 'Confirmed'}"`,
             `"${new Date(item.created_at).toLocaleString()}"`
           ].join(",");
         })
@@ -510,8 +540,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
     document.body.removeChild(link);
   };
 
-  const confirmBooking = async (id: number) => {
-    if (!window.confirm('Are you sure you want to mark this booking as Confirmed?')) return;
+  const confirmBooking = async (id: number | string, bookingType: 'seva' | 'special_seva' = 'seva') => {
+    if (!window.confirm(`Are you sure you want to mark this ${bookingType === 'special_seva' ? 'special ' : ''}booking as Confirmed?`)) return;
 
     setLoading(true);
     try {
@@ -522,14 +552,21 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
       const res = await fetch('/api/admin/confirm-booking', {
         method: 'POST',
         headers,
-        body: JSON.stringify({ bookingId: id, status: 'Confirmed' })
+        body: JSON.stringify({ bookingId: id, status: 'Confirmed', bookingType })
       });
 
       const data = await res.json();
       if (data.success) {
-        setBookings(prev => prev.map(b => b.id === id ? { ...b, payment_status: 'Confirmed' } : b));
-        if (selectedBooking && selectedBooking.id === id) {
-          setSelectedBooking({ ...selectedBooking, payment_status: 'Confirmed' });
+        if (bookingType === 'special_seva') {
+          setSpecialBookings(prev => prev.map(b => b.id === id ? { ...b, status: 'Confirmed' } : b));
+          if (selectedSpecialBooking && selectedSpecialBooking.id === id) {
+            setSelectedSpecialBooking({ ...selectedSpecialBooking, status: 'Confirmed' });
+          }
+        } else {
+          setBookings(prev => prev.map(b => b.id === id ? { ...b, payment_status: 'Confirmed' } : b));
+          if (selectedBooking && selectedBooking.id === id) {
+            setSelectedBooking({ ...selectedBooking, payment_status: 'Confirmed' });
+          }
         }
       } else {
         alert(data.error || 'Failed to update status');
@@ -847,7 +884,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
                         </span>
                       </td>
                       <td className="px-8 py-6 text-right">
-                        <button className="p-2 text-stone-300 cursor-not-allowed">
+                        <button
+                          onClick={() => setSelectedGodana(payment)}
+                          className="p-2 hover:bg-[#8B0000]/10 rounded-lg text-[#8B0000] transition-colors"
+                        >
                           <ChevronRight size={20} />
                         </button>
                       </td>
@@ -888,7 +928,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
                         </span>
                       </td>
                       <td className="px-8 py-6 text-right">
-                        <button className="p-2 text-stone-300 cursor-not-allowed">
+                        <button
+                          onClick={() => setSelectedDonation(donation)}
+                          className="p-2 hover:bg-[#8B0000]/10 rounded-lg text-[#8B0000] transition-colors"
+                        >
                           <ChevronRight size={20} />
                         </button>
                       </td>
@@ -1106,7 +1149,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
                         </div>
                       </td>
                       <td className="px-8 py-6 text-right">
-                        <button className="p-2 hover:bg-[#8B0000]/10 rounded-lg text-[#8B0000] transition-colors">
+                        <button
+                          onClick={() => setSelectedSpecialBooking(booking)}
+                          className="p-2 hover:bg-[#8B0000]/10 rounded-lg text-[#8B0000] transition-colors"
+                        >
                           <ChevronRight size={20} />
                         </button>
                       </td>
@@ -1232,6 +1278,212 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
                     )}
                     <button
                       onClick={() => setSelectedBooking(null)}
+                      className="flex-1 sm:flex-none border border-gray-200 text-gray-600 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition-all"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Detailed Godana Modal */}
+        <AnimatePresence>
+          {selectedGodana && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="bg-white rounded-[40px] shadow-2xl w-full max-w-2xl overflow-hidden"
+              >
+                <div className="p-6 sm:p-8 bg-[#8B0000] text-white flex justify-between items-center">
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-black tracking-tight">Godana Contribution</h3>
+                    <p className="opacity-70 text-[10px] sm:text-xs font-bold uppercase tracking-widest mt-1">Transaction ID: {selectedGodana.payment_id || 'N/A'}</p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedGodana(null)}
+                    className="p-2 sm:p-3 hover:bg-white/10 rounded-2xl transition-colors font-bold text-2xl"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div className="p-6 sm:p-8 grid md:grid-cols-2 gap-8 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto custom-scrollbar">
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Contributor Details</h4>
+                      <p className="font-bold text-gray-800 text-lg">{selectedGodana.name}</p>
+                      <p className="text-sm text-gray-600">{selectedGodana.email || 'No email provided'}</p>
+                      <p className="text-sm text-gray-600">{selectedGodana.phone}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Seva Details</h4>
+                      <p className="font-bold text-gray-800">Godana Seva (Cow Donation)</p>
+                      <p className="text-sm text-gray-600">Registered: {new Date(selectedGodana.created_at).toLocaleString()}</p>
+                    </div>
+                    <div className="p-6 bg-stone-50 rounded-3xl border border-stone-100">
+                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 text-center">Payment Status</h4>
+                      <div className="text-center">
+                        <p className="text-3xl font-black text-[#8B0000] mb-2">₹{selectedGodana.amount.toLocaleString()}</p>
+                        <span className={`px-4 py-2 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700`}>
+                          {(selectedGodana as any).status || 'Confirmed'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-8 border-t border-gray-100 bg-gray-50 flex justify-end gap-4">
+                  <button
+                    onClick={() => setSelectedGodana(null)}
+                    className="border border-gray-200 text-gray-600 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition-all"
+                  >
+                    Close
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Detailed Donation Modal */}
+        <AnimatePresence>
+          {selectedDonation && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="bg-white rounded-[40px] shadow-2xl w-full max-w-2xl overflow-hidden"
+              >
+                <div className="p-6 sm:p-8 bg-[#8B0000] text-white flex justify-between items-center">
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-black tracking-tight">General Donation</h3>
+                    <p className="opacity-70 text-[10px] sm:text-xs font-bold uppercase tracking-widest mt-1">Transaction ID: {selectedDonation.payment_id || 'N/A'}</p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedDonation(null)}
+                    className="p-2 sm:p-3 hover:bg-white/10 rounded-2xl transition-colors font-bold text-2xl"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div className="p-6 sm:p-8 grid md:grid-cols-2 gap-8 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto custom-scrollbar">
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Donor Details</h4>
+                      <p className="font-bold text-gray-800 text-lg">{selectedDonation.name}</p>
+                      <p className="text-sm text-gray-600">{selectedDonation.email || 'No email provided'}</p>
+                      <p className="text-sm text-gray-600">{selectedDonation.phone}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Donation Details</h4>
+                      <p className="font-bold text-gray-800">General Mutt Donation</p>
+                      <p className="text-sm text-gray-600">Registered: {new Date(selectedDonation.created_at).toLocaleString()}</p>
+                    </div>
+                    <div className="p-6 bg-stone-50 rounded-3xl border border-stone-100">
+                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 text-center">Payment Status</h4>
+                      <div className="text-center">
+                        <p className="text-3xl font-black text-[#8B0000] mb-2">₹{selectedDonation.amount.toLocaleString()}</p>
+                        <span className={`px-4 py-2 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700`}>
+                          {(selectedDonation as any).status || 'Confirmed'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-8 border-t border-gray-100 bg-gray-50 flex justify-end gap-4">
+                  <button
+                    onClick={() => setSelectedDonation(null)}
+                    className="border border-gray-200 text-gray-600 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition-all"
+                  >
+                    Close
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Detailed Special Booking Modal */}
+        <AnimatePresence>
+          {selectedSpecialBooking && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="bg-white rounded-[40px] shadow-2xl w-full max-w-2xl overflow-hidden"
+              >
+                <div className="p-6 sm:p-8 bg-[#8B0000] text-white flex justify-between items-center">
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-black tracking-tight">Special Seva Booking</h3>
+                    <p className="opacity-70 text-[10px] sm:text-xs font-bold uppercase tracking-widest mt-1">UTR / Payment ID: {selectedSpecialBooking.payment_id || 'N/A'}</p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedSpecialBooking(null)}
+                    className="p-2 sm:p-3 hover:bg-white/10 rounded-2xl transition-colors font-bold text-2xl"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div className="p-6 sm:p-8 grid md:grid-cols-2 gap-8 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto custom-scrollbar">
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Donor Details</h4>
+                      <p className="font-bold text-gray-800 text-lg">{selectedSpecialBooking.name}</p>
+                      <p className="text-sm text-gray-600">{selectedSpecialBooking.email || 'No email provided'}</p>
+                      <p className="text-sm text-gray-600">{selectedSpecialBooking.phone}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Special Seva Info</h4>
+                      <p className="font-bold text-gray-800">{selectedSpecialBooking.special_notifications?.title ? selectedSpecialBooking.special_notifications.title.split('||')[0] : 'Special Seva'}</p>
+                      <p className="text-sm text-gray-600">Registered: {new Date(selectedSpecialBooking.created_at).toLocaleString()}</p>
+                    </div>
+                    <div className="p-6 bg-stone-50 rounded-3xl border border-stone-100">
+                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 text-center">Payment Status</h4>
+                      <div className="text-center">
+                        <p className="text-3xl font-black text-[#8B0000] mb-2">₹{selectedSpecialBooking.amount.toLocaleString()}</p>
+                        <span className={`px-4 py-2 rounded-full text-xs font-bold ${selectedSpecialBooking.status === 'Confirmed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                          {selectedSpecialBooking.status || 'Pending Verification'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-8 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-4">
+                  <div className="text-xs text-gray-400">
+                    ID: {selectedSpecialBooking.id}
+                  </div>
+                  <div className="flex gap-3 w-full sm:w-auto">
+                    {selectedSpecialBooking.status !== 'Confirmed' && (
+                      <button
+                        onClick={() => confirmBooking(selectedSpecialBooking.id, 'special_seva')}
+                        disabled={loading}
+                        className="flex-1 sm:flex-none bg-emerald-600 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-emerald-700 transition-all transform active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                      >
+                        <ShieldCheck size={18} /> Confirm Payment
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setSelectedSpecialBooking(null)}
                       className="flex-1 sm:flex-none border border-gray-200 text-gray-600 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition-all"
                     >
                       Close

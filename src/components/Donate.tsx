@@ -29,6 +29,12 @@ export const Donate: React.FC = () => {
       setShowSuccess(true);
       setFormData({ name: '', email: '', phone: '', amount: '501' });
       localStorage.removeItem('donationForm');
+    } else if (pId && status === 'warning') {
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+      setPaymentId(pId);
+      const errorMsg = urlParams.get('error') || 'Database error';
+      alert(`Your donation was successful (Payment ID: ${pId}), but we had a technical issue saving the record in our database: ${errorMsg}.\n\nPlease contact the Mutt to verify your donation manually.`);
+      localStorage.removeItem('donationForm');
     }
   }, []);
 

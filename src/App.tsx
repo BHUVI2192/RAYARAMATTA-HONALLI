@@ -6,7 +6,6 @@ import { VideoSection } from './components/VideoSection';
 import { About } from './components/About';
 import { Activities } from './components/Activities';
 import { SevaVivara } from './components/SevaVivara';
-import { Sevas } from './components/Sevas';
 import { Gallery } from './components/Gallery';
 import { Slokas } from './components/Slokas';
 import { ContactFeedback } from './components/ContactFeedback';
@@ -79,7 +78,23 @@ function AppContent() {
 
     // Check for Razorpay redirect signatures
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('razorpay_payment_id') || urlParams.has('razorpay_payment_link_id') || urlParams.has('payment_id')) {
+    const paymentId = urlParams.get('razorpay_payment_id') || urlParams.get('payment_id');
+    const paymentStatus = urlParams.get('payment_status');
+    const paymentType = urlParams.get('type');
+
+    if (paymentId) {
+      if (paymentType === 'special_seva') {
+        window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+        if (paymentStatus === 'success') {
+          alert(`Payment successful! Transaction ID: ${paymentId}. Your Special Seva booking has been recorded.`);
+        } else if (paymentStatus === 'warning') {
+          const errorMsg = urlParams.get('error') || 'Database error';
+          alert(`Payment successful (Transaction ID: ${paymentId}), but we could not save your Special Seva details in the database: ${errorMsg}.\n\nPlease contact the Mutt to confirm manually.`);
+        } else {
+          alert(`Payment verification failed or was cancelled.`);
+        }
+        setCurrentPage('home');
+      } else {
         const savedPage = localStorage.getItem('currentPage');
         
         // Restore the specific page the user was on
@@ -101,6 +116,7 @@ function AppContent() {
            }
            setCurrentPage('booking');
         }
+      }
     }
 
     // Listen for changes

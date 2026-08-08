@@ -80,7 +80,7 @@ async function handleBookings(req: VercelRequest, res: VercelResponse) {
 
   const { error } = await supabase.from('bookings').insert([{
     name: userDetails.name, phone: userDetails.phone, email: userDetails.email, address: userDetails.address,
-    seva_name: seva.name, seva_price: seva.price, total_price: Number(seva.price) * (Number(poojaDetails.count) || 1), date: poojaDetails.date,
+    seva_name: seva.name, seva_price: seva.price, date: poojaDetails.date,
     gothra: poojaDetails.gothra || null, nakshathra: poojaDetails.nakshathra || null,
     rashi: poojaDetails.rashi || null, vedha: poojaDetails.vedha || null, count: poojaDetails.count || 1,
     payment_status: req.body.payment_status || poojaDetails.payment_status || 'Pending Verification',
@@ -123,7 +123,7 @@ async function handleDonate(req: VercelRequest, res: VercelResponse) {
 async function handleGodana(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'Method Not Allowed' });
   const { name, phone, email, amount, payment_id, razorpay_order_id, razorpay_signature } = req.body || {};
-  if (!name || !phone || !email || !payment_id) return res.status(400).json({ success: false, error: 'Missing fields' });
+  if (!name || !phone || !payment_id) return res.status(400).json({ success: false, error: 'Missing fields' });
   if (!supabase) return res.status(503).json({ success: false, error: 'Database not configured' });
 
   const secret = process.env.RAZORPAY_GODANA_KEY_SECRET || '';
@@ -194,7 +194,12 @@ async function handleVerifyPayment(req: VercelRequest, res: VercelResponse) {
   const redirectUrl = (req.query.redirect_url as string) || '/';
 
   const sendRes = (success: boolean, data: any) => {
-    if (isRedirect) return res.redirect(302, `${redirectUrl}?payment_status=${success ? 'success' : 'failed'}&payment_id=${razorpay_payment_id || ''}`);
+    if (isRedirect) {
+      const status = success ? (data.warning ? 'warning' : 'success') : 'failed';
+      let rUrl = `${redirectUrl}?payment_status=${status}&payment_id=${razorpay_payment_id || ''}`;
+      if (data.error) rUrl += `&error=${encodeURIComponent(data.error)}`;
+      return res.redirect(302, rUrl);
+    }
     return res.status(success ? 200 : 400).json({ success, ...data });
   };
 
@@ -216,18 +221,23 @@ async function handleVerifyPayment(req: VercelRequest, res: VercelResponse) {
   if (verified) {
     // Record to DB based on type
     try {
-      if (type === 'godana') await supabase!.from('godana_payments').insert([{ name, phone, email, amount: Number(amount), payment_id: razorpay_payment_id, status: "Confirmed" }]);
-      else if (type === 'donation') await supabase!.from('donations').insert([{ name, phone, email, amount: Number(amount), payment_id: razorpay_payment_id, status: "Confirmed" }]);
-      else if (type === 'special_seva') await supabase!.from('special_seva_bookings').insert([{ notification_id, name, phone, email, amount: Number(amount), payment_id: razorpay_payment_id, status: "Confirmed" }]);
-      else if (type === 'seva') {
+      if (type === 'godana') {
+        const { error } = await supabase!.from('godana_payments').insert([{ name, phone, email, amount: Number(amount), payment_id: razorpay_payment_id, status: "Confirmed" }]);
+        if (error) throw error;
+      } else if (type === 'donation') {
+        const { error } = await supabase!.from('donations').insert([{ name, phone, email, amount: Number(amount), payment_id: razorpay_payment_id, status: "Confirmed" }]);
+        if (error) throw error;
+      } else if (type === 'special_seva') {
+        const { error } = await supabase!.from('special_seva_bookings').insert([{ notification_id, name, phone, email, amount: Number(amount), payment_id: razorpay_payment_id, status: "Confirmed" }]);
+        if (error) throw error;
+      } else if (type === 'seva') {
         const address = req.body.address || req.query.address || null;
         const message = req.body.message || req.query.message || null;
         const vedha = req.body.vedha || req.query.vedha || null;
         const countNum = Number(req.body.count || req.query.count || 1);
         const sevaPriceNum = Number(req.body.seva_price || req.query.seva_price || (Number(amount) / countNum));
-        const totalPriceNum = Number(amount) || (sevaPriceNum * countNum);
 
-        await supabase!.from('bookings').insert([{
+        const { error } = await supabase!.from('bookings').insert([{
           name, 
           phone, 
           email: email || null, 
@@ -236,7 +246,6 @@ async function handleVerifyPayment(req: VercelRequest, res: VercelResponse) {
           payment_status: 'Confirmed', 
           seva_name: req.body.seva_name || req.query.seva_name || 'Seva Booking',
           seva_price: sevaPriceNum,
-          total_price: totalPriceNum,
           date: req.body.date || req.query.date || req.body.poojaDetails?.date || null,
           count: countNum,
           gothra: req.body.gothra || req.query.gothra || req.body.poojaDetails?.gothra || null,
@@ -245,6 +254,7 @@ async function handleVerifyPayment(req: VercelRequest, res: VercelResponse) {
           vedha: vedha,
           message: message
         }]);
+        if (error) throw error;
       }
       sendAdminPaymentNotification(type, { name, phone, email, amount, payment_id: razorpay_payment_id, transaction_id: razorpay_payment_id }).catch(console.error);
       return sendRes(true, { payment_id: razorpay_payment_id, amount });
