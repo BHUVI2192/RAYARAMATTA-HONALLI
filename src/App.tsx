@@ -3,6 +3,7 @@ import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { NotificationBar } from './components/NotificationBar';
 import { VideoSection } from './components/VideoSection';
+import { SlideshowAd } from './components/SlideshowAd';
 import { About } from './components/About';
 import { Activities } from './components/Activities';
 import { SevaVivara } from './components/SevaVivara';
@@ -140,6 +141,7 @@ function AppContent() {
           >
             <Hero />
             <NotificationBar />
+            <SlideshowAd />
             <VideoSection />
             <WelcomeSection onNavigate={setCurrentPage} />
           </motion.div>
